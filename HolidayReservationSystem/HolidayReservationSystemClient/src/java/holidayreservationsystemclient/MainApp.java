@@ -26,8 +26,7 @@ public class MainApp
     private HolidayReservationSessionBeanRemote holidayReservationSessionBeanRemote;
     private CustomerSessionBeanRemote customerSessionBeanRemote;
     private Customer currentCustomer;
-    //PLEASE FETCH PROPERLY
-    //MORE CHANGE
+    //BEST PARTNER EVER
     
     public MainApp() 
     {
