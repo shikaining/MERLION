@@ -26,7 +26,7 @@ public class MainApp
     private HolidayReservationSessionBeanRemote holidayReservationSessionBeanRemote;
     private CustomerSessionBeanRemote customerSessionBeanRemote;
     private Customer currentCustomer;
-    //ni hao
+    //PLEASE FETCH PROPERLY
     
     
     public MainApp() 
