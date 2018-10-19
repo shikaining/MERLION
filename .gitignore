@@ -1,0 +1,52 @@
+# Complied class file
+*.class
+
+# Log file
+*.log
+
+# Package Files #
+*.jar
+*.war
+*.ear
+*.zip
+
+# User defined
+HotelReservationSystem/build/
+HotelReservationSystem/dist/
+HotelReservationSystem/nbproject/private/
+
+HolidayReservationSystem/build/
+HolidayReservationSystem/dist/
+HolidayReservationSystem/nbproject/private/
+
+HotelReservationSystem/HotelReservationSystem-ejb/nbproject/private/
+HotelReservationSystem/HotelReservationSystem-ejb/build/
+HotelReservationSystem/HotelReservationSystem-ejb/dist/
+
+HolidayReservationSystem/HolidayReservationSystem-ejb/nbproject/private/
+HolidayReservationSystem/HolidayReservationSystem-ejb/build/
+HolidayReservationSystem/HolidayReservationSystem-ejb/dist/
+
+HotelReservationSystem/HotelReservationSystemLibrary/nbproject/private/
+HotelReservationSystem/HotelReservationSystemLibrary/build/
+HotelReservationSystem/HotelReservationSystemLibrary/dist/
+
+HolidayReservationSystem/HolidayReservationSystemLibrary/nbproject/private/
+HolidayReservationSystem/HolidayReservationSystemLibrary/build/
+HolidayReservationSystem/HolidayReservationSystemLibrary/dist/
+
+HotelReservationSystem/HoRSReservationClient/nbproject/private/
+HotelReservationSystem/HoRSReservationClient/build/
+HotelReservationSystem/HoRSReservationClient/dist/
+
+HotelReservationSystem/HoRSManagementClient/nbproject/private/
+HotelReservationSystem/HoRSManagementClient/build/
+HotelReservationSystem/HoRSManagementClient/dist/
+
+HolidayReservationSystem/HolidayReservationSystemClient/nbproject/private/
+HolidayReservationSystem/HolidayReservationSystemClient/build/
+HolidayReservationSystem/HolidayReservationSystemClient/dist/
+
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
