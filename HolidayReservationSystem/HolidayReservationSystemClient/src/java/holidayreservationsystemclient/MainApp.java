@@ -27,7 +27,7 @@ public class MainApp
     private CustomerSessionBeanRemote customerSessionBeanRemote;
     private Customer currentCustomer;
     //PLEASE FETCH PROPERLY
-    
+    //MORE CHANGE
     
     public MainApp() 
     {
