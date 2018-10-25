@@ -7,14 +7,19 @@ package entity;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import util.enumeration.rateTypeEnum;
@@ -32,6 +37,7 @@ public class RoomRateEntity implements Serializable {
     @Column(precision = 11, scale = 2)
     private BigDecimal ratePerNight;
     //rateType is e.g. normal
+    @Enumerated(EnumType.STRING)
     private rateTypeEnum rateType;
     
     @Temporal(TemporalType.TIMESTAMP)
@@ -47,8 +53,12 @@ public class RoomRateEntity implements Serializable {
     @ManyToOne (optional = false)
     @JoinColumn(nullable = false)
     private RoomTypeEntity roomTypeEntity;
+    
+    @OneToMany (mappedBy = "roomRateEntity")
+    private List<ReservationLineItemEntity> reservationLineItemEntities;
 
     public RoomRateEntity() {
+        reservationLineItemEntities = new ArrayList<>();
     }
 
     public RoomRateEntity(String name, BigDecimal ratePerNight, rateTypeEnum rateType, Date validityStart, Date validityEnd) {
@@ -115,6 +125,15 @@ public class RoomRateEntity implements Serializable {
     public void setRoomTypeEntity(RoomTypeEntity roomTypeEntity) {
         this.roomTypeEntity = roomTypeEntity;
     }
+
+    public List<ReservationLineItemEntity> getReservationLineItemEntities() {
+        return reservationLineItemEntities;
+    }
+
+    public void setReservationLineItemEntities(List<ReservationLineItemEntity> reservationLineItemEntities) {
+        this.reservationLineItemEntities = reservationLineItemEntities;
+    }
+    
 
     @Override
     public int hashCode() {

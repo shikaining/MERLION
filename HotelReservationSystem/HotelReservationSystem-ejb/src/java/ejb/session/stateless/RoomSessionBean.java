@@ -80,7 +80,6 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
         if(roomEntity.getRoomId()!= null)
         {
             RoomEntity roomEntityToUpdate = retrieveRoomByRoomId(roomEntity.getRoomId());
-            
             roomEntityToUpdate.setRoomNumber(roomEntity.getRoomNumber());
             roomEntityToUpdate.setAvailable(roomEntity.getAvailable());
             roomEntityToUpdate.setRoomTypeEntity(roomEntity.getRoomTypeEntity());

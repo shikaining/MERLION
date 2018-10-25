@@ -60,19 +60,27 @@ public class EmployeeSessionBean implements EmployeeSessionBeanRemote, EmployeeS
     @Override
     public EmployeeEntity employeeLogin(String username, String password) throws InvalidLoginCredentialException
     {
-            EmployeeEntity employeeEntity = null;
             try {
-            employeeEntity = retrieveEmployeeByUsername(username);
-            } catch (EmployeeNotFoundException ex) {
-          
-            }
-            if(employeeEntity.getUserName().equals(username) && employeeEntity.getPassword().equals(password)) {
+            
+                EmployeeEntity employeeEntity = retrieveEmployeeByUsername(username);
+             
+                if(employeeEntity.getUserName().equals(username) && employeeEntity.getPassword().equals(password)) 
+                {
+                 
                 return employeeEntity;
-            }
-            else {
-                throw new InvalidLoginCredentialException("Invalid login credential");
+                
+                }
+            
+                else 
+                {
+                
+                    throw new InvalidLoginCredentialException("Invalid login credential");
+            
+                }
+            
+            } catch (EmployeeNotFoundException ex) 
+            {
+              throw new InvalidLoginCredentialException("Username does not exist or invalid password!");
             }
     }
-
-    
 }

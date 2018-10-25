@@ -28,7 +28,7 @@ public class RoomEntity implements Serializable {
     //room number is in the format of e.g. 0193 (1st floor room 93) 
     @Column(unique = true)
     private String roomNumber;
-    private Boolean available;
+    private Boolean available = Boolean.TRUE;
     
     @ManyToOne (optional = false)
     @JoinColumn (nullable = false)
@@ -74,9 +74,6 @@ public class RoomEntity implements Serializable {
     public void setRoomTypeEntity(RoomTypeEntity roomTypeEntity) {
         this.roomTypeEntity = roomTypeEntity;
     }
-    
-    
-    
     
 
     @Override

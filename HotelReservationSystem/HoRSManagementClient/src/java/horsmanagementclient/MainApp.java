@@ -2,9 +2,11 @@ package horsmanagementclient;
 
 import ejb.session.stateless.EmployeeSessionBeanRemote;
 import ejb.session.stateless.PartnerSessionBeanRemote;
+import ejb.session.stateless.RoomRateSessionBeanRemote;
 import ejb.session.stateless.RoomSessionBeanRemote;
 import ejb.session.stateless.RoomTypeSessionBeanRemote;
 import entity.EmployeeEntity;
+import java.text.ParseException;
 import java.util.Scanner;
 import util.exception.InvalidAccessRightException;
 import util.exception.InvalidLoginCredentialException;
@@ -16,6 +18,7 @@ public class MainApp {
     private PartnerSessionBeanRemote partnerSessionBeanRemote;
     private RoomTypeSessionBeanRemote roomTypeSessionBeanRemote;
     private RoomSessionBeanRemote roomSessionBeanRemote;
+    private RoomRateSessionBeanRemote roomRateSessionBeanRemote;
     private SystemAdministrationModule systemAdministrationModule;
     private HotelOperationModule hotelOperationnModule;
     private FrontOfficeModule frontOfficeModule;
@@ -25,15 +28,16 @@ public class MainApp {
 
     }
 
-    public MainApp(EmployeeSessionBeanRemote employeeSessionBeanRemote, PartnerSessionBeanRemote partnerSessionBeanRemote, RoomTypeSessionBeanRemote roomTypeSessionBeanRemote, RoomSessionBeanRemote roomSessionBeanRemote) {
+    public MainApp(EmployeeSessionBeanRemote employeeSessionBeanRemote, PartnerSessionBeanRemote partnerSessionBeanRemote, RoomTypeSessionBeanRemote roomTypeSessionBeanRemote, RoomSessionBeanRemote roomSessionBeanRemote, RoomRateSessionBeanRemote roomRateSessionBeanRemote) {
         this();
         this.employeeSessionBeanRemote = employeeSessionBeanRemote;
         this.partnerSessionBeanRemote = partnerSessionBeanRemote;
         this.roomTypeSessionBeanRemote = roomTypeSessionBeanRemote;
         this.roomSessionBeanRemote = roomSessionBeanRemote;
+        this.roomRateSessionBeanRemote = roomRateSessionBeanRemote;
     }
 
-    public void runApp() throws RoomNotFoundException {
+    public void runApp() throws RoomNotFoundException, ParseException {
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
 
@@ -62,7 +66,7 @@ public class MainApp {
                             System.out.println("Login successful as " + currentEmployee.getFirstName() + " " + currentEmployee.getLastName() + "!\n");
 
                             systemAdministrationModule = new SystemAdministrationModule(employeeSessionBeanRemote, partnerSessionBeanRemote, currentEmployee);
-                            hotelOperationnModule = new HotelOperationModule(employeeSessionBeanRemote, roomTypeSessionBeanRemote, roomSessionBeanRemote, currentEmployee);
+                            hotelOperationnModule = new HotelOperationModule(employeeSessionBeanRemote, roomTypeSessionBeanRemote, roomSessionBeanRemote, roomRateSessionBeanRemote, currentEmployee);
                             frontOfficeModule = new FrontOfficeModule(employeeSessionBeanRemote, currentEmployee);
                             menuMain();
                         } 
@@ -106,7 +110,7 @@ public class MainApp {
         }
     }
 
-    private void menuMain() throws RoomNotFoundException {
+    private void menuMain() throws RoomNotFoundException, ParseException {
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
 

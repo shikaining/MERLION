@@ -64,9 +64,7 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
     @Override
     public void updateRoomType(RoomTypeEntity roomTypeEntity) throws RoomTypeNotFoundException
     {
-        // Updated in v4.1 to update selective attributes instead of merging the entire state passed in from the client
-        // Also check for existing staff before proceeding with the update
-        
+       
         if(roomTypeEntity.getRoomTypeId() != null)
         {
             RoomTypeEntity roomTypeEntityToUpdate = retrieveRoomTypeByRoomTypeId(roomTypeEntity.getRoomTypeId());
@@ -88,7 +86,7 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
     }
     
     @Override
-     public RoomTypeEntity retrieveRoomTypeByRoomTypeId(Long roomTypeId) throws RoomTypeNotFoundException
+    public RoomTypeEntity retrieveRoomTypeByRoomTypeId(Long roomTypeId) throws RoomTypeNotFoundException
     {
         RoomTypeEntity roomTypeEntity = em.find(RoomTypeEntity.class, roomTypeId);
         
@@ -106,13 +104,13 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
     public void deleteRoomType(Long roomTypeId) throws RoomTypeNotFoundException, DeleteRoomTypeException
     {
         RoomTypeEntity roomTypeEntityToRemove = retrieveRoomTypeByRoomTypeId(roomTypeId);
-        if(roomTypeEntityToRemove.getRoomEntities().isEmpty())
+        if( (roomTypeEntityToRemove.getRoomEntities().isEmpty()) && (roomTypeEntityToRemove.getReservationLineItemEntities().isEmpty()))
         {
              em.remove(roomTypeEntityToRemove);
         }
         else
         {
-            throw new DeleteRoomTypeException("Room Type ID " + roomTypeId + " is associated with existing room(s) and cannot be deleted!");
+            throw new DeleteRoomTypeException("Room Type ID " + roomTypeId + " is associated with existing room(s) and/or reservation(s) and cannot be deleted!");
         }
     }
 }
