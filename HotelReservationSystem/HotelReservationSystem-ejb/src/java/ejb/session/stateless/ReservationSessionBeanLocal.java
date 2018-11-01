@@ -1,12 +1,11 @@
+
 package ejb.session.stateless;
 
 import entity.ReservationEntity;
-import java.util.List;
+import util.exception.ReservationNotFoundException;
 
 public interface ReservationSessionBeanLocal {
-    
-    ReservationEntity createNewReservation(ReservationEntity newReservationEntity);
-    
-    List<ReservationEntity> retrieveAllReservations();
+
+    ReservationEntity retrieveReservationByReservationId(Long reservationId) throws ReservationNotFoundException;
     
 }

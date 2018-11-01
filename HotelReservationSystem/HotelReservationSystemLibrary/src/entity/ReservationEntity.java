@@ -41,33 +41,33 @@ public class ReservationEntity implements Serializable {
     
     @Column(precision = 11, scale = 2)
     private BigDecimal reservationAmount;
-    private String reservationType;
+    
+    private Boolean onlineReservation;
 
-    @ManyToOne (optional = false)
-    @JoinColumn(nullable = false)
+    @ManyToOne (optional = true)
+    @JoinColumn(nullable = true)
     private GuestEntity guestEntity;
     
-    @ManyToOne (optional = false)
-    @JoinColumn(nullable = false)
+    @ManyToOne (optional = true)
+    @JoinColumn(nullable = true)
     private PartnerEntity partnerEntity;
     
     @OneToMany (mappedBy = "reservationEntity")
-    private List<ReservationLineItemEntity> reservationLineItemEntities;
+    private List<ReservedRoomEntity> reservedRoomEntities;
     
     
     public ReservationEntity() {
-        
-        reservationLineItemEntities = new ArrayList<>();
-        
+        reservedRoomEntities = new ArrayList<>();
     }
 
-    public ReservationEntity(Date checkInDate, Date checkOutDate, BigDecimal reservationAmount, String reservationType) {
+    public ReservationEntity(Date checkInDate, Date checkOutDate, BigDecimal reservationAmount, Boolean onlineReservation) {
+        
+        this();
         this.checkInDate = checkInDate;
         this.checkOutDate = checkOutDate;
         this.reservationAmount = reservationAmount;
-        this.reservationType = reservationType;
+        this.onlineReservation = onlineReservation;
     }
-    
 
     public Long getReservationId() {
         return reservationId;
@@ -101,12 +101,12 @@ public class ReservationEntity implements Serializable {
         this.reservationAmount = reservationAmount;
     }
 
-    public String getReservationType() {
-        return reservationType;
+    public Boolean getOnlineReservation() {
+        return onlineReservation;
     }
 
-    public void setReservationType(String reservationType) {
-        this.reservationType = reservationType;
+    public void setOnlineReservation(Boolean onlineReservation) {
+        this.onlineReservation = onlineReservation;
     }
 
     public GuestEntity getGuestEntity() {
@@ -117,13 +117,14 @@ public class ReservationEntity implements Serializable {
         this.guestEntity = guestEntity;
     }
 
-    public List<ReservationLineItemEntity> getReservationLineItemEntities() {
-        return reservationLineItemEntities;
+    public List<ReservedRoomEntity> getReservedRoomEntities() {
+        return reservedRoomEntities;
     }
 
-    public void setReservationLineItemEntities(List<ReservationLineItemEntity> reservationLineItemEntities) {
-        this.reservationLineItemEntities = reservationLineItemEntities;
+    public void setReservedRoomEntities(List<ReservedRoomEntity> reservedRoomEntities) {
+        this.reservedRoomEntities = reservedRoomEntities;
     }
+
 
     public PartnerEntity getPartnerEntity() {
         return partnerEntity;

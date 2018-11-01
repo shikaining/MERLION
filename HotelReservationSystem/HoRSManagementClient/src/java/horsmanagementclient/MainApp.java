@@ -1,16 +1,21 @@
 package horsmanagementclient;
 
 import ejb.session.stateless.EmployeeSessionBeanRemote;
+import ejb.session.stateless.GuestSessionBeanRemote;
 import ejb.session.stateless.PartnerSessionBeanRemote;
+import ejb.session.stateless.ReservationSessionBeanRemote;
 import ejb.session.stateless.RoomRateSessionBeanRemote;
 import ejb.session.stateless.RoomSessionBeanRemote;
 import ejb.session.stateless.RoomTypeSessionBeanRemote;
 import entity.EmployeeEntity;
 import java.text.ParseException;
 import java.util.Scanner;
+import util.exception.GuestNotFoundException;
 import util.exception.InvalidAccessRightException;
 import util.exception.InvalidLoginCredentialException;
+import util.exception.ReservationNotFoundException;
 import util.exception.RoomNotFoundException;
+import util.exception.RoomTypeNotFoundException;
 
 public class MainApp {
 
@@ -19,6 +24,8 @@ public class MainApp {
     private RoomTypeSessionBeanRemote roomTypeSessionBeanRemote;
     private RoomSessionBeanRemote roomSessionBeanRemote;
     private RoomRateSessionBeanRemote roomRateSessionBeanRemote;
+    private ReservationSessionBeanRemote reservationSessionBeanRemote;
+    private GuestSessionBeanRemote guestSessionBeanRemote;
     private SystemAdministrationModule systemAdministrationModule;
     private HotelOperationModule hotelOperationnModule;
     private FrontOfficeModule frontOfficeModule;
@@ -28,16 +35,18 @@ public class MainApp {
 
     }
 
-    public MainApp(EmployeeSessionBeanRemote employeeSessionBeanRemote, PartnerSessionBeanRemote partnerSessionBeanRemote, RoomTypeSessionBeanRemote roomTypeSessionBeanRemote, RoomSessionBeanRemote roomSessionBeanRemote, RoomRateSessionBeanRemote roomRateSessionBeanRemote) {
+    public MainApp(EmployeeSessionBeanRemote employeeSessionBeanRemote, PartnerSessionBeanRemote partnerSessionBeanRemote, RoomTypeSessionBeanRemote roomTypeSessionBeanRemote, RoomSessionBeanRemote roomSessionBeanRemote, RoomRateSessionBeanRemote roomRateSessionBeanRemote, ReservationSessionBeanRemote reservationSessionBeanRemote, GuestSessionBeanRemote guestSessionBeanRemote) {
         this();
         this.employeeSessionBeanRemote = employeeSessionBeanRemote;
         this.partnerSessionBeanRemote = partnerSessionBeanRemote;
         this.roomTypeSessionBeanRemote = roomTypeSessionBeanRemote;
         this.roomSessionBeanRemote = roomSessionBeanRemote;
         this.roomRateSessionBeanRemote = roomRateSessionBeanRemote;
+        this.reservationSessionBeanRemote = reservationSessionBeanRemote;
+        this.guestSessionBeanRemote = guestSessionBeanRemote;
     }
 
-    public void runApp() throws RoomNotFoundException, ParseException {
+    public void runApp() throws RoomNotFoundException, ParseException, GuestNotFoundException, RoomTypeNotFoundException, ReservationNotFoundException {
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
 
@@ -67,7 +76,7 @@ public class MainApp {
 
                             systemAdministrationModule = new SystemAdministrationModule(employeeSessionBeanRemote, partnerSessionBeanRemote, currentEmployee);
                             hotelOperationnModule = new HotelOperationModule(employeeSessionBeanRemote, roomTypeSessionBeanRemote, roomSessionBeanRemote, roomRateSessionBeanRemote, currentEmployee);
-                            frontOfficeModule = new FrontOfficeModule(employeeSessionBeanRemote, currentEmployee);
+                            frontOfficeModule = new FrontOfficeModule(employeeSessionBeanRemote, roomTypeSessionBeanRemote, reservationSessionBeanRemote, guestSessionBeanRemote, currentEmployee);
                             menuMain();
                         } 
                         catch (InvalidLoginCredentialException ex) 
@@ -110,7 +119,7 @@ public class MainApp {
         }
     }
 
-    private void menuMain() throws RoomNotFoundException, ParseException {
+    private void menuMain() throws RoomNotFoundException, ParseException, GuestNotFoundException, RoomTypeNotFoundException, ReservationNotFoundException {
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
 

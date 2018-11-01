@@ -10,6 +10,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import util.enumeration.roomStatusEnum;
 import util.exception.DeleteRoomException;
 import util.exception.RoomNotFoundException;
 
@@ -81,7 +82,7 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
         {
             RoomEntity roomEntityToUpdate = retrieveRoomByRoomId(roomEntity.getRoomId());
             roomEntityToUpdate.setRoomNumber(roomEntity.getRoomNumber());
-            roomEntityToUpdate.setAvailable(roomEntity.getAvailable());
+            roomEntityToUpdate.setStatus(roomEntity.getStatus());
             roomEntityToUpdate.setRoomTypeEntity(roomEntity.getRoomTypeEntity());
                
         }
@@ -97,7 +98,7 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
     {
         RoomEntity roomEntityToRemove = retrieveRoomByRoomId(roomId);
         //if it is not used, it means that it is available
-        if(roomEntityToRemove.getAvailable().equals(Boolean.TRUE))
+        if(roomEntityToRemove.getStatus().equals(roomStatusEnum.AVAILABLE))
         {
              em.remove(roomEntityToRemove);
         }

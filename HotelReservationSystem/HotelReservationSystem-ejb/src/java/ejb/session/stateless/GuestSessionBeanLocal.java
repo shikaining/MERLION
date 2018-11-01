@@ -11,11 +11,11 @@ import util.exception.GuestNotFoundException;
 
 
 public interface GuestSessionBeanLocal {
-
-    GuestEntity createNewCustomer(GuestEntity newGuestEntity);
-
+    
     List<GuestEntity> retrieveAllGuests();
 
-    GuestEntity retrieveGuestsByUsername(String username) throws GuestNotFoundException;
+    GuestEntity retrieveGuestByUsername(String username) throws GuestNotFoundException;
+
+    GuestEntity retrieveGuestByGuestId(Long guestId) throws GuestNotFoundException;
     
 }

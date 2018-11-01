@@ -32,11 +32,12 @@ public class RoomRateEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long roomRateId;
-    //name is e.g. deluxe normal
+    
+    @Column(unique = true)
     private String name;
     @Column(precision = 11, scale = 2)
     private BigDecimal ratePerNight;
-    //rateType is e.g. normal
+    
     @Enumerated(EnumType.STRING)
     private rateTypeEnum rateType;
     
@@ -47,19 +48,25 @@ public class RoomRateEntity implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = true)
     private Date validityEnd;  
-    //need to set validity period if applicable-**
     
-    //roomType will be e.g. deluxe
     @ManyToOne (optional = false)
     @JoinColumn(nullable = false)
     private RoomTypeEntity roomTypeEntity;
     
     @OneToMany (mappedBy = "roomRateEntity")
-    private List<ReservationLineItemEntity> reservationLineItemEntities;
+    private List<ReservedNightEntity> reservedNightEntities;
 
     public RoomRateEntity() {
-        reservationLineItemEntities = new ArrayList<>();
+        reservedNightEntities = new ArrayList<>();
     }
+
+    /*promo over normal
+    peak over normal
+    promo over peak, normal
+    peak over promo
+    if a certain room type has no published rate then cannot walk-in reservation
+    if no normal then cannot have normal reservation
+    */
 
     public RoomRateEntity(String name, BigDecimal ratePerNight, rateTypeEnum rateType, Date validityStart, Date validityEnd) {
         this();
@@ -126,14 +133,13 @@ public class RoomRateEntity implements Serializable {
         this.roomTypeEntity = roomTypeEntity;
     }
 
-    public List<ReservationLineItemEntity> getReservationLineItemEntities() {
-        return reservationLineItemEntities;
+    public List<ReservedNightEntity> getReservedNightEntities() {
+        return reservedNightEntities;
     }
 
-    public void setReservationLineItemEntities(List<ReservationLineItemEntity> reservationLineItemEntities) {
-        this.reservationLineItemEntities = reservationLineItemEntities;
+    public void setReservedNightEntities(List<ReservedNightEntity> reservedNightEntities) {
+        this.reservedNightEntities = reservedNightEntities;
     }
-    
 
     @Override
     public int hashCode() {

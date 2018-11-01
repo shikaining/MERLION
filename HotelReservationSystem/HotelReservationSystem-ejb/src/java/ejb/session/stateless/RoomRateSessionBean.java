@@ -100,13 +100,13 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
     public void deleteRoomRate(Long roomRateId) throws RoomRateNotFoundException, DeleteRoomRateException
     {
         RoomRateEntity roomRateEntityToRemove = retrieveRoomRateByRoomRateId(roomRateId);
-        if(roomRateEntityToRemove.getReservationLineItemEntities().isEmpty())
+        if(roomRateEntityToRemove.getReservedNightEntities().isEmpty()&&roomRateEntityToRemove.getRoomTypeEntity().equals(null))
         {
              em.remove(roomRateEntityToRemove);
         }
         else
         {
-            throw new DeleteRoomRateException("Room Rate ID " + roomRateId + " is associated with existing reservation(s) and cannot be deleted!");
+            throw new DeleteRoomRateException("Room Rate ID " + roomRateId + " is being used and cannot be deleted!");
         }
     }
     

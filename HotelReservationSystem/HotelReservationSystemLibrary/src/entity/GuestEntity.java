@@ -28,8 +28,10 @@ public class GuestEntity implements Serializable {
     private Long guestId;
     private String firstName;
     private String lastName;
-    @Column(unique = true)
+    @Column(unique = true, length = 16)
     private String identificationNumber;
+    
+    private String email;
     @Column(nullable = true)
     private String userName;
     @Column(nullable = true)
@@ -42,18 +44,17 @@ public class GuestEntity implements Serializable {
         reservationEntities = new ArrayList<>();
     }
 
-    public GuestEntity(String firstName, String lastName, String identificationNumber, String userName, String password) {
+    public GuestEntity(String firstName, String lastName, String identificationNumber, String email, String userName, String password) {
         this();
         this.firstName = firstName;
         this.lastName = lastName;
         this.identificationNumber = identificationNumber;
+        this.email = email;
         this.userName = userName;
         this.password = password;
     }
     
-    
 
-    
     public Long getGuestId() {
         return guestId;
     }
@@ -84,6 +85,14 @@ public class GuestEntity implements Serializable {
 
     public void setIdentificationNumber(String identificationNumber) {
         this.identificationNumber = identificationNumber;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getUserName() {

@@ -8,11 +8,13 @@ package entity;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 /**
  *
@@ -25,15 +27,18 @@ public class RoomTypeEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long roomTypeId;
-    //e.g. premier
+    
+    @Column(unique = true, nullable = false)
     private String name;
+    @Column(length = 30)
     private String description;
-    //large,medium etc
+    @Column(length = 16)
     private String size;
-    //eg.king,queen
+    @Column(length = 16)
     private String bed;
-    //5 people eg
-    private int capacity;
+    
+    private Integer capacity;
+    private Integer numOfRooms;
     private List<String> amenities;
     
     @OneToMany(mappedBy = "roomTypeEntity")
@@ -43,32 +48,33 @@ public class RoomTypeEntity implements Serializable {
     private List<RoomEntity> roomEntities;
     
     @OneToMany(mappedBy = "roomTypeEntity")
-    private List<ReservationLineItemEntity> reservationLineItemEntities;
-    
+    private List<ReservedRoomEntity> reservedRoomEntities;
 
     public RoomTypeEntity() {
+        amenities = new ArrayList<>();
         roomRateEntities = new ArrayList<>();
         roomEntities = new ArrayList<>();
-        reservationLineItemEntities = new ArrayList<>();
+        reservedRoomEntities = new ArrayList<>();
     }
 
-    public RoomTypeEntity(String name, String description, String size, String bed, int capacity, List<String> amenities) {
+    public RoomTypeEntity(String name, String description, String size, String bed, Integer capacity, Integer numOfRooms, List<String> amenities) {
+        this();
         this.name = name;
         this.description = description;
         this.size = size;
         this.bed = bed;
         this.capacity = capacity;
+        this.numOfRooms = numOfRooms;
         this.amenities = amenities;
     }
-    
     
 
     public Long getRoomTypeId() {
         return roomTypeId;
     }
 
-    public void setRoomTypeId(Long id) {
-        this.roomTypeId = id;
+    public void setRoomTypeId(Long roomTypeId) {
+        this.roomTypeId = roomTypeId;
     }
 
     public String getName() {
@@ -103,12 +109,20 @@ public class RoomTypeEntity implements Serializable {
         this.bed = bed;
     }
 
-    public int getCapacity() {
+    public Integer getCapacity() {
         return capacity;
     }
 
-    public void setCapacity(int capacity) {
+    public void setCapacity(Integer capacity) {
         this.capacity = capacity;
+    }
+
+    public Integer getNumOfRooms() {
+        return numOfRooms;
+    }
+
+    public void setNumOfRooms(Integer numOfRooms) {
+        this.numOfRooms = numOfRooms;
     }
 
     public List<String> getAmenities() {
@@ -119,14 +133,6 @@ public class RoomTypeEntity implements Serializable {
         this.amenities = amenities;
     }
 
-    public List<RoomEntity> getRoomEntities() {
-        return roomEntities;
-    }
-
-    public void setRoomEntities(List<RoomEntity> roomEntities) {
-        this.roomEntities = roomEntities;
-    }
-
     public List<RoomRateEntity> getRoomRateEntities() {
         return roomRateEntities;
     }
@@ -135,13 +141,22 @@ public class RoomTypeEntity implements Serializable {
         this.roomRateEntities = roomRateEntities;
     }
 
-    public List<ReservationLineItemEntity> getReservationLineItemEntities() {
-        return reservationLineItemEntities;
+    public List<RoomEntity> getRoomEntities() {
+        return roomEntities;
     }
 
-    public void setReservationLineItemEntities(List<ReservationLineItemEntity> reservationLineItemEntities) {
-        this.reservationLineItemEntities = reservationLineItemEntities;
+    public void setRoomEntities(List<RoomEntity> roomEntities) {
+        this.roomEntities = roomEntities;
     }
+
+    public List<ReservedRoomEntity> getReservedRoomEntities() {
+        return reservedRoomEntities;
+    }
+
+    public void setReservedRoomEntities(List<ReservedRoomEntity> reservedRoomEntities) {
+        this.reservedRoomEntities = reservedRoomEntities;
+    }
+
 
     @Override
     public int hashCode() {

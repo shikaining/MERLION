@@ -31,9 +31,9 @@ public class GuestSessionBean implements GuestSessionBeanRemote, GuestSessionBea
     @PersistenceContext(unitName = "HotelReservationSystem-ejbPU")
     private EntityManager em;
 
-    
+
     @Override
-    public GuestEntity createNewCustomer(GuestEntity newGuestEntity)
+    public GuestEntity createNewGuest(GuestEntity newGuestEntity)
     {
         em.persist(newGuestEntity);
         em.flush();
@@ -52,7 +52,7 @@ public class GuestSessionBean implements GuestSessionBeanRemote, GuestSessionBea
     
     
     @Override
-    public GuestEntity retrieveGuestsByUsername (String username) throws GuestNotFoundException
+    public GuestEntity retrieveGuestByUsername (String username) throws GuestNotFoundException
     {
         Query query = em.createQuery("SELECT g FROM GuestEntity g WHERE g.userName = :inUsername");
         query.setParameter("inUsername", username);
@@ -63,6 +63,52 @@ public class GuestSessionBean implements GuestSessionBeanRemote, GuestSessionBea
         catch(NoResultException|NonUniqueResultException ex)
         {
             throw new GuestNotFoundException("Guest with Username "+username+"does not exist!");
+        }
+    }
+    
+    @Override
+    public GuestEntity retrieveGuestByID(String identificationNumber) 
+    {
+        Query query = em.createQuery("SELECT g FROM GuestEntity g WHERE g.identificationNumber = :inIdentificationNumber");
+        query.setParameter("inIdentificationNumber", identificationNumber);
+        
+        try {
+            return (GuestEntity)query.getSingleResult();
+        }
+        catch(NoResultException|NonUniqueResultException ex)
+        {
+               return null;
+        }
+    }
+    
+    @Override
+     public GuestEntity retrieveGuestByGuestId(Long guestId) throws GuestNotFoundException
+    {
+        GuestEntity guestEntity = em.find(GuestEntity.class, guestId);
+        
+        if(guestEntity != null)
+        {
+            return guestEntity;
+        }
+        else
+        {
+            throw new GuestNotFoundException("Guest ID " + guestId + " does not exist!");
+        }
+    }
+    
+    @Override
+    public void updateGuest(GuestEntity guestEntity) throws GuestNotFoundException 
+    {
+
+        if(guestEntity.getGuestId()!= null)
+        {
+            GuestEntity guestEntityToUpdate = retrieveGuestByGuestId(guestEntity.getGuestId());
+            guestEntityToUpdate.setReservationEntities(guestEntity.getReservationEntities());
+              
+        }
+        else
+        {
+            throw new GuestNotFoundException("Guest ID not provided for guest to be updated");
         }
     }
 

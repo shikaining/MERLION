@@ -10,6 +10,8 @@
     <class>entity.PartnerEntity</class>
     <class>entity.ReservationEntity</class>
     <class>entity.ReservationLineItemEntity</class>
+    <class>entity.ReservedNightEntity</class>
+    <class>entity.ReservedRoomEntity</class>
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
     <properties>
       <property name="javax.persistence.schema-generation.database.action" value="create"/>
