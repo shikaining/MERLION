@@ -104,15 +104,15 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
     public List<RoomTypeEntity> retrieveAvailableRoomTypes(Date checkInDate, Date checkOutDate) {
         //retrieve all the room types
         List<RoomTypeEntity> allRoomTypes = retrieveAllRoomTypes();
-
         List<RoomTypeEntity> availableRoomTypes = new ArrayList<>();
 
         //for each room type,
         //get all the reservations under it
         for (RoomTypeEntity roomTypeEntity : allRoomTypes) {
+            //if this roomtype has no rooms, then dont show it
             if (!roomTypeEntity.getRoomEntities().isEmpty()) {
+                //if this roomtype has no reservations, then don't have to check
                 if (!roomTypeEntity.getReservedRoomEntities().isEmpty()) {
-//                System.out.println(roomTypeEntity.getName());
 
                     String qlString = "SELECT rr FROM ReservedRoomEntity rr "
                             + "JOIN rr.roomTypeEntity rt "
@@ -122,8 +122,6 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
                     query.setParameter("inRoomType", roomTypeEntity.getName());
                     List<ReservedRoomEntity> reservedRooms = query.getResultList();
 
-                    //loop through reservedrooms under this particular room type
-                    //and check if there are any available rooms
                     int nonClashes = 0;
                     int clashes = 0;
                     for (ReservedRoomEntity reservedRoomEntity : reservedRooms) {
@@ -134,23 +132,27 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
                         Date reservedCheckInDate = reservationEntity.getCheckInDate();
                         Date reservedCheckOutDate = reservationEntity.getCheckOutDate();
 
-                        if ((reservedCheckOutDate.compareTo(checkInDate) <= 0) && (reservedCheckInDate.compareTo(checkOutDate)) >= 0) {
+                        if ((reservedCheckOutDate.compareTo(checkInDate) <= 0) || (reservedCheckInDate.compareTo(checkOutDate)) >= 0) {
 
-                        } else {
+                        } 
+                        else {
                             clashes++;
+                            System.out.println("Clash detected");
+                            //the moment there is a clash, go on to the next room
                         }
                     }
-                    if (clashes < roomTypeEntity.getReservedRoomEntities().size()) {
+                    if (clashes < roomTypeEntity.getRoomEntities().size()) {
                         availableRoomTypes.add(roomTypeEntity);
                     }
                 } else {
                     availableRoomTypes.add(roomTypeEntity);
                 }
+                System.out.println(availableRoomTypes.toString());
             }
         }
 
         //return statement 
-        return allRoomTypes;
+        return availableRoomTypes;
     }
 
     @Override
@@ -175,17 +177,22 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
                 Date reservedCheckInDate = reservationEntity.getCheckInDate();
                 Date reservedCheckOutDate = reservationEntity.getCheckOutDate();
 
-                if ((reservedCheckOutDate.compareTo(checkInDate) <= 0) && (reservedCheckInDate.compareTo(checkOutDate)) >= 0) {
+                if ((reservedCheckOutDate.compareTo(checkInDate) <= 0) || (reservedCheckInDate.compareTo(checkOutDate)) >= 0) {
                     
                 } else {
                     clashes++;
+                    break;
                 }
             }
+            
             nonClashes = (roomTypeEntity.getRoomEntities().size()) - clashes;
-        } else {
+        } 
+        
+        else {
 
             nonClashes = roomTypeEntity.getRoomEntities().size();
         }
+        System.out.println("Non-clashes " + nonClashes);
         return nonClashes;
     }
 }

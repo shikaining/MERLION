@@ -199,12 +199,12 @@ public class HotelOperationModule {
             amenities.add(amenity);
         }
         roomTypeEntity.setAmenities(amenities);
-        List<ReservedRoomEntity>reservedRoomEntities = new ArrayList<>();
-        List<RoomEntity>roomEntities = new ArrayList<>();
-        List<RoomRateEntity>roomRateEntities = new ArrayList<>();
-        roomTypeEntity.setReservedRoomEntities(reservedRoomEntities);
-        roomTypeEntity.setRoomEntities(roomEntities);
-        roomTypeEntity.setRoomRateEntities(roomRateEntities);
+//        List<ReservedRoomEntity>reservedRoomEntities = new ArrayList<>();
+//        List<RoomEntity>roomEntities = new ArrayList<>();
+//        List<RoomRateEntity>roomRateEntities = new ArrayList<>();
+//        roomTypeEntity.setReservedRoomEntities(reservedRoomEntities);
+//        roomTypeEntity.setRoomEntities(roomEntities);
+//        roomTypeEntity.setRoomRateEntities(roomRateEntities);
         
         roomTypeEntity = roomTypeSessionBeanRemote.createNewRoomType(roomTypeEntity);
         System.out.println("New Room Type created successfully!: " + roomTypeEntity.getRoomTypeId()+ "\n");
@@ -372,7 +372,7 @@ public class HotelOperationModule {
             if (roomTypeInt >= 1 && roomTypeInt <= numRoomTypes) {
                 roomEntity.setRoomTypeEntity(roomTypeEntities.get(roomTypeInt-1));
                 roomTypeEntities.get(roomTypeInt-1).getRoomEntities().add(roomEntity);
-                System.out.print(roomTypeEntities.get(roomTypeInt-1).getRoomEntities().toString());
+//                System.out.print(roomTypeEntities.get(roomTypeInt-1).getRoomEntities().toString());
                 roomTypeSessionBeanRemote.updateRoomType(roomTypeEntities.get(roomTypeInt-1));
                 break; 
 

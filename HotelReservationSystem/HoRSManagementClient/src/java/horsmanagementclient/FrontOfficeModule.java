@@ -13,6 +13,7 @@ import entity.ReservedRoomEntity;
 import entity.RoomRateEntity;
 import entity.RoomTypeEntity;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -115,7 +116,7 @@ public class FrontOfficeModule {
         checkOutDate = inputDateFormat.parse(scanner.nextLine().trim());
 
         List<RoomTypeEntity> availableRoomTypes = roomTypeSessionBeanRemote.retrieveAvailableRoomTypes(checkInDate, checkOutDate);
-        System.out.printf("%3s%15s\n", "S/N", "Room Type");
+        System.out.printf("%3s%15s%15s\n", "S/N", "Room Type", "Quantity");
 
         int sn = availableRoomTypes.size();
 
@@ -138,9 +139,11 @@ public class FrontOfficeModule {
         } else {
             sn = 0;
             for (RoomTypeEntity roomTypeEntity : availableRoomTypes) {
+
+                int nonClashes = roomTypeSessionBeanRemote.retrieveAvailableRoomCount(roomTypeEntity, checkInDate, checkOutDate);
                 ++sn;
 
-                System.out.printf("%3s%15s\n", sn, roomTypeEntity.getName());
+                System.out.printf("%3s%15s%15s\n", sn, roomTypeEntity.getName(), nonClashes);
             }
 
             System.out.println("------------------------");
@@ -177,7 +180,6 @@ public class FrontOfficeModule {
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
         int numOfRooms = 0;
-        BigDecimal reservationAmount;
         ReservationEntity newReservationEntity = new ReservationEntity();
 
         System.out.println("*** HoRS Management System :: Front Office :: Walk In Reserve Room***\n");
@@ -198,9 +200,7 @@ public class FrontOfficeModule {
             System.out.print("> ");
             response = scanner.nextInt();
             RoomTypeEntity currRoomTypeEntity = availableRoomTypes.get(response - 1);
-
             int nonClashes = roomTypeSessionBeanRemote.retrieveAvailableRoomCount(currRoomTypeEntity, checkInDate, checkOutDate);
-            System.out.println("Number of available rooms: " + nonClashes);
             System.out.println("Enter number of rooms to reserve: ");
             numOfRooms = scanner.nextInt();
             scanner.nextLine();
@@ -232,8 +232,17 @@ public class FrontOfficeModule {
             }
         }//ends choosing of room type
         GuestEntity guestEntity = doCreateNewGuest(newReservationEntity);
-        System.out.println(guestEntity.getGuestId());
         newReservationEntity.setGuestEntity(guestEntity);
+        List<ReservedRoomEntity> reservedRoomEntities = newReservationEntity.getReservedRoomEntities();
+        BigDecimal reservationAmount = new BigDecimal(BigInteger.ZERO);
+        
+        for (ReservedRoomEntity reservedRoomEntity : reservedRoomEntities) {
+            List<ReservedNightEntity> reservedNightEntities = reservedRoomEntity.getReservedNightEntities();
+            for (ReservedNightEntity reservedNightEntity : reservedNightEntities) {
+                reservationAmount = reservationAmount.add(reservedNightEntity.getAmount());
+            }
+        }
+        newReservationEntity.setReservationAmount(reservationAmount);
         reservationSessionBeanRemote.updateReservation(newReservationEntity);
         System.out.println("New Reservation created successfully!: " + newReservationEntity.getReservationId() + "\n");
     }

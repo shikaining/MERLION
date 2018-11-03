@@ -111,6 +111,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         {
             ReservationEntity reservationEntityToUpdate = retrieveReservationByReservationId(reservationEntity.getReservationId());
             reservationEntityToUpdate.setGuestEntity(reservationEntity.getGuestEntity());
+            reservationEntityToUpdate.setReservationAmount(reservationEntity.getReservationAmount());
          
               
         }
