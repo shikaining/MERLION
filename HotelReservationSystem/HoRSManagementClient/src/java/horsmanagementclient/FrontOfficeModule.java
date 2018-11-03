@@ -1,13 +1,9 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package horsmanagementclient;
 
+import ejb.session.stateful.ReservationSessionBeanRemote;
 import ejb.session.stateless.EmployeeSessionBeanRemote;
 import ejb.session.stateless.GuestSessionBeanRemote;
-import ejb.session.stateless.ReservationSessionBeanRemote;
+import ejb.session.stateless.RoomRateSessionBeanRemote;
 import ejb.session.stateless.RoomTypeSessionBeanRemote;
 import entity.EmployeeEntity;
 import entity.GuestEntity;
@@ -23,15 +19,20 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 import util.enumeration.employeeAccessRightEnum;
+import util.enumeration.rateTypeEnum;
 import util.exception.GuestNotFoundException;
 import util.exception.InvalidAccessRightException;
 import util.exception.ReservationNotFoundException;
+import util.exception.ReservedRoomNotFoundException;
+import util.exception.RoomRateNotFoundException;
 
 public class FrontOfficeModule {
 
     private EmployeeSessionBeanRemote employeeSessionBeanRemote;
     private RoomTypeSessionBeanRemote roomTypeSessionBeanRemote;
+    private RoomRateSessionBeanRemote roomRateSessionBeanRemote;
     private ReservationSessionBeanRemote reservationSessionBeanRemote;
     private GuestSessionBeanRemote guestSessionBeanRemote;
     private EmployeeEntity currentEmployee;
@@ -39,16 +40,17 @@ public class FrontOfficeModule {
     public FrontOfficeModule() {
     }
 
-    public FrontOfficeModule(EmployeeSessionBeanRemote employeeSessionBeanRemote, RoomTypeSessionBeanRemote roomTypeSessionBeanRemote, ReservationSessionBeanRemote reservationSessionBeanRemote, GuestSessionBeanRemote guestSessionBeanRemote, EmployeeEntity currentEmployee) {
+    public FrontOfficeModule(EmployeeSessionBeanRemote employeeSessionBeanRemote, RoomTypeSessionBeanRemote roomTypeSessionBeanRemote, RoomRateSessionBeanRemote roomRateSessionBeanRemote, ReservationSessionBeanRemote reservationSessionBeanRemote, GuestSessionBeanRemote guestSessionBeanRemote, EmployeeEntity currentEmployee) {
         this();
         this.employeeSessionBeanRemote = employeeSessionBeanRemote;
         this.roomTypeSessionBeanRemote = roomTypeSessionBeanRemote;
+        this.roomRateSessionBeanRemote = roomRateSessionBeanRemote;
         this.reservationSessionBeanRemote = reservationSessionBeanRemote;
         this.guestSessionBeanRemote = guestSessionBeanRemote;
         this.currentEmployee = currentEmployee;
     }
 
-    public void menuFrontOffice() throws InvalidAccessRightException, ParseException, GuestNotFoundException, ReservationNotFoundException {
+    public void menuFrontOffice() throws InvalidAccessRightException, ParseException, GuestNotFoundException, ReservationNotFoundException, ReservedRoomNotFoundException, RoomRateNotFoundException {
         if (currentEmployee.getAccessRight() != employeeAccessRightEnum.GUESTRELOFFICER) {
             throw new InvalidAccessRightException("You don't have GUESTRELOFFICER rights to access the Front Office Module.");
         }
@@ -98,7 +100,7 @@ public class FrontOfficeModule {
         }
     }
 
-    private void doWalkInSearchRoom() throws ParseException, GuestNotFoundException, ReservationNotFoundException {
+    private void doWalkInSearchRoom() throws ParseException, GuestNotFoundException, ReservationNotFoundException, ReservedRoomNotFoundException, RoomRateNotFoundException {
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
         SimpleDateFormat inputDateFormat = new SimpleDateFormat("d/M/y");
@@ -140,55 +142,43 @@ public class FrontOfficeModule {
 
                 System.out.printf("%3s%15s\n", sn, roomTypeEntity.getName());
             }
-            while (true) {
-                System.out.println("------------------------");
-                System.out.println("1: Make Reservation");
-                System.out.println("2: Back\n");
+
+            System.out.println("------------------------");
+            System.out.println("1: Make Reservation");
+            System.out.println("2: Back\n");
+            System.out.print("> ");
+            response = 0;
+
+            while (response < 1 || response > 2) {
                 System.out.print("> ");
-                response = 0;
 
-                while (response < 1 || response > 2) {
-                    System.out.print("> ");
+                response = scanner.nextInt();
 
-                    response = scanner.nextInt();
+                if (response == 1) {
 
-                    if (response == 1) {
+                    doWalkInReserveRoom(availableRoomTypes, checkInDate, checkOutDate);
 
-                        doWalkInReserveRoom(availableRoomTypes, checkInDate, checkOutDate);
-
-                    } else if (response == 2) {
-
-                        break;
-
-                    } else {
-
-                        System.out.println("Invalid option, please try again!\n");
-
-                    }
-                }
-
-                if (response == 2) {
+                } else if (response == 2) {
 
                     break;
+
+                } else {
+
+                    System.out.println("Invalid option, please try again!\n");
+
                 }
             }
+
         }
     }
 
-    private void doWalkInReserveRoom(List<RoomTypeEntity> availableRoomTypes, Date checkInDate, Date checkOutDate) throws GuestNotFoundException, ReservationNotFoundException {
+    private void doWalkInReserveRoom(List<RoomTypeEntity> availableRoomTypes, Date checkInDate, Date checkOutDate) throws GuestNotFoundException, ReservationNotFoundException, ReservedRoomNotFoundException, RoomRateNotFoundException {
+
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
         int numOfRooms = 0;
         BigDecimal reservationAmount;
-        /*
-        formula to find number of reserved nights
-        long diff = d2.getTime() - d1.getTime();
-        return TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
-         */
-
         ReservationEntity newReservationEntity = new ReservationEntity();
-        GuestEntity guestEntity = new GuestEntity();
-        RoomTypeEntity currRoomTypeEntity = new RoomTypeEntity();//not null
 
         System.out.println("*** HoRS Management System :: Front Office :: Walk In Reserve Room***\n");
         System.out.println("Select Room Type for Reservation");
@@ -207,87 +197,105 @@ public class FrontOfficeModule {
 
             System.out.print("> ");
             response = scanner.nextInt();
-            currRoomTypeEntity = availableRoomTypes.get(response - 1);
-            System.out.println(currRoomTypeEntity.getName());
+            RoomTypeEntity currRoomTypeEntity = availableRoomTypes.get(response - 1);
+
             int nonClashes = roomTypeSessionBeanRemote.retrieveAvailableRoomCount(currRoomTypeEntity, checkInDate, checkOutDate);
-            //after choosing the room type, user keys in number of rooms available
-            //user must be told of the current number of rooms available
             System.out.println("Number of available rooms: " + nonClashes);
-            while (true) {
+            System.out.println("Enter number of rooms to reserve: ");
+            numOfRooms = scanner.nextInt();
+            scanner.nextLine();
+            //valid number of rooms for booking
+            if (numOfRooms <= nonClashes) {
 
-                System.out.println("Enter number of rooms to reserve: ");
-                numOfRooms = scanner.nextInt();
-                scanner.nextLine();
-                //valid number of rooms for booking
-                if (numOfRooms <= nonClashes) {
-                    //set all the attributes of reservationEntity
-                    newReservationEntity.setCheckInDate(checkInDate);
-                    newReservationEntity.setCheckOutDate(checkOutDate);
-                    newReservationEntity.setOnlineReservation(Boolean.FALSE);
+                //set all the attributes of reservationEntity
+                newReservationEntity.setCheckInDate(checkInDate);
+                newReservationEntity.setCheckOutDate(checkOutDate);
+                newReservationEntity.setOnlineReservation(Boolean.FALSE);
 
-                    //create new guest
-                    System.out.println("Enter identification number of guest: ");
-                    String identificationNumber;
-                    identificationNumber = scanner.nextLine().trim();
+                //RESERVED ROOMS
+                List<ReservedRoomEntity> reservedRoomEntities = new ArrayList<>();
+                newReservationEntity = reservationSessionBeanRemote.createNewReservation(newReservationEntity);
+                //for each room, create reservedRoom Entity
+                for (int i = 0; i < numOfRooms; i++) {
+
+                    long diff = checkOutDate.getTime() - checkInDate.getTime();
+                    int numNights = (int) TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
+
+                    ReservedRoomEntity newReservedRoomEntity = doCreateNewReservedRoom(newReservationEntity, currRoomTypeEntity, numNights);
+                    reservedRoomEntities.add(newReservedRoomEntity);
+                    currRoomTypeEntity.getReservedRoomEntities().add(newReservedRoomEntity);
+                }
+                newReservationEntity.setReservedRoomEntities(reservedRoomEntities);
+            } //invalid number of rooms for booking
+            else {
+                System.out.println("Invalid option, please try again!\n");
+            }
+        }//ends choosing of room type
+        GuestEntity guestEntity = doCreateNewGuest(newReservationEntity);
+        System.out.println(guestEntity.getGuestId());
+        newReservationEntity.setGuestEntity(guestEntity);
+        reservationSessionBeanRemote.updateReservation(newReservationEntity);
+        System.out.println("New Reservation created successfully!: " + newReservationEntity.getReservationId() + "\n");
+    }
+
+    private GuestEntity doCreateNewGuest(ReservationEntity reservationEntity) {
+
+        Scanner scanner = new Scanner(System.in);
+        GuestEntity guestEntity = new GuestEntity();
+        String identificationNumber;
+
+        System.out.println("Enter identification number of guest: ");
+        identificationNumber = scanner.nextLine().trim();
+
 //                  assume is a new guest
 //                  guestEntity = guestSessionBeanRemote.retrieveGuestByID(identificationNumber);
-
 //                  if (guestEntity == null) {
-                    guestEntity.setIdentificationNumber(identificationNumber);
-                    System.out.println("Enter first name of guest: ");
-                    guestEntity.setFirstName(scanner.nextLine().trim());
-                    System.out.println("Enter last name of guest: ");
-                    guestEntity.setLastName(scanner.nextLine().trim());
-                    System.out.println("Enter email of guest: ");
-                    guestEntity.setEmail(scanner.nextLine().trim());
-                    guestSessionBeanRemote.createNewGuest(guestEntity);
-                    newReservationEntity.setGuestEntity(guestEntity);
-//                    } 
+        guestEntity.setIdentificationNumber(identificationNumber);
+        System.out.println("Enter first name of guest: ");
+        guestEntity.setFirstName(scanner.nextLine().trim());
+        System.out.println("Enter last name of guest: ");
+        guestEntity.setLastName(scanner.nextLine().trim());
+        System.out.println("Enter email of guest: ");
+        guestEntity.setEmail(scanner.nextLine().trim());
+        List<ReservationEntity> reservationEntities = new ArrayList<>();
+        reservationEntities.add(reservationEntity);
+        guestEntity.setReservationEntities(reservationEntities);
+        guestEntity = guestSessionBeanRemote.createNewGuest(guestEntity);
+        return guestEntity;
+    }
 
-                    for (int i = 0; i < numOfRooms; i++) {
+    private ReservedRoomEntity doCreateNewReservedRoom(ReservationEntity reservationEntity, RoomTypeEntity roomTypeEntity, int numReservedNights) throws RoomRateNotFoundException, ReservedRoomNotFoundException {
 
-                        //for each room, create reservedRoom Entity
-                        ReservedRoomEntity newReservedRoomEntity = new ReservedRoomEntity();
-                        newReservedRoomEntity.setRoomTypeEntity(currRoomTypeEntity);
-                        newReservedRoomEntity.setReservationEntity(newReservationEntity);
-                        //default value first
-                        //for each day, create reservedNight Entity
-                        
-                        int numOfDays = 3;
-                        for (int j = 0; j < numOfDays; j++) {
-                            //retrieve the right roomRate for each night
-                            ReservedNightEntity reservedNightEntity = new ReservedNightEntity();
-                            RoomRateEntity roomRateEntity = new RoomRateEntity();
-                            //retrieve the right roomrate
-                            //roomRateEntity = roomRateSessionBeanRemote.retrieveRoomRateByRoomType(currRoomTypeEntity, false);
-                            reservedNightEntity.setRoomRateEntity(roomRateEntity);
-                            roomRateEntity.getReservedNightEntities().add(reservedNightEntity);
-                            //create the reservedNight
-                            reservedNightEntity.setReservedRoomEntity(newReservedRoomEntity);
-                            reservedNightEntity = reservationSessionBeanRemote.createNewReservedNight(reservedNightEntity);
-                            newReservedRoomEntity.getReservedNightEntities().add(reservedNightEntity);
-                        }
-                        currRoomTypeEntity.getReservedRoomEntities().add(newReservedRoomEntity);
-                        //create the reservedRoom
-                        reservationSessionBeanRemote.createNewReservedRoom(newReservedRoomEntity);
-                        //update roomType
-                        //add this reservedRoom to the list of reservedRooms
-                        newReservationEntity.getReservedRoomEntities().add(newReservedRoomEntity);
-                    }
-                } //invalid number of rooms for booking
-                else {
-                    System.out.println("Invalid option, please try again!\n");
-                }
-            }
+        Scanner scanner = new Scanner(System.in);
+        ReservedRoomEntity reservedRoomEntity = new ReservedRoomEntity();
+        reservedRoomEntity.setRoomTypeEntity(roomTypeEntity);
+        reservedRoomEntity.setReservationEntity(reservationEntity);
+        reservedRoomEntity = reservationSessionBeanRemote.createNewReservedRoom(reservedRoomEntity);
+        List<ReservedNightEntity> reservedNightEntities = new ArrayList<>();
+        for (int i = 0; i < numReservedNights; i++) {
+            ReservedNightEntity reservedNightEntity = new ReservedNightEntity();
+            reservedNightEntity = doCreateNewReservedNight(reservedRoomEntity);
+            reservedNightEntities.add(reservedNightEntity);
         }
-        //reservationAmount
-        reservationAmount = new BigDecimal("150");
-        newReservationEntity.setReservationAmount(reservationAmount);
-        newReservationEntity.setGuestEntity(guestEntity);
-        //create the new reservation
-        newReservationEntity = reservationSessionBeanRemote.createNewReservation(newReservationEntity);
-        guestEntity.getReservationEntities().add(newReservationEntity);
-        guestSessionBeanRemote.updateGuest(guestEntity);
-        System.out.println("New Reservation created successfully!: " + newReservationEntity.getReservationId() + "\n");
+        reservedRoomEntity.setReservedNightEntities(reservedNightEntities);
+        reservationSessionBeanRemote.updateReservedRoom(reservedRoomEntity);
+        return reservedRoomEntity;
+    }
+
+    private ReservedNightEntity doCreateNewReservedNight(ReservedRoomEntity reservedRoomEntity) throws RoomRateNotFoundException {
+
+        ReservedNightEntity reservedNightEntity = new ReservedNightEntity();
+        reservedNightEntity.setReservedRoomEntity(reservedRoomEntity);
+        //retrieve the right roomrate
+        rateTypeEnum currRateTypeEnum = rateTypeEnum.PUBLISHED;
+        RoomRateEntity roomRateEntity = roomRateSessionBeanRemote.retrieveRoomRateByRoomType(reservedRoomEntity.getRoomTypeEntity(), currRateTypeEnum);
+        reservedNightEntity.setRoomRateEntity(roomRateEntity);
+        reservedNightEntity.setAmount(roomRateEntity.getRatePerNight());
+        //create the reservedNight
+        reservedNightEntity = reservationSessionBeanRemote.createNewReservedNight(reservedNightEntity);
+        roomRateEntity.getReservedNightEntities().add(reservedNightEntity);
+        System.out.println("added reservednightentity to roomrate");
+        roomRateSessionBeanRemote.updateRoomRate(roomRateEntity);
+        return reservedNightEntity;
     }
 }//ends module

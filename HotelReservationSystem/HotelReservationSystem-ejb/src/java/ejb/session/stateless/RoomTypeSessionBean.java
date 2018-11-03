@@ -38,7 +38,7 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
         Query query = em.createQuery("SELECT rt FROM RoomTypeEntity rt");
         List<RoomTypeEntity> roomTypeEntities = new ArrayList<>();
         roomTypeEntities = query.getResultList();
-        
+
         for (RoomTypeEntity roomTypeEntity : roomTypeEntities) {
             roomTypeEntity.getAmenities().size();
             roomTypeEntity.getRoomRateEntities().size();
@@ -104,91 +104,88 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
     public List<RoomTypeEntity> retrieveAvailableRoomTypes(Date checkInDate, Date checkOutDate) {
         //retrieve all the room types
         List<RoomTypeEntity> allRoomTypes = retrieveAllRoomTypes();
-        for (RoomTypeEntity roomTypeEntity : allRoomTypes) {
-            System.out.println(roomTypeEntity.getName());
-        }
 
         List<RoomTypeEntity> availableRoomTypes = new ArrayList<>();
 
         //for each room type,
         //get all the reservations under it
         for (RoomTypeEntity roomTypeEntity : allRoomTypes) {
-            if (!roomTypeEntity.getReservedRoomEntities().isEmpty()) {
-                System.out.println(roomTypeEntity.getName());
-                
-                String qlString = "SELECT rr FROM ReservedRoomEntity rr "
-                        + "JOIN rr.roomTypeEntity rt "
-                        + "WHERE rt.name = :inRoomType";
+            if (!roomTypeEntity.getRoomEntities().isEmpty()) {
+                if (!roomTypeEntity.getReservedRoomEntities().isEmpty()) {
+//                System.out.println(roomTypeEntity.getName());
 
-                Query query = em.createQuery(qlString);
-                query.setParameter("inRoomType", roomTypeEntity.getName());
-                List<ReservedRoomEntity> reservedRooms = query.getResultList();
+                    String qlString = "SELECT rr FROM ReservedRoomEntity rr "
+                            + "JOIN rr.roomTypeEntity rt "
+                            + "WHERE rt.name = :inRoomType";
 
-                //loop through reservedrooms under this particular room type
-                //and check if there are any available rooms
-                int nonClashes = 0;
-                int clashes = 0;
-                for (ReservedRoomEntity reservedRoomEntity : reservedRooms) {
-                    System.out.println("reservedRoom Id: " + reservedRoomEntity.getReservedRoomId());
+                    Query query = em.createQuery(qlString);
+                    query.setParameter("inRoomType", roomTypeEntity.getName());
+                    List<ReservedRoomEntity> reservedRooms = query.getResultList();
 
-                    ReservationEntity reservationEntity = new ReservationEntity();
-                    Date reservedCheckInDate = reservationEntity.getCheckInDate();
-                    Date reservedCheckOutDate = reservationEntity.getCheckOutDate();
+                    //loop through reservedrooms under this particular room type
+                    //and check if there are any available rooms
+                    int nonClashes = 0;
+                    int clashes = 0;
+                    for (ReservedRoomEntity reservedRoomEntity : reservedRooms) {
+                        System.out.println("reservedRoom Id: " + reservedRoomEntity.getReservedRoomId());
 
-                    if ((reservedCheckOutDate.compareTo(checkInDate) <= 0) && (reservedCheckInDate.compareTo(checkOutDate)) >= 0) {
+                        ReservationEntity reservationEntity = new ReservationEntity();
+                        reservationEntity = reservedRoomEntity.getReservationEntity();
+                        Date reservedCheckInDate = reservationEntity.getCheckInDate();
+                        Date reservedCheckOutDate = reservationEntity.getCheckOutDate();
+
+                        if ((reservedCheckOutDate.compareTo(checkInDate) <= 0) && (reservedCheckInDate.compareTo(checkOutDate)) >= 0) {
+
+                        } else {
+                            clashes++;
+                        }
                     }
-                    else {
-                        clashes++;
+                    if (clashes < roomTypeEntity.getReservedRoomEntities().size()) {
+                        availableRoomTypes.add(roomTypeEntity);
                     }
-                }
-                if (clashes < roomTypeEntity.getNumOfRooms()) {
+                } else {
                     availableRoomTypes.add(roomTypeEntity);
                 }
-            }
-            else {
-                availableRoomTypes.add(roomTypeEntity);
             }
         }
 
         //return statement 
         return allRoomTypes;
     }
-    
+
     @Override
-     public Integer retrieveAvailableRoomCount(RoomTypeEntity roomTypeEntity, Date checkInDate, Date checkOutDate) {
-        
+    public Integer retrieveAvailableRoomCount(RoomTypeEntity roomTypeEntity, Date checkInDate, Date checkOutDate) {
+
         int clashes = 0;
         int nonClashes = 0;
-         if (!roomTypeEntity.getReservedRoomEntities().isEmpty()) {
-                //get all the reserved rooms
-                String qlString = "SELECT rr FROM ReservedRoomEntity rr "
-                        + "JOIN rr.roomTypeEntity rt "
-                        + "WHERE rt.name = :inRoomType";
+        if (!roomTypeEntity.getReservedRoomEntities().isEmpty()) {
+            //get all the reserved rooms
+            String qlString = "SELECT rr FROM ReservedRoomEntity rr "
+                    + "JOIN rr.roomTypeEntity rt "
+                    + "WHERE rt.name = :inRoomType";
 
-                Query query = em.createQuery(qlString);
-                query.setParameter("inRoomType", roomTypeEntity.getName());
-                List<ReservedRoomEntity> reservedRooms = query.getResultList();
+            Query query = em.createQuery(qlString);
+            query.setParameter("inRoomType", roomTypeEntity.getName());
+            List<ReservedRoomEntity> reservedRooms = query.getResultList();
 
-                for (ReservedRoomEntity reservedRoomEntity : reservedRooms) {
+            for (ReservedRoomEntity reservedRoomEntity : reservedRooms) {
 
-                    ReservationEntity reservationEntity = new ReservationEntity();
-                    Date reservedCheckInDate = reservationEntity.getCheckInDate();
-                    Date reservedCheckOutDate = reservationEntity.getCheckOutDate();
+                ReservationEntity reservationEntity = new ReservationEntity();
+                reservationEntity = reservedRoomEntity.getReservationEntity();
+                Date reservedCheckInDate = reservationEntity.getCheckInDate();
+                Date reservedCheckOutDate = reservationEntity.getCheckOutDate();
 
-                    if ((reservedCheckOutDate.compareTo(checkInDate) <= 0) && (reservedCheckInDate.compareTo(checkOutDate)) >= 0) {
-                       
-                    }
-                    else {
-                        clashes++;
-                    }
+                if ((reservedCheckOutDate.compareTo(checkInDate) <= 0) && (reservedCheckInDate.compareTo(checkOutDate)) >= 0) {
+                    
+                } else {
+                    clashes++;
                 }
-                nonClashes = (roomTypeEntity.getRoomEntities().size())-clashes;
             }
-         else {
-            
-            System.out.println("Size: "+ roomTypeEntity.getRoomEntities().size());
+            nonClashes = (roomTypeEntity.getRoomEntities().size()) - clashes;
+        } else {
+
             nonClashes = roomTypeEntity.getRoomEntities().size();
-         }
-         return nonClashes;
+        }
+        return nonClashes;
     }
 }

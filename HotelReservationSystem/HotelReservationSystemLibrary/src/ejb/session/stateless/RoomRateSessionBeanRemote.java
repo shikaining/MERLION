@@ -1,7 +1,9 @@
 package ejb.session.stateless;
 
 import entity.RoomRateEntity;
+import entity.RoomTypeEntity;
 import java.util.List;
+import util.enumeration.rateTypeEnum;
 import util.exception.DeleteRoomRateException;
 import util.exception.RoomRateNotFoundException;
 
@@ -16,5 +18,7 @@ public interface RoomRateSessionBeanRemote {
     void updateRoomRate(RoomRateEntity roomRateEntity) throws RoomRateNotFoundException;
 
     void deleteRoomRate(Long roomRateId) throws RoomRateNotFoundException, DeleteRoomRateException;
+
+    RoomRateEntity retrieveRoomRateByRoomType(RoomTypeEntity currRoomTypeEntity, rateTypeEnum rate) throws RoomRateNotFoundException;
     
 }

@@ -1,9 +1,9 @@
 package horsmanagementclient;
 
+import ejb.session.stateful.ReservationSessionBeanRemote;
 import ejb.session.stateless.EmployeeSessionBeanRemote;
 import ejb.session.stateless.GuestSessionBeanRemote;
 import ejb.session.stateless.PartnerSessionBeanRemote;
-import ejb.session.stateless.ReservationSessionBeanRemote;
 import ejb.session.stateless.RoomRateSessionBeanRemote;
 import ejb.session.stateless.RoomSessionBeanRemote;
 import ejb.session.stateless.RoomTypeSessionBeanRemote;
@@ -14,7 +14,9 @@ import util.exception.GuestNotFoundException;
 import util.exception.InvalidAccessRightException;
 import util.exception.InvalidLoginCredentialException;
 import util.exception.ReservationNotFoundException;
+import util.exception.ReservedRoomNotFoundException;
 import util.exception.RoomNotFoundException;
+import util.exception.RoomRateNotFoundException;
 import util.exception.RoomTypeNotFoundException;
 
 public class MainApp {
@@ -46,7 +48,7 @@ public class MainApp {
         this.guestSessionBeanRemote = guestSessionBeanRemote;
     }
 
-    public void runApp() throws RoomNotFoundException, ParseException, GuestNotFoundException, RoomTypeNotFoundException, ReservationNotFoundException {
+    public void runApp() throws RoomNotFoundException, ParseException, GuestNotFoundException, RoomTypeNotFoundException, ReservationNotFoundException, ReservedRoomNotFoundException, RoomRateNotFoundException {
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
 
@@ -76,7 +78,7 @@ public class MainApp {
 
                             systemAdministrationModule = new SystemAdministrationModule(employeeSessionBeanRemote, partnerSessionBeanRemote, currentEmployee);
                             hotelOperationnModule = new HotelOperationModule(employeeSessionBeanRemote, roomTypeSessionBeanRemote, roomSessionBeanRemote, roomRateSessionBeanRemote, currentEmployee);
-                            frontOfficeModule = new FrontOfficeModule(employeeSessionBeanRemote, roomTypeSessionBeanRemote, reservationSessionBeanRemote, guestSessionBeanRemote, currentEmployee);
+                            frontOfficeModule = new FrontOfficeModule(employeeSessionBeanRemote, roomTypeSessionBeanRemote, roomRateSessionBeanRemote, reservationSessionBeanRemote, guestSessionBeanRemote, currentEmployee);
                             menuMain();
                         } 
                         catch (InvalidLoginCredentialException ex) 
@@ -119,7 +121,7 @@ public class MainApp {
         }
     }
 
-    private void menuMain() throws RoomNotFoundException, ParseException, GuestNotFoundException, RoomTypeNotFoundException, ReservationNotFoundException {
+    private void menuMain() throws RoomNotFoundException, ParseException, GuestNotFoundException, RoomTypeNotFoundException, ReservationNotFoundException, ReservedRoomNotFoundException, RoomRateNotFoundException {
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
 

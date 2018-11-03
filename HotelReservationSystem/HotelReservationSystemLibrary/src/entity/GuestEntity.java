@@ -118,11 +118,7 @@ public class GuestEntity implements Serializable {
     public void setReservationEntities(List<ReservationEntity> reservationEntities) {
         this.reservationEntities = reservationEntities;
     }
-
     
-    
-    
-
     @Override
     public int hashCode() {
         int hash = 0;
