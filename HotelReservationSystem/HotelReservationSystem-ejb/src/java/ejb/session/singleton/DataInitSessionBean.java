@@ -52,7 +52,7 @@ public class DataInitSessionBean {
            employeeSessionBeanLocal.createNewEmployee(new EmployeeEntity("Sales","One","Sales","Password",employeeAccessRightEnum.SALESMANAGER));
            employeeSessionBeanLocal.createNewEmployee(new EmployeeEntity("Officer","One","Officer","Password",employeeAccessRightEnum.GUESTRELOFFICER));
           
-           List<String>amenities = new ArrayList<>();
+           List<String> amenities = new ArrayList<>();
            amenities.add("Wifi");
            amenities.add("Order-in");
            

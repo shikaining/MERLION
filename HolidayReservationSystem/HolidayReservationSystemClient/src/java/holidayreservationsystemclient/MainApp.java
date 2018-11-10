@@ -26,7 +26,6 @@ public class MainApp
     private HolidayReservationSessionBeanRemote holidayReservationSessionBeanRemote;
     private CustomerSessionBeanRemote customerSessionBeanRemote;
     private Customer currentCustomer;
-    //BEST PARTNER EVER
     
     public MainApp() 
     {

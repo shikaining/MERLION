@@ -18,6 +18,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import util.exception.EmployeeNotFoundException;
 import util.exception.GuestNotFoundException;
+import util.exception.InvalidLoginCredentialException;
 
 /**
  *
@@ -40,8 +41,37 @@ public class GuestSessionBean implements GuestSessionBeanRemote, GuestSessionBea
     }
 
     @Override
-    public List<GuestEntity> retrieveAllGuests() {
+    public GuestEntity guestLogin(String username, String password) throws InvalidLoginCredentialException {
+        try {
+            GuestEntity guestEntity = retrieveGuestByUsername(username);
 
+            if (guestEntity.getUserName().equals(username) && guestEntity.getPassword().equals(password)) {
+
+                return guestEntity;
+
+            } else {
+                throw new InvalidLoginCredentialException("Invalid login credential");
+            }
+        } catch (GuestNotFoundException ex) {
+            throw new InvalidLoginCredentialException("Username does not exist or invalid password!");
+        }
+    }
+
+    @Override
+    public GuestEntity addUsername(GuestEntity guestEntity) throws GuestNotFoundException {
+        if (guestEntity.getGuestId() != null) {
+            GuestEntity guestEntityToUpdate = retrieveGuestByGuestId(guestEntity.getGuestId());
+            guestEntityToUpdate.setUserName(guestEntity.getUserName());
+            guestEntityToUpdate.setPassword(guestEntity.getPassword());
+        } else {
+            throw new GuestNotFoundException("Guest ID not provided for guest to be updated");
+        }
+        
+        return guestEntity;
+    }
+
+    @Override
+    public List<GuestEntity> retrieveAllGuests() {
         Query query = em.createQuery("SELECT g FROM GuestEntity g");
         List<GuestEntity> guestEntities = query.getResultList();
         for (GuestEntity guestEntity : guestEntities) {
@@ -74,7 +104,8 @@ public class GuestSessionBean implements GuestSessionBeanRemote, GuestSessionBea
             guestEntity.getReservationEntities().size();
             return guestEntity;
         } catch (NoResultException | NonUniqueResultException ex) {
-            return null;
+            GuestEntity emptyGuest = new GuestEntity();
+            return emptyGuest;
         }
     }
 
@@ -83,9 +114,9 @@ public class GuestSessionBean implements GuestSessionBeanRemote, GuestSessionBea
         GuestEntity guestEntity = em.find(GuestEntity.class, guestId);
 
         if (guestEntity != null) {
-            
+
             guestEntity.getReservationEntities().size();
-           
+
             return guestEntity;
         } else {
             throw new GuestNotFoundException("Guest ID " + guestId + " does not exist!");
