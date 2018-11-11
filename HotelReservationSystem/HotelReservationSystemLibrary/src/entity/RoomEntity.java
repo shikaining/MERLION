@@ -6,7 +6,9 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -16,9 +18,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.OneToMany;
 import util.enumeration.roomStatusEnum;
 
 @Entity
@@ -30,37 +30,28 @@ public class RoomEntity implements Serializable {
     private Long roomId;
     @Column(unique = true, nullable = false, length = 4)
     private String roomNumber;
-    
+
     @Enumerated(EnumType.STRING)
     private roomStatusEnum status;
-    
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(nullable = true)
-    private Date checkInDate;
-    
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(nullable = true)
-    private Date checkOutDate;
-    
-    @ManyToOne (optional = false)
-    @JoinColumn (nullable = false)
+
+    @ManyToOne(optional = false)
+    @JoinColumn(nullable = false)
     private RoomTypeEntity roomTypeEntity;
-    
-    @OneToOne
-    private ReservedRoomEntity reservedRoomEntity;
+
+    @OneToMany(mappedBy = "roomEntity")
+    private List<ReservedRoomEntity> reservedRoomEntities;
 
     public RoomEntity() {
+        reservedRoomEntities = new ArrayList<>();
     }
 
-    public RoomEntity(String roomNumber, roomStatusEnum status, Date checkInDate, Date checkOutDate) {
+    public RoomEntity(String roomNumber, roomStatusEnum status) {
+        this();
         this.roomNumber = roomNumber;
         this.status = status;
-        this.checkInDate = checkInDate;
-        this.checkOutDate = checkOutDate;
+
     }
 
-    
-    
     public Long getRoomId() {
         return roomId;
     }
@@ -85,23 +76,6 @@ public class RoomEntity implements Serializable {
         this.status = status;
     }
 
-    public Date getCheckInDate() {
-        return checkInDate;
-    }
-
-    public void setCheckInDate(Date checkInDate) {
-        this.checkInDate = checkInDate;
-    }
-
-    public Date getCheckOutDate() {
-        return checkOutDate;
-    }
-
-    public void setCheckOutDate(Date checkOutDate) {
-        this.checkOutDate = checkOutDate;
-    }
-    
-
     public RoomTypeEntity getRoomTypeEntity() {
         return roomTypeEntity;
     }
@@ -110,17 +84,13 @@ public class RoomEntity implements Serializable {
         this.roomTypeEntity = roomTypeEntity;
     }
 
-    public ReservedRoomEntity getReservedRoomEntity() {
-        return reservedRoomEntity;
+    public List<ReservedRoomEntity> getReservedRoomEntities() {
+        return reservedRoomEntities;
     }
 
-    public void setReservedRoomEntity(ReservedRoomEntity reservedRoomEntity) {
-        this.reservedRoomEntity = reservedRoomEntity;
+    public void setReservedRoomEntities(List<ReservedRoomEntity> reservedRoomEntities) {
+        this.reservedRoomEntities = reservedRoomEntities;
     }
-    
-    
-    
-    
 
     @Override
     public int hashCode() {
@@ -146,5 +116,5 @@ public class RoomEntity implements Serializable {
     public String toString() {
         return "entity.roomEntity[ id=" + roomId + " ]";
     }
-    
+
 }

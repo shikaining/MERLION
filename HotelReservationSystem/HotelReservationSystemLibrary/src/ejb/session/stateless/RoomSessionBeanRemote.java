@@ -7,7 +7,7 @@ import util.exception.RoomNotFoundException;
 
 public interface RoomSessionBeanRemote {
 
-    RoomEntity createNewRoom(RoomEntity newRoomEntity);
+    RoomEntity createNewRoom(RoomEntity newRoomEntity, Long roomTypeId);
 
     void deleteRoom(Long roomId) throws RoomNotFoundException, DeleteRoomException;
 

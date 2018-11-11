@@ -1,7 +1,9 @@
 package ejb.session.stateless;
 
 import entity.RoomEntity;
+import entity.RoomTypeEntity;
 import java.util.List;
+import javax.ejb.EJB;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
@@ -13,19 +15,32 @@ import javax.persistence.Query;
 import util.enumeration.roomStatusEnum;
 import util.exception.DeleteRoomException;
 import util.exception.RoomNotFoundException;
+import util.exception.RoomTypeNotFoundException;
 
 @Stateless
 @Local(RoomSessionBeanLocal.class)
 @Remote(RoomSessionBeanRemote.class)
 public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLocal {
 
-    //IMPORTANT: NEED TO CREATE A ROOM INVENTORY SESSION BEAN
+    @EJB
+    private RoomTypeSessionBeanLocal roomTypeSessionBeanLocal;
+
     @PersistenceContext(unitName = "HotelReservationSystem-ejbPU")
     private EntityManager em;
 
     @Override
-    public RoomEntity createNewRoom(RoomEntity newRoomEntity) {
+    public RoomEntity createNewRoom(RoomEntity newRoomEntity, Long roomTypeId) {
+
+        RoomTypeEntity roomTypeEntity = new RoomTypeEntity();
+        
+        try {
+            roomTypeEntity = roomTypeSessionBeanLocal.retrieveRoomTypeByRoomTypeId(roomTypeId);
+        } catch (RoomTypeNotFoundException ex) {
+           
+        }
+        newRoomEntity.setRoomTypeEntity(roomTypeEntity);
         em.persist(newRoomEntity);
+        roomTypeEntity.getRoomEntities().add(newRoomEntity);
         em.flush();
 
         return newRoomEntity;
@@ -113,21 +128,18 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
 
     @Override
     public void checkInGuest(Long roomId) throws RoomNotFoundException {
-        
+
         RoomEntity roomEntity = retrieveRoomByRoomId(roomId);
         roomEntity.setStatus(roomStatusEnum.UNAVAILABLE);
 
     }
-    
+
     @Override
     public void checkOutGuest(Long roomId) throws RoomNotFoundException {
-        
+
         RoomEntity roomEntity = retrieveRoomByRoomId(roomId);
         roomEntity.setStatus(roomStatusEnum.AVAILABLE);
-        roomEntity.setCheckInDate(null);
-        roomEntity.setCheckOutDate(null);
 
     }
-
 
 }

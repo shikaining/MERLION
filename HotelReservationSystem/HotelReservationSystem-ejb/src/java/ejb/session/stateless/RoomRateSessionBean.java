@@ -4,6 +4,7 @@ import entity.RoomRateEntity;
 import entity.RoomTypeEntity;
 import java.util.ArrayList;
 import java.util.List;
+import javax.ejb.EJB;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
@@ -15,14 +16,35 @@ import javax.persistence.Query;
 import util.enumeration.rateTypeEnum;
 import util.exception.DeleteRoomRateException;
 import util.exception.RoomRateNotFoundException;
+import util.exception.RoomTypeNotFoundException;
 
 @Stateless
 @Local(RoomRateSessionBeanLocal.class)
 @Remote(RoomRateSessionBeanRemote.class)
 public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateSessionBeanLocal {
 
+    @EJB
+    private RoomTypeSessionBeanLocal roomTypeSessionBeanLocal;
+
     @PersistenceContext(unitName = "HotelReservationSystem-ejbPU")
     private EntityManager em;
+
+    @Override
+    public RoomRateEntity createNewRoomRate(RoomRateEntity newRoomRateEntity, Long roomTypeId) {
+        RoomTypeEntity roomTypeEntity = new RoomTypeEntity();
+
+        try {
+            roomTypeEntity = roomTypeSessionBeanLocal.retrieveRoomTypeByRoomTypeId(roomTypeId);
+        } catch (RoomTypeNotFoundException ex) {
+
+        }
+        newRoomRateEntity.setRoomTypeEntity(roomTypeEntity);
+        em.persist(newRoomRateEntity);
+        roomTypeEntity.getRoomRateEntities().add(newRoomRateEntity);
+        em.flush();
+
+        return newRoomRateEntity;
+    }
 
     @Override
     public RoomRateEntity createNewRoomRate(RoomRateEntity newRoomRateEntity) {
@@ -92,9 +114,9 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
         try {
             RoomRateEntity roomRateEntity = (RoomRateEntity) query.getSingleResult();
             roomRateEntity.getReservedNightEntities().size();
-            
+
             return roomRateEntity;
-            
+
         } catch (NoResultException | NonUniqueResultException ex) {
             throw new RoomRateNotFoundException("Room Rate does not exist!");
         }

@@ -1,21 +1,35 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package horsreservationclient;
 
-/**
- *
- * @author kai_n
- */
+import ejb.session.stateful.ReservationSessionBeanRemote;
+import ejb.session.stateless.GuestSessionBeanRemote;
+import ejb.session.stateless.RoomRateSessionBeanRemote;
+import ejb.session.stateless.RoomSessionBeanRemote;
+import ejb.session.stateless.RoomTypeSessionBeanRemote;
+import java.text.ParseException;
+import javax.ejb.EJB;
+import util.exception.GuestNotFoundException;
+import util.exception.ReservationNotFoundException;
+import util.exception.ReservedRoomNotFoundException;
+import util.exception.RoomNotFoundException;
+import util.exception.RoomRateNotFoundException;
+import util.exception.RoomTypeNotFoundException;
+
 public class Main {
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        // TODO code application logic here
+    @EJB
+    private static ReservationSessionBeanRemote reservationSessionBeanRemote;
+    @EJB
+    private static RoomTypeSessionBeanRemote roomTypeSessionBeanRemote;
+    @EJB
+    private static RoomSessionBeanRemote roomSessionBeanRemote;
+    @EJB
+    private static RoomRateSessionBeanRemote roomRateSessionBeanRemote;
+    @EJB
+    private static GuestSessionBeanRemote guestSessionBeanRemote;
+
+    public static void main(String[] args) throws RoomNotFoundException, ParseException, GuestNotFoundException, RoomTypeNotFoundException, ReservationNotFoundException, ReservedRoomNotFoundException, RoomRateNotFoundException {
+        MainApp mainApp = new MainApp(guestSessionBeanRemote, roomTypeSessionBeanRemote, roomRateSessionBeanRemote, roomSessionBeanRemote, reservationSessionBeanRemote);
+        mainApp.runApp();
     }
-    
+
 }

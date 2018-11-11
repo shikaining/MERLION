@@ -7,6 +7,7 @@ package ejb.session.stateless;
 
 import entity.GuestEntity;
 import util.exception.GuestNotFoundException;
+import util.exception.InvalidLoginCredentialException;
 
 
 public interface GuestSessionBeanRemote {
@@ -16,5 +17,9 @@ public interface GuestSessionBeanRemote {
     GuestEntity createNewGuest(GuestEntity newGuestEntity);
 
     GuestEntity updateGuest(GuestEntity guestEntity) throws GuestNotFoundException;
+
+    GuestEntity guestLogin(String username, String password) throws InvalidLoginCredentialException;
+
+    GuestEntity addUsername(GuestEntity guestEntity) throws GuestNotFoundException;
     
 }

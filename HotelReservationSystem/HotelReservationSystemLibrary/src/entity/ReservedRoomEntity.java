@@ -39,7 +39,7 @@ public class ReservedRoomEntity implements Serializable {
     @OneToMany (mappedBy = "reservedRoomEntity")
     private List<ReservedNightEntity> reservedNightEntities;
 
-    @OneToOne (mappedBy = "reservedRoomEntity")
+    @ManyToOne (optional = true)
     @JoinColumn(nullable = true)
     private RoomEntity roomEntity;
     
