@@ -5,7 +5,6 @@ import ejb.session.stateless.RoomRateSessionBeanRemote;
 import ejb.session.stateless.RoomSessionBeanRemote;
 import ejb.session.stateless.RoomTypeSessionBeanRemote;
 import entity.EmployeeEntity;
-import entity.ReservedRoomEntity;
 import entity.RoomEntity;
 import entity.RoomRateEntity;
 import entity.RoomTypeEntity;
@@ -348,10 +347,12 @@ public class HotelOperationModule {
         scanner.nextLine();
     }
     
-    private void doCreateNewRoom() throws RoomTypeNotFoundException {
+    private void doCreateNewRoom() throws RoomTypeNotFoundException, RoomNotFoundException {
 
         Scanner scanner = new Scanner(System.in);
         RoomEntity roomEntity = new RoomEntity();
+        Long roomId;
+        Long roomTypeId;
 
         System.out.println("*** HoRS Management System :: Hotel Operation :: Create New Room ***\n");
         System.out.print("Enter Room Number> ");
@@ -371,9 +372,8 @@ public class HotelOperationModule {
 
             if (roomTypeInt >= 1 && roomTypeInt <= numRoomTypes) {
                 roomEntity.setRoomTypeEntity(roomTypeEntities.get(roomTypeInt-1));
-                roomTypeEntities.get(roomTypeInt-1).getRoomEntities().add(roomEntity);
-//                System.out.print(roomTypeEntities.get(roomTypeInt-1).getRoomEntities().toString());
-                roomTypeSessionBeanRemote.updateRoomType(roomTypeEntities.get(roomTypeInt-1));
+                roomTypeId = roomTypeEntities.get(roomTypeInt-1).getRoomTypeId();
+//             
                 break; 
 
             } else {
@@ -386,6 +386,8 @@ public class HotelOperationModule {
         scanner.nextLine();
         
         roomEntity = roomSessionBeanRemote.createNewRoom(roomEntity);
+        roomId = roomEntity.getRoomId();
+        roomTypeSessionBeanRemote.linkRoomToRoomType(roomId, roomTypeId);
         System.out.println("New Room created successfully!: " + roomEntity.getRoomId()+ "\n");
     }
     

@@ -26,10 +26,12 @@ public class EmployeeEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long employeeId;
+    @Column(nullable = false, length = 16)
     private String firstName;
     private String lastName;
-    @Column(unique  = true)
+    @Column(unique  = true, nullable = false, length = 16)
     private String userName;
+    @Column(nullable = false, length = 16)
     private String password;
     @Enumerated(EnumType.STRING)
     private employeeAccessRightEnum accessRight;

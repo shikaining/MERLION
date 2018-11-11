@@ -6,6 +6,7 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -16,6 +17,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import util.enumeration.roomStatusEnum;
 
 @Entity
@@ -25,11 +28,19 @@ public class RoomEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long roomId;
-    @Column(unique = true)
+    @Column(unique = true, nullable = false, length = 4)
     private String roomNumber;
-    //available, unavailable, allocated, cleaning
+    
     @Enumerated(EnumType.STRING)
     private roomStatusEnum status;
+    
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(nullable = true)
+    private Date checkInDate;
+    
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(nullable = true)
+    private Date checkOutDate;
     
     @ManyToOne (optional = false)
     @JoinColumn (nullable = false)
@@ -41,11 +52,14 @@ public class RoomEntity implements Serializable {
     public RoomEntity() {
     }
 
-    public RoomEntity(String roomNumber, roomStatusEnum status) {
-        this();
+    public RoomEntity(String roomNumber, roomStatusEnum status, Date checkInDate, Date checkOutDate) {
         this.roomNumber = roomNumber;
         this.status = status;
+        this.checkInDate = checkInDate;
+        this.checkOutDate = checkOutDate;
     }
+
+    
     
     public Long getRoomId() {
         return roomId;
@@ -71,6 +85,23 @@ public class RoomEntity implements Serializable {
         this.status = status;
     }
 
+    public Date getCheckInDate() {
+        return checkInDate;
+    }
+
+    public void setCheckInDate(Date checkInDate) {
+        this.checkInDate = checkInDate;
+    }
+
+    public Date getCheckOutDate() {
+        return checkOutDate;
+    }
+
+    public void setCheckOutDate(Date checkOutDate) {
+        this.checkOutDate = checkOutDate;
+    }
+    
+
     public RoomTypeEntity getRoomTypeEntity() {
         return roomTypeEntity;
     }
@@ -86,6 +117,10 @@ public class RoomEntity implements Serializable {
     public void setReservedRoomEntity(ReservedRoomEntity reservedRoomEntity) {
         this.reservedRoomEntity = reservedRoomEntity;
     }
+    
+    
+    
+    
 
     @Override
     public int hashCode() {

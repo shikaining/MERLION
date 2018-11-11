@@ -7,4 +7,6 @@ public interface RoomRateSessionBeanLocal {
 
     RoomRateEntity retrieveRoomRateByRoomRateId(Long roomRateId) throws RoomRateNotFoundException;
     
+    RoomRateEntity createNewRoomRate(RoomRateEntity newRoomRateEntity);
+    
 }

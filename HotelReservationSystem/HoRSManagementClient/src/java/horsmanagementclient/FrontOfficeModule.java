@@ -4,12 +4,14 @@ import ejb.session.stateful.ReservationSessionBeanRemote;
 import ejb.session.stateless.EmployeeSessionBeanRemote;
 import ejb.session.stateless.GuestSessionBeanRemote;
 import ejb.session.stateless.RoomRateSessionBeanRemote;
+import ejb.session.stateless.RoomSessionBeanRemote;
 import ejb.session.stateless.RoomTypeSessionBeanRemote;
 import entity.EmployeeEntity;
 import entity.GuestEntity;
 import entity.ReservationEntity;
 import entity.ReservedNightEntity;
 import entity.ReservedRoomEntity;
+import entity.RoomEntity;
 import entity.RoomRateEntity;
 import entity.RoomTypeEntity;
 import java.math.BigDecimal;
@@ -27,6 +29,7 @@ import util.exception.GuestNotFoundException;
 import util.exception.InvalidAccessRightException;
 import util.exception.ReservationNotFoundException;
 import util.exception.ReservedRoomNotFoundException;
+import util.exception.RoomNotFoundException;
 import util.exception.RoomRateNotFoundException;
 
 public class FrontOfficeModule {
@@ -34,6 +37,7 @@ public class FrontOfficeModule {
     private EmployeeSessionBeanRemote employeeSessionBeanRemote;
     private RoomTypeSessionBeanRemote roomTypeSessionBeanRemote;
     private RoomRateSessionBeanRemote roomRateSessionBeanRemote;
+    private RoomSessionBeanRemote roomSessionBeanRemote;
     private ReservationSessionBeanRemote reservationSessionBeanRemote;
     private GuestSessionBeanRemote guestSessionBeanRemote;
     private EmployeeEntity currentEmployee;
@@ -41,17 +45,18 @@ public class FrontOfficeModule {
     public FrontOfficeModule() {
     }
 
-    public FrontOfficeModule(EmployeeSessionBeanRemote employeeSessionBeanRemote, RoomTypeSessionBeanRemote roomTypeSessionBeanRemote, RoomRateSessionBeanRemote roomRateSessionBeanRemote, ReservationSessionBeanRemote reservationSessionBeanRemote, GuestSessionBeanRemote guestSessionBeanRemote, EmployeeEntity currentEmployee) {
+    public FrontOfficeModule(EmployeeSessionBeanRemote employeeSessionBeanRemote, RoomTypeSessionBeanRemote roomTypeSessionBeanRemote, RoomRateSessionBeanRemote roomRateSessionBeanRemote, RoomSessionBeanRemote roomSessionBeanRemote, ReservationSessionBeanRemote reservationSessionBeanRemote, GuestSessionBeanRemote guestSessionBeanRemote, EmployeeEntity currentEmployee) {
         this();
         this.employeeSessionBeanRemote = employeeSessionBeanRemote;
         this.roomTypeSessionBeanRemote = roomTypeSessionBeanRemote;
         this.roomRateSessionBeanRemote = roomRateSessionBeanRemote;
+        this.roomSessionBeanRemote = roomSessionBeanRemote;
         this.reservationSessionBeanRemote = reservationSessionBeanRemote;
         this.guestSessionBeanRemote = guestSessionBeanRemote;
         this.currentEmployee = currentEmployee;
     }
 
-    public void menuFrontOffice() throws InvalidAccessRightException, ParseException, GuestNotFoundException, ReservationNotFoundException, ReservedRoomNotFoundException, RoomRateNotFoundException {
+    public void menuFrontOffice() throws InvalidAccessRightException, ParseException, GuestNotFoundException, ReservationNotFoundException, ReservedRoomNotFoundException, RoomRateNotFoundException, RoomNotFoundException {
         if (currentEmployee.getAccessRight() != employeeAccessRightEnum.GUESTRELOFFICER) {
             throw new InvalidAccessRightException("You don't have GUESTRELOFFICER rights to access the Front Office Module.");
         }
@@ -63,7 +68,7 @@ public class FrontOfficeModule {
             System.out.println("*** HoRS Management System :: Front Office ***\n");
             System.out.println("1: Walk-in Search Room");
             System.out.println("2: Check-in Guest");
-            System.out.println("3: Check-in Guest");
+            System.out.println("3: Check-out Guest");
             System.out.println("4: Back\n");
             response = 0;
 
@@ -78,10 +83,10 @@ public class FrontOfficeModule {
 
                 } else if (response == 2) {
 
-//                    doCheckInGuest();
+                    doCheckInGuest();
                 } else if (response == 3) {
 
-//                    doCheckOutGuest();
+                    doCheckOutGuest();
                 } else if (response == 4) {
 
                     break;
@@ -105,7 +110,7 @@ public class FrontOfficeModule {
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
         SimpleDateFormat inputDateFormat = new SimpleDateFormat("d/M/y");
-        SimpleDateFormat outputDateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm a");
+        SimpleDateFormat outputDateFormat = new SimpleDateFormat("dd/MM/yyyy");
         Date checkInDate;
         Date checkOutDate;
 
@@ -140,6 +145,8 @@ public class FrontOfficeModule {
             sn = 0;
             for (RoomTypeEntity roomTypeEntity : availableRoomTypes) {
 
+                System.out.println("current roomType: " + roomTypeEntity.getName());
+                System.out.println("This room has " + roomTypeEntity.getReservedRoomEntities().size() + " reserved rooms");
                 int nonClashes = roomTypeSessionBeanRemote.retrieveAvailableRoomCount(roomTypeEntity, checkInDate, checkOutDate);
                 ++sn;
 
@@ -224,6 +231,7 @@ public class FrontOfficeModule {
                     ReservedRoomEntity newReservedRoomEntity = doCreateNewReservedRoom(newReservationEntity, currRoomTypeEntity, numNights);
                     reservedRoomEntities.add(newReservedRoomEntity);
                     currRoomTypeEntity.getReservedRoomEntities().add(newReservedRoomEntity);
+                    System.out.println("reservedroomentities are : " + currRoomTypeEntity.getReservedRoomEntities().toString());
                 }
                 newReservationEntity.setReservedRoomEntities(reservedRoomEntities);
             } //invalid number of rooms for booking
@@ -235,7 +243,7 @@ public class FrontOfficeModule {
         newReservationEntity.setGuestEntity(guestEntity);
         List<ReservedRoomEntity> reservedRoomEntities = newReservationEntity.getReservedRoomEntities();
         BigDecimal reservationAmount = new BigDecimal(BigInteger.ZERO);
-        
+
         for (ReservedRoomEntity reservedRoomEntity : reservedRoomEntities) {
             List<ReservedNightEntity> reservedNightEntities = reservedRoomEntity.getReservedNightEntities();
             for (ReservedNightEntity reservedNightEntity : reservedNightEntities) {
@@ -244,32 +252,45 @@ public class FrontOfficeModule {
         }
         newReservationEntity.setReservationAmount(reservationAmount);
         reservationSessionBeanRemote.updateReservation(newReservationEntity);
+        System.out.println("Reservation Amount: " + newReservationEntity.getReservationAmount() + "\n");
         System.out.println("New Reservation created successfully!: " + newReservationEntity.getReservationId() + "\n");
+        doAllocateRoom(newReservationEntity.getReservationId());
     }
 
-    private GuestEntity doCreateNewGuest(ReservationEntity reservationEntity) {
+    private GuestEntity doCreateNewGuest(ReservationEntity reservationEntity) throws GuestNotFoundException {
 
         Scanner scanner = new Scanner(System.in);
         GuestEntity guestEntity = new GuestEntity();
         String identificationNumber;
 
-        System.out.println("Enter identification number of guest: ");
-        identificationNumber = scanner.nextLine().trim();
+        System.out.println("Registered guest? (Enter 'Y' if guest is registered)");
+        String response = scanner.nextLine().trim();
 
-//                  assume is a new guest
-//                  guestEntity = guestSessionBeanRemote.retrieveGuestByID(identificationNumber);
-//                  if (guestEntity == null) {
-        guestEntity.setIdentificationNumber(identificationNumber);
-        System.out.println("Enter first name of guest: ");
-        guestEntity.setFirstName(scanner.nextLine().trim());
-        System.out.println("Enter last name of guest: ");
-        guestEntity.setLastName(scanner.nextLine().trim());
-        System.out.println("Enter email of guest: ");
-        guestEntity.setEmail(scanner.nextLine().trim());
-        List<ReservationEntity> reservationEntities = new ArrayList<>();
-        reservationEntities.add(reservationEntity);
-        guestEntity.setReservationEntities(reservationEntities);
-        guestEntity = guestSessionBeanRemote.createNewGuest(guestEntity);
+        if (!response.equals("Y")) {
+
+            System.out.println("Enter identification number of guest: ");
+            guestEntity.setIdentificationNumber(scanner.nextLine().trim());
+            System.out.println("Enter first name of guest: ");
+            guestEntity.setFirstName(scanner.nextLine().trim());
+            System.out.println("Enter last name of guest: ");
+            guestEntity.setLastName(scanner.nextLine().trim());
+            System.out.println("Enter email of guest: ");
+            guestEntity.setEmail(scanner.nextLine().trim());
+            List<ReservationEntity> reservationEntities = new ArrayList<>();
+            reservationEntities.add(reservationEntity);
+            guestEntity.setReservationEntities(reservationEntities);
+            guestEntity = guestSessionBeanRemote.createNewGuest(guestEntity);
+        } else {
+            System.out.println("Enter identification number of guest: ");
+            identificationNumber = scanner.nextLine().trim();
+            guestEntity.setIdentificationNumber(identificationNumber);
+            guestEntity = guestSessionBeanRemote.retrieveGuestByID(identificationNumber);
+            List<ReservationEntity> reservationEntities = new ArrayList<>();
+            reservationEntities.add(reservationEntity);
+            guestEntity.setReservationEntities(reservationEntities);
+            guestEntity = guestSessionBeanRemote.updateGuest(guestEntity);
+
+        }
         return guestEntity;
     }
 
@@ -307,4 +328,63 @@ public class FrontOfficeModule {
         roomRateSessionBeanRemote.updateRoomRate(roomRateEntity);
         return reservedNightEntity;
     }
+
+    private void doAllocateRoom(Long reservationId) throws ReservationNotFoundException {
+
+        //for each reserved room in reservation, link it to a room in the right room type
+        ReservationEntity reservationEntity = reservationSessionBeanRemote.retrieveReservationByReservationId(reservationId);
+        List<ReservedRoomEntity> reservedRoomEntities = reservationEntity.getReservedRoomEntities();
+
+        for (ReservedRoomEntity reservedRoomEntity : reservedRoomEntities) {
+            reservationSessionBeanRemote.linkReservedRoomToRoom(reservedRoomEntity.getReservedRoomId(), reservedRoomEntity.getRoomTypeEntity().getRoomTypeId());
+        }
+
+    }//ends allocation
+
+    private void doCheckInGuest() throws GuestNotFoundException, RoomNotFoundException {
+
+        Scanner scanner = new Scanner(System.in);
+        String identificationNumber;
+        Long reservationId;
+
+        System.out.println("*** HoRS Management System :: Front Office :: Check In Guest***\n");
+        System.out.print("Enter Guest Identificaton Number> ");
+        identificationNumber = scanner.nextLine().trim();
+
+        GuestEntity guestEntity = guestSessionBeanRemote.retrieveGuestByID(identificationNumber);
+        List<ReservationEntity> reservationEntities = guestEntity.getReservationEntities();
+        for (ReservationEntity reservationEntity : reservationEntities) {
+            List<RoomEntity> roomEntities = roomSessionBeanRemote.retrieveRoomsByReservationId(reservationEntity.getReservationId());
+            for (RoomEntity roomEntity : roomEntities) {
+                System.out.print("Room Number: " + roomEntity.getRoomNumber() + " has been allocated to guest.\n");
+                //update rooms
+                roomSessionBeanRemote.checkInGuest(roomEntity.getRoomId());
+            }
+        }
+
+    }//ends checkinguest
+    
+    private void doCheckOutGuest() throws GuestNotFoundException, RoomNotFoundException {
+
+        Scanner scanner = new Scanner(System.in);
+        String identificationNumber;
+        Long reservationId;
+
+        System.out.println("*** HoRS Management System :: Front Office :: Check Out Guest***\n");
+        System.out.print("Enter Guest Identificaton Number> ");
+        identificationNumber = scanner.nextLine().trim();
+
+        GuestEntity guestEntity = guestSessionBeanRemote.retrieveGuestByID(identificationNumber);
+        List<ReservationEntity> reservationEntities = guestEntity.getReservationEntities();
+        for (ReservationEntity reservationEntity : reservationEntities) {
+            List<RoomEntity> roomEntities = roomSessionBeanRemote.retrieveRoomsByReservationId(reservationEntity.getReservationId());
+            for (RoomEntity roomEntity : roomEntities) {
+                System.out.print("Guest has checked out of Room Number: " + roomEntity.getRoomNumber() +"\n");
+                //update rooms
+                roomSessionBeanRemote.checkOutGuest(roomEntity.getRoomId());
+            }
+        }
+
+    }//ends checkoutguest
+
 }//ends module

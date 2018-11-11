@@ -33,9 +33,9 @@ public class RoomRateEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long roomRateId;
     
-    @Column(unique = true)
+    @Column(unique = true, nullable = false, length = 20)
     private String name;
-    @Column(precision = 11, scale = 2)
+    @Column(nullable = false, precision = 11, scale = 2)
     private BigDecimal ratePerNight;
     
     @Enumerated(EnumType.STRING)
@@ -60,7 +60,8 @@ public class RoomRateEntity implements Serializable {
         reservedNightEntities = new ArrayList<>();
     }
 
-    /*promo over normal
+    /*
+    promo over normal
     peak over normal
     promo over peak, normal
     peak over promo
@@ -68,14 +69,16 @@ public class RoomRateEntity implements Serializable {
     if no normal then cannot have normal reservation
     */
 
-    public RoomRateEntity(String name, BigDecimal ratePerNight, rateTypeEnum rateType, Date validityStart, Date validityEnd) {
-        this();
+    public RoomRateEntity(String name, BigDecimal ratePerNight, rateTypeEnum rateType, Date validityStart, Date validityEnd, RoomTypeEntity roomTypeEntity) {
         this.name = name;
         this.ratePerNight = ratePerNight;
         this.rateType = rateType;
         this.validityStart = validityStart;
         this.validityEnd = validityEnd;
+        this.roomTypeEntity = roomTypeEntity;
     }
+
+    
  
     public Long getRoomRateId() {
         return roomRateId;

@@ -34,9 +34,11 @@ public class ReservationEntity implements Serializable {
     private Long reservationId;
     
     @Temporal(TemporalType.TIMESTAMP)
+    @Column(nullable = false)
     private Date checkInDate;
     
     @Temporal(TemporalType.TIMESTAMP)
+    @Column(nullable = false)
     private Date checkOutDate;
     
     @Column(precision = 11, scale = 2)

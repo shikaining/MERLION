@@ -4,6 +4,7 @@ import entity.RoomTypeEntity;
 import java.util.Date;
 import java.util.List;
 import util.exception.DeleteRoomTypeException;
+import util.exception.RoomNotFoundException;
 import util.exception.RoomTypeNotFoundException;
 
 public interface RoomTypeSessionBeanRemote {
@@ -20,6 +21,8 @@ public interface RoomTypeSessionBeanRemote {
 
     List<RoomTypeEntity> retrieveAvailableRoomTypes(Date checkInDate, Date checkOutDate);
 
-    public Integer retrieveAvailableRoomCount(RoomTypeEntity roomTypeEntity, Date checkInDate, Date checkOutDate);
+    Integer retrieveAvailableRoomCount(RoomTypeEntity roomTypeEntity, Date checkInDate, Date checkOutDate);
+
+    void linkRoomToRoomType(Long roomId, Long roomTypeId) throws RoomTypeNotFoundException, RoomNotFoundException;
     
 }

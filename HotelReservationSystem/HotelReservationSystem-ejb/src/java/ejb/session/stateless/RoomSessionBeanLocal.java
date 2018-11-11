@@ -7,4 +7,5 @@ public interface RoomSessionBeanLocal {
     
      RoomEntity retrieveRoomByRoomId(Long roomId) throws RoomNotFoundException;
      RoomEntity createNewRoom(RoomEntity newRoomEntity);
+     RoomEntity retrieveRoomByRoomTypeId(Long roomId) throws RoomNotFoundException;
 }

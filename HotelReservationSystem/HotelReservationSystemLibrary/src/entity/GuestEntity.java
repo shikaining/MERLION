@@ -26,9 +26,10 @@ public class GuestEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long guestId;
+    @Column(nullable = false, length = 16)
     private String firstName;
     private String lastName;
-    @Column(unique = true, length = 16)
+    @Column(unique = true, nullable = false, length = 16)
     private String identificationNumber;
     
     private String email;

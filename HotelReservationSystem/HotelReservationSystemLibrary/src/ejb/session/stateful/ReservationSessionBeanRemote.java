@@ -24,4 +24,8 @@ public interface ReservationSessionBeanRemote {
 
     ReservedRoomEntity createNewReservedRoom(ReservedRoomEntity newReservedRoomEntity);
     
+    ReservationEntity retrieveReservationByReservationId(Long reservationId) throws ReservationNotFoundException;
+
+    void linkReservedRoomToRoom(Long reservedRoomId, Long roomTypeId);
+    
 }

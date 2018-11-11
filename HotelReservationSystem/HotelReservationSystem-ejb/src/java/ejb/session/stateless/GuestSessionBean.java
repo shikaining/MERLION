@@ -93,11 +93,12 @@ public class GuestSessionBean implements GuestSessionBeanRemote, GuestSessionBea
     }
 
     @Override
-    public void updateGuest(GuestEntity guestEntity) throws GuestNotFoundException {
+    public GuestEntity updateGuest(GuestEntity guestEntity) throws GuestNotFoundException {
 
         if (guestEntity.getGuestId() != null) {
             GuestEntity guestEntityToUpdate = retrieveGuestByGuestId(guestEntity.getGuestId());
             guestEntityToUpdate.setReservationEntities(guestEntity.getReservationEntities());
+            return guestEntity;
 
         } else {
             throw new GuestNotFoundException("Guest ID not provided for guest to be updated");

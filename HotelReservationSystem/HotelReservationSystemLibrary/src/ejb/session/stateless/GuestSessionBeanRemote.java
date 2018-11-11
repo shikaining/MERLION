@@ -15,6 +15,6 @@ public interface GuestSessionBeanRemote {
 
     GuestEntity createNewGuest(GuestEntity newGuestEntity);
 
-    void updateGuest(GuestEntity guestEntity) throws GuestNotFoundException;
+    GuestEntity updateGuest(GuestEntity guestEntity) throws GuestNotFoundException;
     
 }

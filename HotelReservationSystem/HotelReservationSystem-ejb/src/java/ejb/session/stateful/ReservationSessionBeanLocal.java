@@ -9,6 +9,6 @@ public interface ReservationSessionBeanLocal {
  
     ReservationEntity retrieveReservationByReservationId(Long reservationId) throws ReservationNotFoundException;
 
-    ReservedRoomEntity retrieveReservedRoomByReservationId(Long reservedRoomId) throws ReservedRoomNotFoundException;
+    ReservedRoomEntity retrieveReservedRoomByReservedRoomId(Long reservedRoomId) throws ReservedRoomNotFoundException;
     
 }

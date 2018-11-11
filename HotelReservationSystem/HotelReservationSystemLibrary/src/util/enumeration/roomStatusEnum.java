@@ -6,7 +6,6 @@ public enum roomStatusEnum
 {
     AVAILABLE,
     UNAVAILABLE,
-    CLEANING,
     ALLOCATED
     
 }

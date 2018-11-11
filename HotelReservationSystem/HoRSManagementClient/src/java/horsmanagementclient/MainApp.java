@@ -78,7 +78,7 @@ public class MainApp {
 
                             systemAdministrationModule = new SystemAdministrationModule(employeeSessionBeanRemote, partnerSessionBeanRemote, currentEmployee);
                             hotelOperationnModule = new HotelOperationModule(employeeSessionBeanRemote, roomTypeSessionBeanRemote, roomSessionBeanRemote, roomRateSessionBeanRemote, currentEmployee);
-                            frontOfficeModule = new FrontOfficeModule(employeeSessionBeanRemote, roomTypeSessionBeanRemote, roomRateSessionBeanRemote, reservationSessionBeanRemote, guestSessionBeanRemote, currentEmployee);
+                            frontOfficeModule = new FrontOfficeModule(employeeSessionBeanRemote, roomTypeSessionBeanRemote, roomRateSessionBeanRemote, roomSessionBeanRemote, reservationSessionBeanRemote, guestSessionBeanRemote, currentEmployee);
                             menuMain();
                         } 
                         catch (InvalidLoginCredentialException ex) 
