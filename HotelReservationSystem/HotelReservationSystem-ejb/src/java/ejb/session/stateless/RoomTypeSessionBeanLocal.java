@@ -14,4 +14,6 @@ public interface RoomTypeSessionBeanLocal {
     RoomTypeEntity retrieveRoomTypeByName(String name) throws RoomTypeNotFoundException;
 
     public List<ReservedRoomEntity> retrieveReservedRoomsByRoomTypeName(String roomTypeName);
+
+    List<RoomTypeEntity> retrieveAllRoomTypes();
 }

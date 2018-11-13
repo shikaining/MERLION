@@ -9,11 +9,13 @@ import util.exception.ReservationNotFoundException;
 import util.exception.ReservedRoomNotFoundException;
 
 public interface ReservationSessionBeanLocal {
- 
+
     ReservationEntity retrieveReservationByReservationId(Long reservationId) throws ReservationNotFoundException;
 
     ReservedRoomEntity retrieveReservedRoomByReservedRoomId(Long reservedRoomId) throws ReservedRoomNotFoundException;
 
     public Long findRoomRate(List<RoomRateEntity> roomRateEntities, Date currNightDate);
-    
+
+    Long linkReservedRoomToRoom(Long reservedRoomId, Long roomTypeId);
+
 }

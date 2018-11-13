@@ -1,6 +1,8 @@
 package ejb.session.stateless;
 
+import entity.ReservationEntity;
 import entity.RoomEntity;
+import java.util.List;
 import util.exception.RoomNotFoundException;
 
 public interface RoomSessionBeanLocal {
@@ -9,5 +11,8 @@ public interface RoomSessionBeanLocal {
 
     RoomEntity createNewRoom(RoomEntity newRoomEntity, Long roomTypeId);
 
-    RoomEntity retrieveRoomByRoomTypeId(Long roomId) throws RoomNotFoundException;
+    RoomEntity retrieveRoomsByRoomId(Long roomId) throws RoomNotFoundException;
+
+    public List<ReservationEntity> retrieveReservationsByRoomId(Long roomId);
+
 }

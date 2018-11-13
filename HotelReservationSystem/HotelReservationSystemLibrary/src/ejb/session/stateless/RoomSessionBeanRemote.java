@@ -1,5 +1,6 @@
 package ejb.session.stateless;
 
+import entity.ReportLineItemEntity;
 import entity.RoomEntity;
 import java.util.List;
 import util.exception.DeleteRoomException;
@@ -17,10 +18,14 @@ public interface RoomSessionBeanRemote {
 
     RoomEntity retrieveRoomByRoomNumber(String roomNumber) throws RoomNotFoundException;
 
-    public List<RoomEntity> retrieveRoomsByReservationId(Long reservationId);
+    List<RoomEntity> retrieveRoomsByReservationId(Long reservationId);
 
-    public void checkInGuest(Long roomId) throws RoomNotFoundException;
+    void checkInGuest(Long roomId) throws RoomNotFoundException;
 
-    public void checkOutGuest(Long roomId) throws RoomNotFoundException;
-    
+    void checkOutGuest(Long roomId) throws RoomNotFoundException;
+
+    void doAllocateRooms();
+
+    ReportLineItemEntity retrieveLastReportLineItem();
+
 }

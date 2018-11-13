@@ -8,6 +8,7 @@ import ejb.session.stateless.RoomSessionBeanRemote;
 import ejb.session.stateless.RoomTypeSessionBeanRemote;
 import entity.EmployeeEntity;
 import entity.GuestEntity;
+import entity.ReportLineItemEntity;
 import entity.ReservationEntity;
 import entity.ReservedRoomEntity;
 import entity.RoomEntity;
@@ -19,6 +20,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 import util.enumeration.employeeAccessRightEnum;
+import util.enumeration.exceptionTypeEnum;
 import util.exception.GuestNotFoundException;
 import util.exception.InvalidAccessRightException;
 import util.exception.ReservationNotFoundException;
@@ -230,18 +232,18 @@ public class FrontOfficeModule {
                     //FIND GUEST OR CREATE GUEST
                     if (!isGuest.equals("Y")) {
 
-                        System.out.println("Enter identification number of guest: ");
+                        System.out.print("Enter identification number of guest: ");
                         guestEntity.setIdentificationNumber(scanner.nextLine().trim());
-                        System.out.println("Enter first name of guest: ");
+                        System.out.print("Enter first name of guest: ");
                         guestEntity.setFirstName(scanner.nextLine().trim());
-                        System.out.println("Enter last name of guest: ");
+                        System.out.print("Enter last name of guest: ");
                         guestEntity.setLastName(scanner.nextLine().trim());
-                        System.out.println("Enter email of guest: ");
+                        System.out.print("Enter email of guest: ");
                         guestEntity.setEmail(scanner.nextLine().trim());
                         guestEntity = guestSessionBeanRemote.createNewGuest(guestEntity);
 
                     } else {
-                        System.out.println("Enter identification number of guest: ");
+                        System.out.print("Enter identification number of guest: ");
                         identificationNumber = scanner.nextLine().trim();
                         guestEntity.setIdentificationNumber(identificationNumber);
                         guestEntity = guestSessionBeanRemote.retrieveGuestByID(identificationNumber);
@@ -267,7 +269,7 @@ public class FrontOfficeModule {
         List<ReservedRoomEntity> reservedRoomEntities = reservationEntity.getReservedRoomEntities();
 
         for (ReservedRoomEntity reservedRoomEntity : reservedRoomEntities) {
-            reservationSessionBeanRemote.linkReservedRoomToRoom(reservedRoomEntity.getReservedRoomId(), reservedRoomEntity.getRoomTypeEntity().getRoomTypeId());
+            Long roomId = reservationSessionBeanRemote.linkReservedRoomToRoom(reservedRoomEntity.getReservedRoomId(), reservedRoomEntity.getRoomTypeEntity().getRoomTypeId());
         }
 
     }//ends allocation
@@ -291,12 +293,25 @@ public class FrontOfficeModule {
 
         for (ReservedRoomEntity reservedRoomEntity : reservedRoomEntities) {
 
-            if ( isToday(reservedRoomEntity.getReservationEntity().getCheckInDate()) ) {
-                System.out.println("Room Number: " + reservedRoomEntity.getRoomEntity().getRoomNumber() + " has been allocated to guest.\n");
-                //update rooms
-                roomSessionBeanRemote.checkInGuest(reservedRoomEntity.getRoomEntity().getRoomId());
-            } else {
-                System.out.println("Unable to check in today! ");
+            if (isToday(reservedRoomEntity.getReservationEntity().getCheckInDate())) {
+                //RETRIEVE ANY EXCEPTIONS FACED BY THIS GUEST & PRINT THE CORRESPONDING MESSAGE
+                //retrieve most updated one
+
+                ReportLineItemEntity reportLineItemEntity = roomSessionBeanRemote.retrieveLastReportLineItem();
+                if (reportLineItemEntity != null && reportLineItemEntity.getTypeEnum() == exceptionTypeEnum.EXCEPTIONONE) {
+                    //if have then print the message
+                    String messageToGuest = reportLineItemEntity.getMessageToGuest();
+                    System.out.println(messageToGuest);
+                    System.out.println("Room Number: " + reservedRoomEntity.getRoomEntity().getRoomNumber() + " has been allocated to guest.\n");
+                    //update rooms
+                    roomSessionBeanRemote.checkInGuest(reservedRoomEntity.getRoomEntity().getRoomId());
+                } else if (reportLineItemEntity != null && reportLineItemEntity.getTypeEnum() == exceptionTypeEnum.EXCEPTIONTWO) {
+                    String messageToGuest = reportLineItemEntity.getMessageToGuest();
+                    System.out.println(messageToGuest);
+
+                } else {
+                    System.out.println("Unable to check in today! ");
+                }
             }
         }
     }//ends checkinguest

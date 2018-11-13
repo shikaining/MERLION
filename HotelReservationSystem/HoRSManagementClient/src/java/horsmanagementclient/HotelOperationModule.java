@@ -462,45 +462,7 @@ public class HotelOperationModule {
     }
 
     private void doCreateNewRoomRate() throws ParseException {
-        /*
-        Scanner scanner = new Scanner(System.in);
         
-        RoomEntity newRoomEntity = new RoomEntity();
-        Long roomId;
-        Long roomTypeId;
-
-        System.out.println("*** HoRS Management System :: Hotel Operation :: Create New Room ***\n");
-        System.out.print("Enter Room Number> ");
-        newRoomEntity.setRoomNumber(scanner.nextLine().trim());
-        newRoomEntity.setStatus(roomStatusEnum.AVAILABLE);
-        
-        while (true) {
-            System.out.print("Select Room Type> ");
-            List <RoomTypeEntity> roomTypeEntities = roomTypeSessionBeanRemote.retrieveAllRoomTypes();
-            int numRoomTypes = roomTypeEntities.size();
-            System.out.print("(");
-            for (int i = 1 ; i <= numRoomTypes ; i++) {
-                System.out.print(i + ": " + roomTypeEntities.get(i-1).getName() + " ");
-            }
-            System.out.print(")");
-            
-            Integer roomTypeInt = scanner.nextInt();
-
-            if (roomTypeInt >= 1 && roomTypeInt <= numRoomTypes) {
-                roomTypeId = roomTypeEntities.get(roomTypeInt-1).getRoomTypeId();            
-                break; 
-
-            } else {
-
-                System.out.println("Invalid option, please try again!\n");
-
-            }
-        }//ends selecting room type
-
-        scanner.nextLine();
-    
-        newRoomEntity = roomSessionBeanRemote.createNewRoom(newRoomEntity, roomTypeId);
-         */
         Scanner scanner = new Scanner(System.in);
         RoomRateEntity roomRateEntity = new RoomRateEntity();
         Long roomTypeId;

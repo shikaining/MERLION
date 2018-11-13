@@ -42,8 +42,6 @@ public class MainApp {
         this.reservationSessionBeanRemote = reservationSessionBeanRemote;
     }
 
-    
-
     public void runApp() throws RoomNotFoundException, ParseException, GuestNotFoundException, RoomTypeNotFoundException, ReservationNotFoundException, ReservedRoomNotFoundException, RoomRateNotFoundException {
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
@@ -73,7 +71,7 @@ public class MainApp {
                 } else if (response == 2) {
                     doRegister();
                 } else if (response == 3) {
-                    //Search Hotel Room
+                    doSearchRoom();
                 } else if (response == 4) {
                     break;
                 } else {
@@ -116,10 +114,11 @@ public class MainApp {
             System.out.println("1: Search Hotel Room");
             System.out.println("2: View My Reservation Details");
             System.out.println("3: View All My Reservation");
-            System.out.println("4: Logout\n");
+            System.out.println("4: Do Allocate Room");
+            System.out.println("5: Logout\n");
             response = 0;
 
-            while (response < 1 || response > 4) {
+            while (response < 1 || response > 5) {
                 System.out.print("> ");
 
                 response = scanner.nextInt();
@@ -131,13 +130,15 @@ public class MainApp {
                 } else if (response == 3) {
                     doViewAllReservations();
                 } else if (response == 4) {
+                    doAllocateRoom();
+                } else if (response == 5) {
                     break;
                 } else {
                     System.out.println("Invalid option, please try again!\n");
                 }
             }
 
-            if (response == 4) {
+            if (response == 5) {
                 break;
             }
         }
@@ -185,7 +186,7 @@ public class MainApp {
 
         System.out.println(statusMsg);
     }
-    
+
     private void doSearchRoom() throws ParseException, GuestNotFoundException, ReservationNotFoundException, ReservedRoomNotFoundException, RoomRateNotFoundException, RoomTypeNotFoundException {
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
@@ -243,9 +244,13 @@ public class MainApp {
                 response = scanner.nextInt();
 
                 if (response == 1) {
+                    if (currentGuest != null) {
 
-                    doReserveRoom(availableRoomTypes, checkInDate, checkOutDate);
+                        doReserveRoom(availableRoomTypes, checkInDate, checkOutDate);
+                    } else {
+                        System.out.println("Please login first before making a reservation!\n");
 
+                    }
                 } else if (response == 2) {
 
                     break;
@@ -304,33 +309,11 @@ public class MainApp {
                     //set all the attributes of reservationEntity
                     newReservationEntity.setCheckInDate(checkInDate);
                     newReservationEntity.setCheckOutDate(checkOutDate);
-                    newReservationEntity.setOnlineReservation(Boolean.FALSE);
+                    newReservationEntity.setOnlineReservation(Boolean.TRUE);
 
                     GuestEntity guestEntity = new GuestEntity();
                     String identificationNumber;
-                    System.out.println("Registered guest? (Enter 'Y' if guest is registered)");
-                    String isGuest = scanner.nextLine().trim();
-
-                    //FIND GUEST OR CREATE GUEST
-                    if (!isGuest.equals("Y")) {
-
-                        System.out.println("Enter identification number of guest: ");
-                        guestEntity.setIdentificationNumber(scanner.nextLine().trim());
-                        System.out.println("Enter first name of guest: ");
-                        guestEntity.setFirstName(scanner.nextLine().trim());
-                        System.out.println("Enter last name of guest: ");
-                        guestEntity.setLastName(scanner.nextLine().trim());
-                        System.out.println("Enter email of guest: ");
-                        guestEntity.setEmail(scanner.nextLine().trim());
-                        guestEntity = guestSessionBeanRemote.createNewGuest(guestEntity);
-
-                    } else {
-                        System.out.println("Enter identification number of guest: ");
-                        identificationNumber = scanner.nextLine().trim();
-                        guestEntity.setIdentificationNumber(identificationNumber);
-                        guestEntity = guestSessionBeanRemote.retrieveGuestByID(identificationNumber);
-                    }
-                    guestId = guestEntity.getGuestId();
+                    guestId = currentGuest.getGuestId();
 
                 } else {
                     System.out.println("Invalid option, please try again!\n");
@@ -339,16 +322,21 @@ public class MainApp {
             newReservationEntity = reservationSessionBeanRemote.reserve(newReservationEntity, guestId, numOfRooms, roomTypeId);
             System.out.println("Reservation Amount: " + newReservationEntity.getReservationAmount() + "\n");
             System.out.println("New Reservation created successfully!: " + newReservationEntity.getReservationId() + "\n");
-            
+
         }
 
     }//ends reserve room
-    
+
     private void doViewMyReservations() {
-        
+
     }
-    
+
     private void doViewAllReservations() {
-        
+
     }
+
+    private void doAllocateRoom() {
+
+        roomSessionBeanRemote.doAllocateRooms();
+    }//ends allocation
 }

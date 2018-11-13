@@ -6,8 +6,6 @@ import entity.RoomTypeEntity;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Local;
 import javax.ejb.Remote;
