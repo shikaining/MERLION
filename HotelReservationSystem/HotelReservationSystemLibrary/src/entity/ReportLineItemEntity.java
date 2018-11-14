@@ -37,9 +37,9 @@ public class ReportLineItemEntity implements Serializable {
     @Column(nullable = false)
     private Date allocationDate;
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 100)
     private String messageToGuest;
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 100)
     private String messageToAdmin;
 
     @Column(nullable = false)

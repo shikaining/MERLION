@@ -26,6 +26,8 @@ public interface RoomSessionBeanRemote {
 
     void doAllocateRooms();
 
-    ReportLineItemEntity retrieveLastReportLineItem();
+    List<ReportLineItemEntity> retrieveAllReportLineItems();
+
+    List<ReportLineItemEntity> retrieveReportLineItemsByReservedRoomId(Long reservedRoomId);
 
 }

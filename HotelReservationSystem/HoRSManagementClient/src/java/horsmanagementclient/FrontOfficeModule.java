@@ -13,6 +13,7 @@ import entity.ReservationEntity;
 import entity.ReservedRoomEntity;
 import entity.RoomEntity;
 import entity.RoomTypeEntity;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -118,7 +119,7 @@ public class FrontOfficeModule {
         checkOutDate = inputDateFormat.parse(scanner.nextLine().trim());
 
         List<RoomTypeEntity> availableRoomTypes = roomTypeSessionBeanRemote.retrieveAvailableRoomTypes(checkInDate, checkOutDate);
-        System.out.printf("%3s%15s%15s\n", "S/N", "Room Type", "Quantity");
+        System.out.printf("%3s%15s%15s%15s\n", "S/N", "Room Type", "Quantity", "Amount");
         //TODO: ADD THE RESERVATION AMOUNT FOR EACH OF THEM! THEN PASS THIS AMOUNT INTO RESERVE ROOM
 
         int sn = availableRoomTypes.size();
@@ -144,9 +145,10 @@ public class FrontOfficeModule {
             for (RoomTypeEntity roomTypeEntity : availableRoomTypes) {
 
                 int nonClashes = roomTypeSessionBeanRemote.retrieveAvailableRoomCount(roomTypeEntity, checkInDate, checkOutDate);
+                BigDecimal amount = reservationSessionBeanRemote.calculateAmount(roomTypeEntity, checkInDate, checkOutDate, Boolean.FALSE);
                 ++sn;
 
-                System.out.printf("%3s%15s%15s\n", sn, roomTypeEntity.getName(), nonClashes);
+                System.out.printf("%3s%15s%15s%15s\n", sn, roomTypeEntity.getName(), nonClashes, amount);
             }
 
             System.out.println("------------------------");
@@ -296,22 +298,31 @@ public class FrontOfficeModule {
             if (isToday(reservedRoomEntity.getReservationEntity().getCheckInDate())) {
                 //RETRIEVE ANY EXCEPTIONS FACED BY THIS GUEST & PRINT THE CORRESPONDING MESSAGE
                 //retrieve most updated one
+                List<ReportLineItemEntity> reportLineItemEntities = roomSessionBeanRemote.retrieveReportLineItemsByReservedRoomId(reservedRoomEntity.getReservedRoomId());
+                //CASE 1: EXCEPTION ONE WAS MET BUT ROOM IS ALLOCATED
+                if (!reportLineItemEntities.isEmpty()) {
+                    if (reportLineItemEntities.get(0).getTypeEnum() == exceptionTypeEnum.EXCEPTIONONE) {
+                        //if have then print the message
+                        String messageToGuest = reportLineItemEntities.get(0).getMessageToGuest();
+                        System.out.println(messageToGuest);
+                        System.out.println("Room Number: " + reservedRoomEntity.getRoomEntity().getRoomNumber() + " has been allocated to guest.\n");
+                        //update rooms
+                        roomSessionBeanRemote.checkInGuest(reservedRoomEntity.getRoomEntity().getRoomId());
+                    } //CASE 2: EXCEPTION TWO WAS MET AND ROOM IS NOT ALLOCATED
+                    else if (reportLineItemEntities.get(0).getTypeEnum() == exceptionTypeEnum.EXCEPTIONTWO) {
+                        String messageToGuest = reportLineItemEntities.get(0).getMessageToGuest();
+                        System.out.println(messageToGuest);
 
-                ReportLineItemEntity reportLineItemEntity = roomSessionBeanRemote.retrieveLastReportLineItem();
-                if (reportLineItemEntity != null && reportLineItemEntity.getTypeEnum() == exceptionTypeEnum.EXCEPTIONONE) {
-                    //if have then print the message
-                    String messageToGuest = reportLineItemEntity.getMessageToGuest();
-                    System.out.println(messageToGuest);
+                    }
+                }//CASE 3: NO EXCEPTIONS WERE MET AND ROOM IS ALLOCATED
+                else {
+                    //find the allocated room and tell the guest!
                     System.out.println("Room Number: " + reservedRoomEntity.getRoomEntity().getRoomNumber() + " has been allocated to guest.\n");
                     //update rooms
                     roomSessionBeanRemote.checkInGuest(reservedRoomEntity.getRoomEntity().getRoomId());
-                } else if (reportLineItemEntity != null && reportLineItemEntity.getTypeEnum() == exceptionTypeEnum.EXCEPTIONTWO) {
-                    String messageToGuest = reportLineItemEntity.getMessageToGuest();
-                    System.out.println(messageToGuest);
-
-                } else {
-                    System.out.println("Unable to check in today! ");
                 }
+            } else {
+                System.out.println("Unable to check in today! ");
             }
         }
     }//ends checkinguest

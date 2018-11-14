@@ -13,6 +13,8 @@ public interface RoomSessionBeanLocal {
 
     RoomEntity retrieveRoomsByRoomId(Long roomId) throws RoomNotFoundException;
 
-    public List<ReservationEntity> retrieveReservationsByRoomId(Long roomId);
+    List<ReservationEntity> retrieveReservationsByRoomId(Long roomId);
+
+    //List<ReservedRoomEntity> retrieveOnlineReservedRooms(Long roomTypeId);
 
 }

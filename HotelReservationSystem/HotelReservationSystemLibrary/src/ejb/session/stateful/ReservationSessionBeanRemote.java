@@ -2,6 +2,9 @@ package ejb.session.stateful;
 
 import entity.ReservationEntity;
 import entity.ReservedRoomEntity;
+import entity.RoomTypeEntity;
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import util.exception.ReservationNotFoundException;
 import util.exception.RoomRateNotFoundException;
@@ -20,5 +23,7 @@ public interface ReservationSessionBeanRemote {
     ReservationEntity reserve(ReservationEntity newReservationEntity, Long guestId, int numOfRooms, Long roomTypeId) throws RoomTypeNotFoundException, RoomRateNotFoundException;
 
     List<ReservedRoomEntity> retrieveReservedRoomByGuestId(Long GuestId);
+
+    BigDecimal calculateAmount(RoomTypeEntity roomTypeEntity, Date checkInDate, Date checkOutDate, Boolean online) throws RoomRateNotFoundException;
 
 }

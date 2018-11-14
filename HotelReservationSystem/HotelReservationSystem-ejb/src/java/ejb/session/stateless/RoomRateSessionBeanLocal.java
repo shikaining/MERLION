@@ -12,5 +12,7 @@ public interface RoomRateSessionBeanLocal {
     RoomRateEntity createNewRoomRate(RoomRateEntity newRoomRateEntity);
     
     RoomRateEntity retrieveRoomRateByRoomType(RoomTypeEntity currRoomTypeEntity, rateTypeEnum rate) throws RoomRateNotFoundException;
+
+    RoomRateEntity retrieveRoomRateByRateType(Long roomRateId, rateTypeEnum rateType) throws RoomRateNotFoundException;
     
 }

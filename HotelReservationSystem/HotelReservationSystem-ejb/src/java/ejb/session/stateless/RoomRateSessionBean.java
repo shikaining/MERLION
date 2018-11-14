@@ -76,6 +76,19 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
     }
 
     @Override
+    public RoomRateEntity retrieveRoomRateByRateType(Long roomTypeId, rateTypeEnum rateType) throws RoomRateNotFoundException {
+        Query query = em.createQuery("SELECT rr FROM RoomRateEntity rr WHERE rr.rateType = :inRateType AND rr.roomTypeEntity.roomTypeId = :inRoomType");
+        query.setParameter("inRateType", rateType);
+        query.setParameter("inRoomType", roomTypeId);
+
+        try {
+            return (RoomRateEntity) query.getSingleResult();
+        } catch (NoResultException | NonUniqueResultException ex) {
+            throw new RoomRateNotFoundException("Room rate with Rate Type: " + rateType + " does not exist!");
+        }
+    }
+
+    @Override
     public void updateRoomRate(RoomRateEntity roomRateEntity) throws RoomRateNotFoundException {
 
         if (roomRateEntity.getRoomRateId() != null) {

@@ -66,17 +66,17 @@ public class DataInitSessionBean {
         RoomRateEntity deluxePublished = roomRateSessionBeanLocal.createNewRoomRate(new RoomRateEntity("Deluxe Published", new BigDecimal("200"), rateTypeEnum.PUBLISHED, null, null, deluxe));
         RoomRateEntity deluxeNormal = roomRateSessionBeanLocal.createNewRoomRate(new RoomRateEntity("Deluxe Normal", new BigDecimal("150"), rateTypeEnum.NORMAL, null, null, deluxe));
 
-        RoomRateEntity premierPublished = roomRateSessionBeanLocal.createNewRoomRate(new RoomRateEntity("Premier Published", new BigDecimal("200"), rateTypeEnum.PUBLISHED, null, null, premier));
-        RoomRateEntity premierNormal = roomRateSessionBeanLocal.createNewRoomRate(new RoomRateEntity("Premier Normal", new BigDecimal("150"), rateTypeEnum.NORMAL, null, null, premier));
+        RoomRateEntity premierPublished = roomRateSessionBeanLocal.createNewRoomRate(new RoomRateEntity("Premier Published", new BigDecimal("400"), rateTypeEnum.PUBLISHED, null, null, premier));
+        RoomRateEntity premierNormal = roomRateSessionBeanLocal.createNewRoomRate(new RoomRateEntity("Premier Normal", new BigDecimal("350"), rateTypeEnum.NORMAL, null, null, premier));
 
-        RoomRateEntity familyPublished = roomRateSessionBeanLocal.createNewRoomRate(new RoomRateEntity("Family Published", new BigDecimal("200"), rateTypeEnum.PUBLISHED, null, null, family));
-        RoomRateEntity familyNormal = roomRateSessionBeanLocal.createNewRoomRate(new RoomRateEntity("Family Normal", new BigDecimal("150"), rateTypeEnum.NORMAL, null, null, family));
+        RoomRateEntity familyPublished = roomRateSessionBeanLocal.createNewRoomRate(new RoomRateEntity("Family Published", new BigDecimal("600"), rateTypeEnum.PUBLISHED, null, null, family));
+        RoomRateEntity familyNormal = roomRateSessionBeanLocal.createNewRoomRate(new RoomRateEntity("Family Normal", new BigDecimal("550"), rateTypeEnum.NORMAL, null, null, family));
 
-        RoomRateEntity juniorPublished = roomRateSessionBeanLocal.createNewRoomRate(new RoomRateEntity("Junior Published", new BigDecimal("200"), rateTypeEnum.PUBLISHED, null, null, junior));
-        RoomRateEntity juniorNormal = roomRateSessionBeanLocal.createNewRoomRate(new RoomRateEntity("Junior Normal", new BigDecimal("150"), rateTypeEnum.NORMAL, null, null, junior));
+        RoomRateEntity juniorPublished = roomRateSessionBeanLocal.createNewRoomRate(new RoomRateEntity("Junior Published", new BigDecimal("800"), rateTypeEnum.PUBLISHED, null, null, junior));
+        RoomRateEntity juniorNormal = roomRateSessionBeanLocal.createNewRoomRate(new RoomRateEntity("Junior Normal", new BigDecimal("750"), rateTypeEnum.NORMAL, null, null, junior));
 
-        RoomRateEntity grandPublished = roomRateSessionBeanLocal.createNewRoomRate(new RoomRateEntity("Grand Published", new BigDecimal("200"), rateTypeEnum.PUBLISHED, null, null, grand));
-        RoomRateEntity grandNormal = roomRateSessionBeanLocal.createNewRoomRate(new RoomRateEntity("Grand Normal", new BigDecimal("150"), rateTypeEnum.NORMAL, null, null, grand));
+        RoomRateEntity grandPublished = roomRateSessionBeanLocal.createNewRoomRate(new RoomRateEntity("Grand Published", new BigDecimal("1000"), rateTypeEnum.PUBLISHED, null, null, grand));
+        RoomRateEntity grandNormal = roomRateSessionBeanLocal.createNewRoomRate(new RoomRateEntity("Grand Normal", new BigDecimal("950"), rateTypeEnum.NORMAL, null, null, grand));
 
         RoomEntity deluxe1 = roomSessionBeanLocal.createNewRoom(new RoomEntity("0101", roomStatusEnum.AVAILABLE), deluxe.getRoomTypeId());
         RoomEntity deluxe2 = roomSessionBeanLocal.createNewRoom(new RoomEntity("0201", roomStatusEnum.AVAILABLE), deluxe.getRoomTypeId());

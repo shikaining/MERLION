@@ -5,7 +5,6 @@
     <class>entity.EmployeeEntity</class>
     <class>entity.GuestEntity</class>
     <class>entity.PartnerEntity</class>
-    <class>entity.ReportEntity</class>
     <class>entity.ReservationEntity</class>
     <class>entity.ReservedNightEntity</class>
     <class>entity.ReservedRoomEntity</class>

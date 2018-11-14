@@ -81,15 +81,18 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
                 rateTypeEnum currRateTypeEnum = rateTypeEnum.PUBLISHED;
                 if (newReservationEntity.getOnlineReservation().equals(Boolean.FALSE)) {
                     currRateTypeEnum = rateTypeEnum.PUBLISHED;
+                    RoomRateEntity roomRateEntity = roomRateSessionBeanLocal.retrieveRoomRateByRateType(roomTypeId, currRateTypeEnum);
+                    roomRateId = roomRateEntity.getRoomRateId();
 
                 } else {
                     //retrieve all the applicable roomrates linked to this roomtype
                     List<RoomRateEntity> roomRateEntities = new ArrayList<>();
                     roomRateEntities = roomTypeEntity.getRoomRateEntities();
 
-                    if (roomRateEntities.size() == 1) {
+                    if (roomRateEntities.size() == 2) {
                         currRateTypeEnum = rateTypeEnum.NORMAL;
-                        roomRateId = roomRateEntities.get(0).getRoomRateId();
+                        RoomRateEntity roomRateEntity = roomRateSessionBeanLocal.retrieveRoomRateByRateType(roomTypeId, currRateTypeEnum);
+                        roomRateId = roomRateEntity.getRoomRateId();
                     } else {
 
                         roomRateId = findRoomRate(roomRateEntities, currNightDate);
@@ -166,8 +169,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     @Override
     public ReservationEntity retrieveReservationByReservationId(Long reservationId) throws ReservationNotFoundException {
 
-        ReservationEntity reservationEntity = em.find(ReservationEntity.class,
-                reservationId);
+        ReservationEntity reservationEntity = em.find(ReservationEntity.class, reservationId);
 
         if (reservationEntity != null) {
             reservationEntity.getReservedRoomEntities().size();
@@ -180,10 +182,11 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
 
     @Override
     public ReservedRoomEntity retrieveReservedRoomByReservedRoomId(Long reservedRoomId) throws ReservedRoomNotFoundException {
-        ReservedRoomEntity reservedRoomEntity = em.find(ReservedRoomEntity.class,
-                reservedRoomId);
+        
+        ReservedRoomEntity reservedRoomEntity = em.find(ReservedRoomEntity.class, reservedRoomId);
 
         if (reservedRoomEntity != null) {
+            reservedRoomEntity.getReservationEntity();
             return reservedRoomEntity;
         } else {
             throw new ReservedRoomNotFoundException("ReservedRoom ID " + reservedRoomId + " does not exist!");
@@ -228,7 +231,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
                             break;
                         }
                     }
-                    
+
                     if (checksOutToday) {
                         roomEntity.setStatus(roomStatusEnum.ALLOCATED);
                         roomEntity.getReservedRoomEntities().add(currReservedRoomEntity);
@@ -285,6 +288,8 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
                     applicable = Boolean.TRUE;
                     applicableRoomRates.add(roomRateEntity);
                 }
+            } else if (roomRateEntity.getRateType() == rateTypeEnum.PUBLISHED) {
+
             } else {
                 //normal rate
                 applicableRoomRates.add(roomRateEntity);
@@ -312,6 +317,57 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         }
 
         return roomRateId;
+    }
+
+    @Override
+    public BigDecimal calculateAmount(RoomTypeEntity roomTypeEntity, Date checkInDate, Date checkOutDate, Boolean online) throws RoomRateNotFoundException {
+
+        BigDecimal amount = BigDecimal.ZERO;
+
+        RoomTypeEntity currRoomTypeEntity = new RoomTypeEntity();
+        try {
+            currRoomTypeEntity = roomTypeSessionBeanLocal.retrieveRoomTypeByRoomTypeId(roomTypeEntity.getRoomTypeId());
+        } catch (RoomTypeNotFoundException ex) {
+
+        }
+
+        long diff = checkOutDate.getTime() - checkInDate.getTime();
+        int numNights = (int) TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
+
+        Date currNightDate = checkInDate;
+        Long roomRateId = 1L;
+        //calculate for each night
+        for (int i = 0; i < numNights; i++) {
+            currNightDate = addDays(currNightDate, i);
+            rateTypeEnum currRateTypeEnum = rateTypeEnum.PUBLISHED;
+            if (online == Boolean.FALSE) {
+                //no change to the default
+                System.out.println("This is a walk-in search room");
+                RoomRateEntity roomRateEntity = roomRateSessionBeanLocal.retrieveRoomRateByRateType(currRoomTypeEntity.getRoomTypeId(), currRateTypeEnum);
+                roomRateId = roomRateEntity.getRoomRateId();
+            } else {
+                System.out.println("This is an online search room");
+                //online reservation-> compare the rates
+                List<RoomRateEntity> roomRateEntities = new ArrayList<>();
+                roomRateEntities = currRoomTypeEntity.getRoomRateEntities();
+                if (roomRateEntities.size() == 2) {
+                    currRateTypeEnum = rateTypeEnum.NORMAL;
+                    RoomRateEntity roomRateEntity = roomRateSessionBeanLocal.retrieveRoomRateByRateType(currRoomTypeEntity.getRoomTypeId(), currRateTypeEnum);
+                    roomRateId = roomRateEntity.getRoomRateId();
+                } else {
+
+                    roomRateId = findRoomRate(roomRateEntities, currNightDate);
+                    System.out.println("Room Rate for Night: " + currNightDate + "has room rate: " + roomRateId);
+
+                }
+            }//ends online reservation rates comparison
+            RoomRateEntity roomRateEntity = roomRateSessionBeanLocal.retrieveRoomRateByRoomRateId(roomRateId);
+            System.out.println("Rate per Night: " + roomRateEntity.getRatePerNight());
+            amount = amount.add(roomRateEntity.getRatePerNight());
+
+        }
+
+        return amount;
     }
 
 }

@@ -5,6 +5,7 @@ import ejb.session.stateless.RoomRateSessionBeanRemote;
 import ejb.session.stateless.RoomSessionBeanRemote;
 import ejb.session.stateless.RoomTypeSessionBeanRemote;
 import entity.EmployeeEntity;
+import entity.ReportLineItemEntity;
 import entity.RoomEntity;
 import entity.RoomRateEntity;
 import entity.RoomTypeEntity;
@@ -101,7 +102,7 @@ public class HotelOperationModule {
                         doViewAllRooms();
                     } else if (response == 8) {
 
-//                        doViewRoomAllocationReport();
+                        doViewRoomAllocationReport();
                     } else if (response == 9) {
 
                         break;
@@ -126,10 +127,11 @@ public class HotelOperationModule {
                 System.out.println("1: Create New Room Rate");
                 System.out.println("2: View Room Rate Details");
                 System.out.println("3: View All Room Rates");
-                System.out.println("4: Back\n");
+                System.out.println("4: Allocate Room");
+                System.out.println("5: Back\n");
                 response = 0;
 
-                while (response < 1 || response > 4) {
+                while (response < 1 || response > 5) {
                     System.out.print("> ");
 
                     response = scanner.nextInt();
@@ -146,7 +148,12 @@ public class HotelOperationModule {
 
                         doViewAllRoomRates();
 
-                    } else if (response == 4) {
+                    }
+                    else if (response == 4) {
+
+                        doAllocateRoom();
+
+                    }else if (response == 5) {
 
                         break;
 
@@ -157,7 +164,7 @@ public class HotelOperationModule {
                     }
                 }
 
-                if (response == 4) {
+                if (response == 5) {
 
                     break;
 
@@ -462,12 +469,12 @@ public class HotelOperationModule {
     }
 
     private void doCreateNewRoomRate() throws ParseException {
-        
+
         Scanner scanner = new Scanner(System.in);
         RoomRateEntity roomRateEntity = new RoomRateEntity();
         Long roomTypeId;
         Long roomRateId;
-        
+
         rateTypeEnum rateType = rateTypeEnum.PUBLISHED;
         System.out.println("*** HoRS Management System :: Hotel Operation :: Create New Room Rate ***\n");
         System.out.print("Enter Room Rate Name> ");
@@ -485,7 +492,7 @@ public class HotelOperationModule {
             Integer roomTypeInt = scanner.nextInt();
 
             if (roomTypeInt >= 1 && roomTypeInt <= numRoomTypes) {
-                roomTypeId = roomTypeEntities.get(roomTypeInt-1).getRoomTypeId(); 
+                roomTypeId = roomTypeEntities.get(roomTypeInt - 1).getRoomTypeId();
                 break;
 
             } else {
@@ -678,5 +685,26 @@ public class HotelOperationModule {
         System.out.print("Press any key to continue...> ");
         scanner.nextLine();
     }
+
+    private void doViewRoomAllocationReport() {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("*** HoRS Management System :: Hotel Operation :: View Room Allocation Exception Report ***\n");
+        List<ReportLineItemEntity> reportLineItemEntities = roomSessionBeanRemote.retrieveAllReportLineItems();
+        System.out.printf("%10s%20s%100s\n", "Report ID", "ExceptionType", "Description");
+        for (ReportLineItemEntity reportLineItemEntity : reportLineItemEntities) {
+            System.out.printf("%10s%20s%100s\n", reportLineItemEntity.getReportLineItemId(), reportLineItemEntity.getTypeEnum(), reportLineItemEntity.getMessageToAdmin());
+        }
+
+        System.out.print("Press any key to continue...> ");
+        scanner.nextLine();
+    }
+    
+    
+    private void doAllocateRoom() {
+
+        roomSessionBeanRemote.doAllocateRooms();
+        System.out.println("Allocated successfully!");
+    }//ends allocation
 
 }

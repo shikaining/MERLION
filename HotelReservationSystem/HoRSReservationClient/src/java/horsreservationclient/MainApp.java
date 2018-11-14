@@ -8,6 +8,7 @@ import ejb.session.stateless.RoomTypeSessionBeanRemote;
 import entity.GuestEntity;
 import entity.ReservationEntity;
 import entity.RoomTypeEntity;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -114,8 +115,7 @@ public class MainApp {
             System.out.println("1: Search Hotel Room");
             System.out.println("2: View My Reservation Details");
             System.out.println("3: View All My Reservation");
-            System.out.println("4: Do Allocate Room");
-            System.out.println("5: Logout\n");
+            System.out.println("4: Logout\n");
             response = 0;
 
             while (response < 1 || response > 5) {
@@ -130,15 +130,13 @@ public class MainApp {
                 } else if (response == 3) {
                     doViewAllReservations();
                 } else if (response == 4) {
-                    doAllocateRoom();
-                } else if (response == 5) {
                     break;
                 } else {
                     System.out.println("Invalid option, please try again!\n");
                 }
             }
 
-            if (response == 5) {
+            if (response == 4) {
                 break;
             }
         }
@@ -195,14 +193,14 @@ public class MainApp {
         Date checkInDate;
         Date checkOutDate;
 
-        System.out.println("*** HoRS Management System :: Front Office :: Walk In Search Room***\n");
+        System.out.println("*** HoRS Reservation System :: Search Room***\n");
         System.out.print("Enter Check-In Date (dd/mm/yyyy)> ");
         checkInDate = inputDateFormat.parse(scanner.nextLine().trim());
         System.out.print("Enter Check-Out Date (dd/mm/yyyy)> ");
         checkOutDate = inputDateFormat.parse(scanner.nextLine().trim());
 
         List<RoomTypeEntity> availableRoomTypes = roomTypeSessionBeanRemote.retrieveAvailableRoomTypes(checkInDate, checkOutDate);
-        System.out.printf("%3s%15s%15s\n", "S/N", "Room Type", "Quantity");
+        System.out.printf("%3s%15s%15s%15s\n", "S/N", "Room Type", "Quantity", "Amount");
 
         int sn = availableRoomTypes.size();
 
@@ -227,9 +225,10 @@ public class MainApp {
             for (RoomTypeEntity roomTypeEntity : availableRoomTypes) {
 
                 int nonClashes = roomTypeSessionBeanRemote.retrieveAvailableRoomCount(roomTypeEntity, checkInDate, checkOutDate);
+                BigDecimal amount = reservationSessionBeanRemote.calculateAmount(roomTypeEntity, checkInDate, checkOutDate, Boolean.TRUE);
                 ++sn;
 
-                System.out.printf("%3s%15s%15s\n", sn, roomTypeEntity.getName(), nonClashes);
+                System.out.printf("%3s%15s%15s%15s\n", sn, roomTypeEntity.getName(), nonClashes, amount);
             }
 
             System.out.println("------------------------");
@@ -334,9 +333,4 @@ public class MainApp {
     private void doViewAllReservations() {
 
     }
-
-    private void doAllocateRoom() {
-
-        roomSessionBeanRemote.doAllocateRooms();
-    }//ends allocation
 }

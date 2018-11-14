@@ -6,6 +6,8 @@ import entity.ReservationEntity;
 import entity.ReservedRoomEntity;
 import entity.RoomEntity;
 import entity.RoomTypeEntity;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import javax.ejb.EJB;
@@ -20,6 +22,7 @@ import javax.persistence.Query;
 import util.enumeration.exceptionTypeEnum;
 import util.enumeration.roomStatusEnum;
 import util.exception.DeleteRoomException;
+import util.exception.ReservedRoomNotFoundException;
 import util.exception.RoomNotFoundException;
 import util.exception.RoomTypeNotFoundException;
 
@@ -59,6 +62,12 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
     public List<RoomEntity> retrieveAllRooms() {
         Query query = em.createQuery("SELECT r FROM RoomEntity r");
 
+        return query.getResultList();
+    }
+
+    @Override
+    public List<ReportLineItemEntity> retrieveAllReportLineItems() {
+        Query query = em.createQuery("SELECT rl FROM ReportLineItemEntity rl");
         return query.getResultList();
     }
 
@@ -115,7 +124,7 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
     public List<ReservationEntity> retrieveReservationsByRoomId(Long roomId) {
 
         String qlString = "SELECT rv FROM ReservationEntity rv "
-                + "JOIN rv.reservedRoomEntity rr "
+                + "JOIN rv.reservedRoomEntities rr "
                 + "WHERE rr.roomEntity.roomId = :inRoomId";
         Query query = em.createQuery(qlString);
         query.setParameter("inRoomId", roomId);
@@ -173,75 +182,88 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
 
         List<RoomTypeEntity> roomTypeEntities = roomTypeSessionBeanLocal.retrieveAllRoomTypes();
 
-        //FOR EACH ROOM TYPE, RETRIEVE ALL THE RESERVED ROOM ENTITIES
+        //FOR EACH ROOM TYPE, RETRIEVE ALL THE RESERVED ROOM ENTITIES THAT CHECK IN TODAY + IS ONLINE
         for (RoomTypeEntity roomTypeEntity : roomTypeEntities) {
             List<ReservedRoomEntity> reservedRoomEntities = roomTypeEntity.getReservedRoomEntities();
-            System.out.println("The reserved room entities to be allocated are: " + reservedRoomEntities.toString());
+            System.out.println("1: " + reservedRoomEntities.toString());
+
             //FOR EACH RESERVEDROOM OF THE CURRENT ROOM TYPE
-
             if (!reservedRoomEntities.isEmpty()) {
-                for (ReservedRoomEntity reservedRoomEntity : reservedRoomEntities) {
-                    Long roomId = reservationSessionBeanLocal.linkReservedRoomToRoom(reservedRoomEntity.getReservedRoomId(), roomTypeEntity.getRoomTypeId());
-                    System.out.println("RoomId: " + roomId);
-//                    //IF NO ROOMS FOR CURRENT ROOM TYPE
-                    if (roomId == 0L) {
-                        ReportLineItemEntity reportLineItemEntity = new ReportLineItemEntity();
+                for (ReservedRoomEntity currReservedRoomEntity : reservedRoomEntities) {
+                    ReservedRoomEntity reservedRoomEntity = new ReservedRoomEntity();
+                    try {
+                        reservedRoomEntity = reservationSessionBeanLocal.retrieveReservedRoomByReservedRoomId(currReservedRoomEntity.getReservedRoomId());
+                    } catch (ReservedRoomNotFoundException ex) {
 
-                        Boolean reallocated = Boolean.FALSE;
-                        while (!reallocated) //IF NO ROOMS IN HOTEL ANYMORE
-                        {
-                            System.out.println("Room Type: " + roomTypeEntity.getName());
-                            if (roomTypeEntity.getName().equals("Grand Suite")) {
-                                //must throw second type of exception
-                                Date allocationDate = new Date();
-                                reportLineItemEntity.setAllocationDate(allocationDate);
-                                reportLineItemEntity.setOriginalRoomId(reservedRoomEntity.getReservedRoomId());
-                                reportLineItemEntity.setOriginalRoomTypeId(roomTypeEntity.getRoomTypeId());
-                                reportLineItemEntity.setTypeEnum(exceptionTypeEnum.EXCEPTIONTWO);
-                                reportLineItemEntity.setMessageToAdmin("Message");
-                                reportLineItemEntity.setMessageToGuest("Message");
-                                em.persist(reportLineItemEntity);
-                                reallocated = Boolean.TRUE;
-                            } else {
+                    }
+                    Boolean allocateToday = isToday(reservedRoomEntity.getReservationEntity().getCheckInDate());
+                    Boolean unallocated = reservedRoomEntity.getRoomEntity() == null;
+                    if (allocateToday && unallocated) {
 
-                                //IF NO ROOMS FOR CURRENT ROOM TYPE BUT CAN TRY THE NEXT ROOM TYPE
-                                //REMOVE RESERVED ROOM FROM CURRENT ROOM TYPE
-//                                roomTypeEntity.getReservedRoomEntities().remove(reservedRoomEntity);
-                                //CHANGE ROOM TYPE OF RR TO NEXT ROOM TYPE
-                                RoomTypeEntity nextRoomTypeEntity = new RoomTypeEntity();
-                                Long nextRoomTypeEntityId = roomTypeEntity.getRoomTypeId() + 1L;
-                                System.out.println("Next Room Type Id: " + nextRoomTypeEntity + " has room type: " + roomTypeEntity.getName());
-                                try {
-                                    nextRoomTypeEntity = roomTypeSessionBeanLocal.retrieveRoomTypeByRoomTypeId(nextRoomTypeEntityId);
-                                    System.out.println("Next Room Type Entity: " + nextRoomTypeEntity.getName());
-                                } catch (RoomTypeNotFoundException ex) {
+                        if (reservedRoomEntity.getReservationEntity().getOnlineReservation() == Boolean.TRUE) {
+                            System.out.println("The reserved room entities to be allocated are: " + reservedRoomEntities.toString());
+                            Long roomId = reservationSessionBeanLocal.linkReservedRoomToRoom(reservedRoomEntity.getReservedRoomId(), roomTypeEntity.getRoomTypeId());
+                            System.out.println("RoomId: " + roomId);
+                            //IF NO ROOMS FOR CURRENT ROOM TYPE
+                            if (roomId == 0L) {
+                                ReportLineItemEntity reportLineItemEntity = new ReportLineItemEntity();
 
-                                }
-                                reservedRoomEntity.setRoomTypeEntity(nextRoomTypeEntity);
-                                System.out.println("Set new room type entity of reserved room. ");
-                                //ADD RESERVED ROOM TO THE NEXT ROOM TYPE
-                                nextRoomTypeEntity.getReservedRoomEntities().add(reservedRoomEntity);
-                                System.out.println("Added reserved room entity. ");
+                                Boolean reallocated = Boolean.FALSE;
+                                while (!reallocated) //IF NO ROOMS IN HOTEL ANYMORE
+                                {
+                                    System.out.println("Room Type: " + roomTypeEntity.getName());
+                                    if (roomTypeEntity.getName().equals("Grand Suite")) {
+                                        //must throw second type of exception
+                                        Date allocationDate = new Date();
+                                        reportLineItemEntity.setAllocationDate(allocationDate);
+                                        reportLineItemEntity.setOriginalRoomId(reservedRoomEntity.getReservedRoomId());
+                                        reportLineItemEntity.setOriginalRoomTypeId(roomTypeEntity.getRoomTypeId());
+                                        reportLineItemEntity.setTypeEnum(exceptionTypeEnum.EXCEPTIONTWO);
+                                        reportLineItemEntity.setMessageToAdmin("No available rooms for ReservedRoomId: " + reservedRoomEntity.getReservedRoomId() + ". ");
+                                        reportLineItemEntity.setMessageToGuest("No more higher-tier rooms available for Room Type: " + roomTypeEntity.getName() + ". ");
+                                        em.persist(reportLineItemEntity);
+                                        reallocated = Boolean.TRUE;
+                                    } else {
+
+                                        //IF NO ROOMS FOR CURRENT ROOM TYPE BUT CAN TRY THE NEXT ROOM TYPE
+                                        //REMOVE RESERVED ROOM FROM CURRENT ROOM TYPE
+                                        //roomTypeEntity.getReservedRoomEntities().remove(reservedRoomEntity);
+                                        //CHANGE ROOM TYPE OF RR TO NEXT ROOM TYPE
+                                        RoomTypeEntity nextRoomTypeEntity = new RoomTypeEntity();
+                                        Long nextRoomTypeEntityId = roomTypeEntity.getRoomTypeId() + 1L;
+//                            
+                                        try {
+                                            nextRoomTypeEntity = roomTypeSessionBeanLocal.retrieveRoomTypeByRoomTypeId(nextRoomTypeEntityId);
+
+                                        } catch (RoomTypeNotFoundException ex) {
+
+                                        }
+                                        reservedRoomEntity.setRoomTypeEntity(nextRoomTypeEntity);
+
+                                        //ADD RESERVED ROOM TO THE NEXT ROOM TYPE
+                                        nextRoomTypeEntity.getReservedRoomEntities().add(reservedRoomEntity);
+
+                                        em.flush();
+
+                                        Date allocationDate = new Date();
+                                        reportLineItemEntity.setAllocationDate(allocationDate);
+                                        reportLineItemEntity.setOriginalRoomId(reservedRoomEntity.getReservedRoomId());
+                                        reportLineItemEntity.setOriginalRoomTypeId(roomTypeEntity.getRoomTypeId());
+                                        reportLineItemEntity.setNewRoomTypeId(nextRoomTypeEntityId);
+                                        reportLineItemEntity.setTypeEnum(exceptionTypeEnum.EXCEPTIONONE);
+                                        reportLineItemEntity.setMessageToAdmin("ReservedRoom Id: " + reservedRoomEntity.getReservedRoomId() + " moved to next available Room Type. " );
+                                        reportLineItemEntity.setMessageToGuest("ReservedRoom Id: " + reservedRoomEntity.getReservedRoomId() + " upgraded to next available Room Type. " );
+                                        em.persist(reportLineItemEntity);
+                                        reallocated = Boolean.TRUE;
+                                    }
+                                }//ends while not allocated
                                 em.flush();
-                                System.out.println("Flushed?? ");
-
-                                Date allocationDate = new Date();
-                                reportLineItemEntity.setAllocationDate(allocationDate);
-                                reportLineItemEntity.setOriginalRoomId(reservedRoomEntity.getReservedRoomId());
-                                reportLineItemEntity.setOriginalRoomTypeId(roomTypeEntity.getRoomTypeId());
-                                reportLineItemEntity.setNewRoomTypeId(nextRoomTypeEntityId);
-                                reportLineItemEntity.setTypeEnum(exceptionTypeEnum.EXCEPTIONONE);
-                                reportLineItemEntity.setMessageToAdmin("Message");
-                                reportLineItemEntity.setMessageToGuest("Message");
-                                em.persist(reportLineItemEntity);
-                                reallocated = Boolean.TRUE;
+                            }//ends if roomId == 0L
+                            else {
+                                //valid room id was returned so
+                                //successful allocation!
                             }
-                        }//ends while not allocated
-                        em.flush();
-                    }//ends if roomId == 0L
-                    else {
-                        //valid room id was returned so
-                        //successful allocation!
+                        }
                     }
                 }//ends each reserved room
             }//ENDS IF got reserved rooms under this room type
@@ -249,10 +271,35 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
     }//ends allocation method
 
     @Override
-    public ReportLineItemEntity retrieveLastReportLineItem() {
+    public List<ReportLineItemEntity> retrieveReportLineItemsByReservedRoomId(Long reservedRoomId) {
 
-        Query query = em.createQuery("SELECT MAX(re.reportLineItemId) FROM ReportLineItemEntity re");
-        return (ReportLineItemEntity) query.getSingleResult();
+        Query query = em.createQuery("SELECT re FROM ReportLineItemEntity re WHERE re.originalRoomId = :inRoomId");
+        query.setParameter("inRoomId", reservedRoomId);
+        List<ReportLineItemEntity> reportLineItemEntities = query.getResultList();
+        return reportLineItemEntities;
     }
 
+    public static boolean isToday(Date date) {
+        return isSameDay(date, Calendar.getInstance().getTime());
+    }
+
+    public static boolean isSameDay(Date date1, Date date2) {
+        if (date1 == null || date2 == null) {
+            throw new IllegalArgumentException("The dates must not be null");
+        }
+        Calendar cal1 = Calendar.getInstance();
+        cal1.setTime(date1);
+        Calendar cal2 = Calendar.getInstance();
+        cal2.setTime(date2);
+        return isSameDay(cal1, cal2);
+    }
+
+    public static boolean isSameDay(Calendar cal1, Calendar cal2) {
+        if (cal1 == null || cal2 == null) {
+            throw new IllegalArgumentException("The dates must not be null");
+        }
+        return (cal1.get(Calendar.ERA) == cal2.get(Calendar.ERA)
+                && cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR)
+                && cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR));
+    }
 }//ends class
