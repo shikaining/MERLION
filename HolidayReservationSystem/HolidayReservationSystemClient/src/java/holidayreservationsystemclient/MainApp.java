@@ -4,6 +4,8 @@ import java.util.Scanner;
 import util.exception.InvalidLoginCredentialException;
 
 public class MainApp {
+    
+    //private PartnerEntity currentPartner;
 
     public MainApp() {
     }
