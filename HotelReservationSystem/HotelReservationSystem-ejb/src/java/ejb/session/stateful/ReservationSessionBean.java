@@ -182,7 +182,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
 
     @Override
     public ReservedRoomEntity retrieveReservedRoomByReservedRoomId(Long reservedRoomId) throws ReservedRoomNotFoundException {
-        
+
         ReservedRoomEntity reservedRoomEntity = em.find(ReservedRoomEntity.class, reservedRoomId);
 
         if (reservedRoomEntity != null) {
@@ -213,6 +213,9 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
                 if (roomEntity.getStatus() == roomStatusEnum.AVAILABLE) {
 
                     roomEntity.setStatus(roomStatusEnum.ALLOCATED);
+                    if (currReservedRoomEntity.getReservationEntity().getOnlineReservation() == Boolean.FALSE) {
+                        roomEntity.setStatus(roomStatusEnum.UNAVAILABLE);
+                    }
                     roomEntity.getReservedRoomEntities().add(currReservedRoomEntity);
                     //ERROR DUE TO THIS LINE
                     currReservedRoomEntity.setRoomEntity(roomEntity);
@@ -225,8 +228,9 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
                     //check if checkout date is equivalent to date
                     //need roomentity.reservedroom.reservation.checkoutdate
                     List<ReservationEntity> reservationEntities = roomSessionBeanLocal.retrieveReservationsByRoomId(roomEntity.getRoomId());
+
                     for (ReservationEntity reservationEntity : reservationEntities) {
-                        if (reservationEntity.getCheckOutDate().compareTo(today) == 0) {
+                        if (isSameDay(today, reservationEntity.getCheckOutDate())) {
                             checksOutToday = Boolean.TRUE;
                             break;
                         }
@@ -234,6 +238,9 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
 
                     if (checksOutToday) {
                         roomEntity.setStatus(roomStatusEnum.ALLOCATED);
+                        if (currReservedRoomEntity.getReservationEntity().getOnlineReservation() == Boolean.FALSE) {
+                            roomEntity.setStatus(roomStatusEnum.UNAVAILABLE);
+                        }
                         roomEntity.getReservedRoomEntities().add(currReservedRoomEntity);
                         currReservedRoomEntity.setRoomEntity(roomEntity);
                         roomId = roomEntity.getRoomId();
@@ -258,6 +265,37 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
 
         Query query = em.createQuery(qlString);
         query.setParameter("inGuestId", guestId);
+        List<ReservedRoomEntity> reservedRoomEntities = new ArrayList<>();
+        reservedRoomEntities = query.getResultList();
+        for (ReservedRoomEntity reservedRoomEntity : reservedRoomEntities) {
+            reservedRoomEntity.getRoomEntity();
+            reservedRoomEntity.getReservationEntity();
+        }
+        return reservedRoomEntities;
+    }
+
+    @Override
+    public List<ReservationEntity> retrieveReservationsByGuestId(Long guestId) {
+
+        String qlString = "SELECT r FROM ReservationEntity r WHERE r.guestEntity.guestId = :inGuestId";
+
+        Query query = em.createQuery(qlString);
+        query.setParameter("inGuestId", guestId);
+        List<ReservationEntity> reservationEntities = new ArrayList<>();
+        reservationEntities = query.getResultList();
+        for (ReservationEntity reservationEntity : reservationEntities) {
+            reservationEntity.getReservedRoomEntities();
+        }
+        return reservationEntities;
+    }
+
+    @Override
+    public List<ReservedRoomEntity> retrieveReservedRoomsByReservationId(Long reservationId) {
+
+        String qlString = "SELECT rr FROM ReservedRoomEntity rr WHERE rr.reservationEntity.reservationId = :inReservationId";
+
+        Query query = em.createQuery(qlString);
+        query.setParameter("inReservationId", reservationId);
         List<ReservedRoomEntity> reservedRoomEntities = new ArrayList<>();
         reservedRoomEntities = query.getResultList();
         for (ReservedRoomEntity reservedRoomEntity : reservedRoomEntities) {
@@ -368,6 +406,26 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         }
 
         return amount;
+    }
+
+    public static boolean isSameDay(Date date1, Date date2) {
+        if (date1 == null || date2 == null) {
+            throw new IllegalArgumentException("The dates must not be null");
+        }
+        Calendar cal1 = Calendar.getInstance();
+        cal1.setTime(date1);
+        Calendar cal2 = Calendar.getInstance();
+        cal2.setTime(date2);
+        return isSameDay(cal1, cal2);
+    }
+
+    public static boolean isSameDay(Calendar cal1, Calendar cal2) {
+        if (cal1 == null || cal2 == null) {
+            throw new IllegalArgumentException("The dates must not be null");
+        }
+        return (cal1.get(Calendar.ERA) == cal2.get(Calendar.ERA)
+                && cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR)
+                && cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR));
     }
 
 }

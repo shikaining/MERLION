@@ -26,4 +26,8 @@ public interface ReservationSessionBeanRemote {
 
     BigDecimal calculateAmount(RoomTypeEntity roomTypeEntity, Date checkInDate, Date checkOutDate, Boolean online) throws RoomRateNotFoundException;
 
+    List<ReservedRoomEntity> retrieveReservedRoomsByReservationId(Long reservationId);
+
+    List<ReservationEntity> retrieveReservationsByGuestId(Long guestId);
+
 }

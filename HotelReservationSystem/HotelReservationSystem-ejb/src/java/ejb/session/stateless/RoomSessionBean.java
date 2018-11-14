@@ -6,7 +6,6 @@ import entity.ReservationEntity;
 import entity.ReservedRoomEntity;
 import entity.RoomEntity;
 import entity.RoomTypeEntity;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
