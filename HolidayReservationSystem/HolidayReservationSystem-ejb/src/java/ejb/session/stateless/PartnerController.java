@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package ejb.session.stateless;
 
 import javax.ejb.Local;
@@ -18,7 +13,7 @@ import ws.client.partnerWebService.PartnerWebService_Service;
 @Remote(PartnerControllerRemote.class)
 public class PartnerController implements PartnerControllerRemote, PartnerControllerLocal {
 
-    @WebServiceRef(wsdlLocation = "http://KAIKAI:8080/PartnerWebService/PartnerWebService?wsdl")
+    @WebServiceRef(wsdlLocation = "https://KAIKAI:8181/PartnerWebService/PartnerWebService?wsdl")
     private PartnerWebService_Service service;
 
     public PartnerController() {
@@ -29,7 +24,7 @@ public class PartnerController implements PartnerControllerRemote, PartnerContro
         try {
             return partnerLogin(username, password);
         } catch (InvalidLoginCredentialException_Exception ex) {
-            
+
         }
         return partnerEntity;
     }

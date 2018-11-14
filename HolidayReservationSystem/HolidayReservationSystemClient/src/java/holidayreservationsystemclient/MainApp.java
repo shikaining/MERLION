@@ -4,10 +4,17 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Scanner;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 import util.exception.InvalidLoginCredentialException;
 import ws.client.partnerWebService.InvalidLoginCredentialException_Exception;
 import ws.client.partnerWebService.PartnerEntity;
+import ws.client.partnerWebService.RoomRateNotFoundException_Exception;
+import ws.client.partnerWebService.RoomTypeEntity;
 
 public class MainApp {
 
@@ -16,7 +23,7 @@ public class MainApp {
     public MainApp() {
     }
 
-    public void runApp() throws ParseException {
+    public void runApp() throws ParseException, DatatypeConfigurationException, InvalidLoginCredentialException_Exception, RoomRateNotFoundException_Exception {
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
 
@@ -76,7 +83,7 @@ public class MainApp {
         }
     }
 
-    private void menuMain() throws ParseException {
+    private void menuMain() throws ParseException, DatatypeConfigurationException, InvalidLoginCredentialException_Exception, RoomRateNotFoundException_Exception {
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
 
@@ -113,7 +120,7 @@ public class MainApp {
         }
     }
 
-    private void doSearchRoom() throws ParseException {
+    private void doSearchRoom() throws ParseException, DatatypeConfigurationException, InvalidLoginCredentialException_Exception, RoomRateNotFoundException_Exception {
 
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
@@ -122,13 +129,22 @@ public class MainApp {
         Date checkInDate;
         Date checkOutDate;
 
+        GregorianCalendar calendar1 = new GregorianCalendar();
+
         System.out.println("*** Holiday Reservation System :: Search Room***\n");
         System.out.print("Enter Check-In Date (dd/mm/yyyy)> ");
         checkInDate = inputDateFormat.parse(scanner.nextLine().trim());
+        calendar1.setTime(checkInDate);
+        XMLGregorianCalendar checkInDate2 = DatatypeFactory.newInstance().newXMLGregorianCalendar(calendar1);
+
+        GregorianCalendar calendar2 = new GregorianCalendar();
         System.out.print("Enter Check-Out Date (dd/mm/yyyy)> ");
         checkOutDate = inputDateFormat.parse(scanner.nextLine().trim());
+        calendar2.setTime(checkOutDate);
+        XMLGregorianCalendar checkOutDate2 = DatatypeFactory.newInstance().newXMLGregorianCalendar(calendar2);
+
         //WEB METHOD
-        List<RoomTypeEntity> availableRoomTypes = retrieveAvailableRoomTypes(currentPartner.getUserName(), currentPartner.getPassword(), checkInDate, checkOutDate);
+        List<RoomTypeEntity> availableRoomTypes = retrieveAvailableRoomTypes(currentPartner.getUserName(), currentPartner.getPassword(), checkInDate2, checkOutDate2);
         System.out.printf("%3s%15s%15s%15s\n", "S/N", "Room Type", "Quantity", "Amount");
 
         int sn = availableRoomTypes.size();
@@ -154,9 +170,9 @@ public class MainApp {
             for (RoomTypeEntity roomTypeEntity : availableRoomTypes) {
 
                 //WEB METHOD
-                int nonClashes = retrieveAvailableRoomCount(roomTypeEntity, checkInDate, checkOutDate);
+                int nonClashes = retrieveAvailableRoomCount(currentPartner.getUserName(), currentPartner.getPassword(), roomTypeEntity, checkInDate2, checkOutDate2);
                 //WEB METHOD
-                BigDecimal amount = calculateAmount(roomTypeEntity, checkInDate, checkOutDate, Boolean.TRUE);
+                BigDecimal amount = calculateAmount(currentPartner.getUserName(), currentPartner.getPassword(), roomTypeEntity, checkInDate2, checkOutDate2, Boolean.TRUE);
                 ++sn;
 
                 System.out.printf("%3s%15s%15s%15s\n", sn, roomTypeEntity.getName(), nonClashes, amount);
@@ -174,9 +190,9 @@ public class MainApp {
                 response = scanner.nextInt();
 
                 if (response == 1) {
-                    if (currentGuest != null) {
+                    if (currentPartner != null) {
 
-                        doReserveRoom(availableRoomTypes, checkInDate, checkOutDate);
+                        //doReserveRoom(availableRoomTypes, checkInDate, checkOutDate);
                     } else {
                         System.out.println("Please login first before making a reservation!\n");
 
@@ -264,7 +280,7 @@ public class MainApp {
     private void doViewAllReservations() {
 
     }
-    
+
     public PartnerEntity partnerLoginRemote(String username, String password) {
         PartnerEntity partnerEntity = new PartnerEntity();
         try {
@@ -280,4 +296,23 @@ public class MainApp {
         ws.client.partnerWebService.PartnerWebService port = service.getPartnerWebServicePort();
         return port.partnerLogin(username, password);
     }
+
+    private static java.util.List<ws.client.partnerWebService.RoomTypeEntity> retrieveAvailableRoomTypes(java.lang.String username, java.lang.String password, javax.xml.datatype.XMLGregorianCalendar checkInDate, javax.xml.datatype.XMLGregorianCalendar checkOutDate) throws InvalidLoginCredentialException_Exception {
+        ws.client.partnerWebService.PartnerWebService_Service service = new ws.client.partnerWebService.PartnerWebService_Service();
+        ws.client.partnerWebService.PartnerWebService port = service.getPartnerWebServicePort();
+        return port.retrieveAvailableRoomTypes(username, password, checkInDate, checkOutDate);
+    }
+
+    private static BigDecimal calculateAmount(java.lang.String username, java.lang.String password, ws.client.partnerWebService.RoomTypeEntity roomTypeEntity, javax.xml.datatype.XMLGregorianCalendar checkInDate, javax.xml.datatype.XMLGregorianCalendar checkOutDate, java.lang.Boolean online) throws RoomRateNotFoundException_Exception, InvalidLoginCredentialException_Exception {
+        ws.client.partnerWebService.PartnerWebService_Service service = new ws.client.partnerWebService.PartnerWebService_Service();
+        ws.client.partnerWebService.PartnerWebService port = service.getPartnerWebServicePort();
+        return port.calculateAmount(username, password, roomTypeEntity, checkInDate, checkOutDate, online);
+    }
+
+    private static Integer retrieveAvailableRoomCount(java.lang.String username, java.lang.String password, ws.client.partnerWebService.RoomTypeEntity roomTypeEntity, javax.xml.datatype.XMLGregorianCalendar checkInDate, javax.xml.datatype.XMLGregorianCalendar checkOutDate) throws InvalidLoginCredentialException_Exception {
+        ws.client.partnerWebService.PartnerWebService_Service service = new ws.client.partnerWebService.PartnerWebService_Service();
+        ws.client.partnerWebService.PartnerWebService port = service.getPartnerWebServicePort();
+        return port.retrieveAvailableRoomCount(username, password, roomTypeEntity, checkInDate, checkOutDate);
+    }
+
 }

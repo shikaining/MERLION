@@ -6,7 +6,7 @@ import ejb.session.stateless.RoomTypeSessionBeanLocal;
 import entity.PartnerEntity;
 import entity.RoomTypeEntity;
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import javax.ejb.EJB;
@@ -23,12 +23,13 @@ public class PartnerWebService {
 
     @EJB
     private ReservationSessionBeanLocal reservationSessionBeanLocal;
-
     @EJB
     private RoomTypeSessionBeanLocal roomTypeSessionBeanLocal;
     @EJB
     private PartnerSessionBeanLocal partnerSessionBeanLocal;
 
+    SimpleDateFormat inputDateFormat = new SimpleDateFormat("d/M/y");
+    
     @WebMethod(operationName = "partnerLogin")
     public PartnerEntity partnerLogin(@WebParam(name = "username") String username,
             @WebParam(name = "password") String password)
