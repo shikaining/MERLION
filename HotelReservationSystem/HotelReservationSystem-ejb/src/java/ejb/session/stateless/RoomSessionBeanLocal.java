@@ -15,6 +15,7 @@ public interface RoomSessionBeanLocal {
 
     List<ReservationEntity> retrieveReservationsByRoomId(Long roomId);
 
-    //List<ReservedRoomEntity> retrieveOnlineReservedRooms(Long roomTypeId);
+    void doAllocateRooms();
 
+    //List<ReservedRoomEntity> retrieveOnlineReservedRooms(Long roomTypeId);
 }

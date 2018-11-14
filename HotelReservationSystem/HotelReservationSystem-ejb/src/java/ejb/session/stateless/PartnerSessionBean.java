@@ -5,44 +5,77 @@
  */
 package ejb.session.stateless;
 
+import entity.GuestEntity;
 import entity.PartnerEntity;
 import java.util.List;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import util.exception.GuestNotFoundException;
+import util.exception.InvalidLoginCredentialException;
+import util.exception.PartnerNotFoundException;
 
 /**
  *
  * @author kai_n
  */
 @Stateless
-@Local (PartnerSessionBeanLocal.class)
-@Remote (PartnerSessionBeanRemote.class)
+@Local(PartnerSessionBeanLocal.class)
+@Remote(PartnerSessionBeanRemote.class)
 public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSessionBeanLocal {
 
     @PersistenceContext(unitName = "HotelReservationSystem-ejbPU")
     private EntityManager em;
 
-   
     @Override
-    public PartnerEntity createNewPartner(PartnerEntity newPartnerEntity)
-    {
+    public PartnerEntity createNewPartner(PartnerEntity newPartnerEntity) {
         em.persist(newPartnerEntity);
         em.flush();
-        
+
         return newPartnerEntity;
     }
-    
-    public List<PartnerEntity> retrieveAllPartners()
-    {
+
+    @Override
+    public List<PartnerEntity> retrieveAllPartners() {
         Query query = em.createQuery("SELECT p FROM PartnerEntity p");
-        
+
         return query.getResultList();
     }
 
+    @Override
+    public PartnerEntity partnerLogin(String username, String password) throws InvalidLoginCredentialException {
+        try {
+            PartnerEntity partnerEntity = retrievePartnerByUsername(username);
 
-   
+            if (partnerEntity.getUserName().equals(username) && partnerEntity.getPassword().equals(password)) {
+
+                return partnerEntity;
+
+            } else {
+                throw new InvalidLoginCredentialException("Invalid login credential");
+            }
+        } catch (PartnerNotFoundException ex) {
+            throw new InvalidLoginCredentialException("Username does not exist or invalid password!");
+        }
+    }
+
+    @Override
+    public PartnerEntity retrievePartnerByUsername(String username) throws PartnerNotFoundException {
+        Query query = em.createQuery("SELECT p FROM PartnerEntity p WHERE p.userName = :inUsername");
+        query.setParameter("inUsername", username);
+
+        try {
+            PartnerEntity partnerEntity = (PartnerEntity) query.getSingleResult();
+            partnerEntity.getReservationEntities().size();
+            return partnerEntity;
+        } catch (NoResultException | NonUniqueResultException ex) {
+            throw new PartnerNotFoundException("Partner with Username " + username + "does not exist!");
+        }
+    }
+
 }

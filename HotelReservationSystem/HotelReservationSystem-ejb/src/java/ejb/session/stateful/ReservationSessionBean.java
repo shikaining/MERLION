@@ -18,7 +18,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.Resource;
 import javax.ejb.EJB;
+import javax.ejb.EJBContext;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateful;
@@ -46,6 +48,9 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     private RoomSessionBeanLocal roomSessionBeanLocal;
     @EJB
     private RoomTypeSessionBeanLocal roomTypeSessionBeanLocal;
+    
+    @Resource
+    private EJBContext eJBContext;
 
     @PersistenceContext(unitName = "HotelReservationSystem-ejbPU")
     private EntityManager em;
@@ -131,6 +136,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         try {
             guestEntity = guestSessionBeanLocal.retrieveGuestByGuestId(guestId);
         } catch (GuestNotFoundException ex) {
+            eJBContext.setRollbackOnly();
 
         }
         newReservationEntity.setGuestEntity(guestEntity);
