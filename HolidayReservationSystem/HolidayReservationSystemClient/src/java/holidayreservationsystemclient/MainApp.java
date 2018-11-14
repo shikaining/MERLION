@@ -1,16 +1,22 @@
 package holidayreservationsystemclient;
 
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Scanner;
 import util.exception.InvalidLoginCredentialException;
+import ws.client.partnerWebService.InvalidLoginCredentialException_Exception;
+import ws.client.partnerWebService.PartnerEntity;
 
 public class MainApp {
-    
-    //private PartnerEntity currentPartner;
+
+    private PartnerEntity currentPartner;
 
     public MainApp() {
     }
 
-    public void runApp() {
+    public void runApp() throws ParseException {
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
 
@@ -28,15 +34,15 @@ public class MainApp {
                 response = scanner.nextInt();
 
                 if (response == 1) {
-//                    try {
-//                        //doLogin();
-//                        //System.out.println("Login successful as " + currentGuest.getFirstName() + " " + currentGuest.getLastName() + "!\n");
-//                        //menuMain();
-//                    } catch (InvalidLoginCredentialException ex) {
-//                        System.out.println("Invalid login credential: " + ex.getMessage() + "\n");
-//                    }
+                    try {
+                        doLogin();
+                        System.out.println("Login successful as " + currentPartner.getName() + "!\n");
+                        menuMain();
+                    } catch (InvalidLoginCredentialException ex) {
+                        System.out.println("Invalid login credential: " + ex.getMessage() + "\n");
+                    }
                 } else if (response == 2) {
-                    //doSearchRoom();
+                    doSearchRoom();
                 } else if (response == 3) {
                     break;
                 } else {
@@ -63,13 +69,14 @@ public class MainApp {
 
         if (username.length() > 0 && password.length() > 0) {
 
-            //currentGuest = guestSessionBeanRemote.guestLogin(username, password);
+            currentPartner = partnerLoginRemote(username, password);
+
         } else {
             throw new InvalidLoginCredentialException("Missing login credential!");
         }
     }
 
-    private void menuMain() {
+    private void menuMain() throws ParseException {
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
 
@@ -88,7 +95,7 @@ public class MainApp {
                 response = scanner.nextInt();
 
                 if (response == 1) {
-                    //doSearchRoom();
+                    doSearchRoom();
                 } else if (response == 2) {
                     doViewReservation();
                 } else if (response == 3) {
@@ -106,84 +113,87 @@ public class MainApp {
         }
     }
 
-//    private void doSearchRoom() {
-//        Scanner scanner = new Scanner(System.in);
-//        Integer response = 0;
-//        SimpleDateFormat inputDateFormat = new SimpleDateFormat("d/M/y");
-//        SimpleDateFormat outputDateFormat = new SimpleDateFormat("dd/MM/yyyy");
-//        Date checkInDate;
-//        Date checkOutDate;
-//
-//        System.out.println("*** HoRS Reservation System :: Search Room***\n");
-//        System.out.print("Enter Check-In Date (dd/mm/yyyy)> ");
-//        checkInDate = inputDateFormat.parse(scanner.nextLine().trim());
-//        System.out.print("Enter Check-Out Date (dd/mm/yyyy)> ");
-//        checkOutDate = inputDateFormat.parse(scanner.nextLine().trim());
-//
-//        List<RoomTypeEntity> availableRoomTypes = roomTypeSessionBeanRemote.retrieveAvailableRoomTypes(checkInDate, checkOutDate);
-//        System.out.printf("%3s%15s%15s%15s\n", "S/N", "Room Type", "Quantity", "Amount");
-//
-//        int sn = availableRoomTypes.size();
-//
-//        if (sn == 0) {
-//            System.out.println("No Room Types are available for the given dates");
-//            System.out.println("1: Back\n");
-//            response = scanner.nextInt();
-//            while (response < 1 || response > 2) {
-//                System.out.print("> ");
-//                if (response == 1) {
-//                    break;
-//                } else {
-//                    System.out.println("Invalid option, please try again!\n");
-//                }
-//
-//                if (response == 1) {
-//                    break;
-//                }
-//            }
-//        } else {
-//            sn = 0;
-//            for (RoomTypeEntity roomTypeEntity : availableRoomTypes) {
-//
-//                int nonClashes = roomTypeSessionBeanRemote.retrieveAvailableRoomCount(roomTypeEntity, checkInDate, checkOutDate);
-//                BigDecimal amount = reservationSessionBeanRemote.calculateAmount(roomTypeEntity, checkInDate, checkOutDate, Boolean.TRUE);
-//                ++sn;
-//
-//                System.out.printf("%3s%15s%15s%15s\n", sn, roomTypeEntity.getName(), nonClashes, amount);
-//            }
-//
-//            System.out.println("------------------------");
-//            System.out.println("1: Make Reservation");
-//            System.out.println("2: Back\n");
-//            System.out.print("> ");
-//            response = 0;
-//
-//            while (response < 1 || response > 2) {
-//                System.out.print("> ");
-//
-//                response = scanner.nextInt();
-//
-//                if (response == 1) {
-//                    if (currentGuest != null) {
-//
-//                        doReserveRoom(availableRoomTypes, checkInDate, checkOutDate);
-//                    } else {
-//                        System.out.println("Please login first before making a reservation!\n");
-//
-//                    }
-//                } else if (response == 2) {
-//
-//                    break;
-//
-//                } else {
-//
-//                    System.out.println("Invalid option, please try again!\n");
-//
-//                }
-//            }
-//
-//        }
-//    }
+    private void doSearchRoom() throws ParseException {
+
+        Scanner scanner = new Scanner(System.in);
+        Integer response = 0;
+        SimpleDateFormat inputDateFormat = new SimpleDateFormat("d/M/y");
+        SimpleDateFormat outputDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        Date checkInDate;
+        Date checkOutDate;
+
+        System.out.println("*** Holiday Reservation System :: Search Room***\n");
+        System.out.print("Enter Check-In Date (dd/mm/yyyy)> ");
+        checkInDate = inputDateFormat.parse(scanner.nextLine().trim());
+        System.out.print("Enter Check-Out Date (dd/mm/yyyy)> ");
+        checkOutDate = inputDateFormat.parse(scanner.nextLine().trim());
+        //WEB METHOD
+        List<RoomTypeEntity> availableRoomTypes = retrieveAvailableRoomTypes(currentPartner.getUserName(), currentPartner.getPassword(), checkInDate, checkOutDate);
+        System.out.printf("%3s%15s%15s%15s\n", "S/N", "Room Type", "Quantity", "Amount");
+
+        int sn = availableRoomTypes.size();
+
+        if (sn == 0) {
+            System.out.println("No Room Types are available for the given dates");
+            System.out.println("1: Back\n");
+            response = scanner.nextInt();
+            while (response < 1 || response > 2) {
+                System.out.print("> ");
+                if (response == 1) {
+                    break;
+                } else {
+                    System.out.println("Invalid option, please try again!\n");
+                }
+
+                if (response == 1) {
+                    break;
+                }
+            }
+        } else {
+            sn = 0;
+            for (RoomTypeEntity roomTypeEntity : availableRoomTypes) {
+
+                //WEB METHOD
+                int nonClashes = retrieveAvailableRoomCount(roomTypeEntity, checkInDate, checkOutDate);
+                //WEB METHOD
+                BigDecimal amount = calculateAmount(roomTypeEntity, checkInDate, checkOutDate, Boolean.TRUE);
+                ++sn;
+
+                System.out.printf("%3s%15s%15s%15s\n", sn, roomTypeEntity.getName(), nonClashes, amount);
+            }
+
+            System.out.println("------------------------");
+            System.out.println("1: Make Reservation");
+            System.out.println("2: Back\n");
+            System.out.print("> ");
+            response = 0;
+
+            while (response < 1 || response > 2) {
+                System.out.print("> ");
+
+                response = scanner.nextInt();
+
+                if (response == 1) {
+                    if (currentGuest != null) {
+
+                        doReserveRoom(availableRoomTypes, checkInDate, checkOutDate);
+                    } else {
+                        System.out.println("Please login first before making a reservation!\n");
+
+                    }
+                } else if (response == 2) {
+
+                    break;
+
+                } else {
+
+                    System.out.println("Invalid option, please try again!\n");
+
+                }
+            }
+
+        }
+    }
 //
 //    private void doReserveRoom(List<RoomTypeEntity> availableRoomTypes, Date checkInDate, Date checkOutDate) throws GuestNotFoundException, ReservationNotFoundException, ReservedRoomNotFoundException, RoomRateNotFoundException, RoomTypeNotFoundException {
 //
@@ -253,5 +263,21 @@ public class MainApp {
 
     private void doViewAllReservations() {
 
+    }
+    
+    public PartnerEntity partnerLoginRemote(String username, String password) {
+        PartnerEntity partnerEntity = new PartnerEntity();
+        try {
+            return partnerLogin(username, password);
+        } catch (InvalidLoginCredentialException_Exception ex) {
+
+        }
+        return partnerEntity;
+    }
+
+    private static ws.client.partnerWebService.PartnerEntity partnerLogin(java.lang.String username, java.lang.String password) throws InvalidLoginCredentialException_Exception {
+        ws.client.partnerWebService.PartnerWebService_Service service = new ws.client.partnerWebService.PartnerWebService_Service();
+        ws.client.partnerWebService.PartnerWebService port = service.getPartnerWebServicePort();
+        return port.partnerLogin(username, password);
     }
 }
