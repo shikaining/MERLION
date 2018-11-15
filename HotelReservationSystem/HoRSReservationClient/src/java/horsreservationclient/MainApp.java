@@ -115,7 +115,7 @@ public class MainApp {
             System.out.println("You are login as " + currentGuest.getFirstName() + " " + currentGuest.getLastName() + "\n");
             System.out.println("1: Search Hotel Room");
             System.out.println("2: View My Reservation Details");
-            System.out.println("3: View All My Reservation");
+            System.out.println("3: View All My Reservations");
             System.out.println("4: Logout\n");
             response = 0;
 
@@ -335,12 +335,22 @@ public class MainApp {
         System.out.print("Please enter reservationId: ");
         Long reservationId = scanner.nextLong();
 
+        SimpleDateFormat outputDateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm a");
+
         try {
             ReservationEntity reservationEntity = reservationSessionBeanRemote.retrieveReservationByReservationId(reservationId);
             List<ReservedRoomEntity> reservedRoomEntities = reservationSessionBeanRemote.retrieveReservedRoomsByReservationId(reservationId);
             for (ReservedRoomEntity reservedRoomEntity : reservedRoomEntities) {
-                System.out.printf("%15s%15s%10s%20s%20s%15s%15s\n", "Reservation ID", "Room Type", "Quantity", "Check-In Date", "Check-Out Date", "Amount", "Reservation Type");
-                System.out.printf("%8s%20s%15s%20s%20s%15s%15s\n", reservationEntity.getReservationId().toString(), reservedRoomEntity.getRoomTypeEntity().getName(), reservedRoomEntities.size(), reservationEntity.getCheckInDate(), reservationEntity.getCheckOutDate(), reservationEntity.getReservationAmount(), reservationEntity.getOnlineReservation().toString());
+                String reservationType = "";
+                if (reservedRoomEntity.getReservationEntity().getOnlineReservation() == true) {
+                    reservationType = "Online";
+                } else {
+                    reservationType = "Walk-In";
+                }
+                String start = outputDateFormat.format(reservedRoomEntity.getReservationEntity().getCheckInDate());
+                String end = outputDateFormat.format(reservedRoomEntity.getReservationEntity().getCheckOutDate());
+                System.out.printf("%20s%20s%15s%25s%25s%15s%25s\n", "Reservation ID", "Room Type", "Quantity", "Check-In Date", "Check-Out Date", "Amount", "Reservation Type");
+                System.out.printf("%20s%20s%15s%25s%25s%15s%25s\n", reservedRoomEntity.getReservationEntity().getReservationId().toString(), reservedRoomEntity.getRoomTypeEntity().getName(), "1", start, end, reservedRoomEntity.getReservationEntity().getReservationAmount(), reservationType);
             }
         } catch (ReservationNotFoundException ex) {
             System.out.println("An error has occurred while retrieving Reservation: " + ex.getMessage() + "\n");
@@ -357,16 +367,20 @@ public class MainApp {
         System.out.println("*** HoRS Reservation Client :: View All Reservations ***\n");
 
         List<ReservedRoomEntity> reservedRoomEntities = reservationSessionBeanRemote.retrieveReservedRoomByGuestId(currentGuest.getGuestId());
+
+        SimpleDateFormat outputDateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm a");
+
         for (ReservedRoomEntity reservedRoomEntity : reservedRoomEntities) {
             String reservationType = "";
-            if (reservedRoomEntity.getReservationEntity().getOnlineReservation()==Boolean.TRUE) {
+            if (reservedRoomEntity.getReservationEntity().getOnlineReservation() == true) {
                 reservationType = "Online";
-            }
-            else {
+            } else {
                 reservationType = "Walk-In";
             }
-            System.out.printf("%15s%15s%10s%30s%30s%15s%15s\n", "Reservation ID", "Room Type", "Quantity", "Check-In Date", "Check-Out Date", "Amount", "Reservation Type");
-            System.out.printf("%8s%20s%15s%30s%30s%15s%15s\n", reservedRoomEntity.getReservationEntity().getReservationId().toString(), reservedRoomEntity.getRoomTypeEntity().getName(), reservedRoomEntities.size(), reservedRoomEntity.getReservationEntity().getCheckInDate(), reservedRoomEntity.getReservationEntity().getCheckOutDate(), reservedRoomEntity.getReservationEntity().getReservationAmount(), reservationType);
+            String start = outputDateFormat.format(reservedRoomEntity.getReservationEntity().getCheckInDate());
+            String end = outputDateFormat.format(reservedRoomEntity.getReservationEntity().getCheckOutDate());
+            System.out.printf("%20s%20s%15s%25s%25s%15s%25s\n", "Reservation ID", "Room Type", "Quantity", "Check-In Date", "Check-Out Date", "Amount", "Reservation Type");
+            System.out.printf("%20s%20s%15s%25s%25s%15s%25s\n", reservedRoomEntity.getReservationEntity().getReservationId().toString(), reservedRoomEntity.getRoomTypeEntity().getName(), "1", start, end, reservedRoomEntity.getReservationEntity().getReservationAmount(), reservationType);
         }
 
         System.out.print("Press any key to continue...> ");

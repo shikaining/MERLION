@@ -28,12 +28,13 @@ public class PartnerEntity implements Serializable {
     private Long partnerId;
     @Column(unique = true, nullable = false, length = 16)
     private String name;
+    @Column(unique = true, nullable = false, length = 16)
     private String userName;
+    @Column(nullable = false, length = 16)
     private String password;
-    
-    @OneToMany (mappedBy = "partnerEntity")
-    private List<ReservationEntity> reservationEntities;
 
+    @OneToMany(mappedBy = "partnerEntity")
+    private List<ReservationEntity> reservationEntities;
 
     public PartnerEntity() {
         reservationEntities = new ArrayList<>();
@@ -46,7 +47,6 @@ public class PartnerEntity implements Serializable {
         this.password = password;
     }
 
-    
     public Long getPartnerId() {
         return partnerId;
     }
@@ -111,5 +111,5 @@ public class PartnerEntity implements Serializable {
     public String toString() {
         return "entity.partnerEntity[ id=" + partnerId + " ]";
     }
-    
+
 }

@@ -4,7 +4,6 @@
     <jta-data-source>jdbc/hotelReservationSystem</jta-data-source>
     <class>entity.EmployeeEntity</class>
     <class>entity.GuestEntity</class>
-    <class>entity.PartnerEntity</class>
     <class>entity.ReservationEntity</class>
     <class>entity.ReservedNightEntity</class>
     <class>entity.ReservedRoomEntity</class>
@@ -12,6 +11,7 @@
     <class>entity.RoomRateEntity</class>
     <class>entity.RoomTypeEntity</class>
     <class>entity.ReportLineItemEntity</class>
+    <class>entity.PartnerEntity</class>
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
     <properties>
       <property name="javax.persistence.schema-generation.database.action" value="create"/>

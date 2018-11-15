@@ -148,12 +148,11 @@ public class HotelOperationModule {
 
                         doViewAllRoomRates();
 
-                    }
-                    else if (response == 4) {
+                    } else if (response == 4) {
 
                         doAllocateRoom();
 
-                    }else if (response == 5) {
+                    } else if (response == 5) {
 
                         break;
 
@@ -550,10 +549,20 @@ public class HotelOperationModule {
         System.out.print("Enter Name of Room Rate> ");
         String name = scanner.nextLine().trim();
 
+        SimpleDateFormat outputDateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm a");
+
         try {
             RoomRateEntity roomRateEntity = roomRateSessionBeanRemote.retrieveRoomRateByName(name);
-            System.out.printf("%8s%20s%15s%20s%20s%15s%15s\n", "RoomRate ID", "Room Rate Name", "Rate Per Night", "Rate Type", "Room Type", "Validity Start Date", "Validity End Date");
-            System.out.printf("%8s%20s%15s%20s%20s%15s%15s\n", roomRateEntity.getRoomRateId().toString(), roomRateEntity.getName(), roomRateEntity.getRatePerNight(), roomRateEntity.getRateType(), roomRateEntity.getRoomTypeEntity().getName(), roomRateEntity.getValidityStart(), roomRateEntity.getValidityEnd());
+            System.out.printf("%8s%20s%15s%20s%20s%25s%25s\n", "RoomRate ID", "Room Rate Name", "Rate Per Night", "Rate Type", "Room Type", "Validity Start Date", "Validity End Date");
+            if (roomRateEntity.getValidityStart() != null) {
+                String start = outputDateFormat.format(roomRateEntity.getValidityStart());
+                String end = outputDateFormat.format(roomRateEntity.getValidityEnd());
+
+                System.out.printf("%8s%20s%15s%20s%20s%25s%25s\n", roomRateEntity.getRoomRateId().toString(), roomRateEntity.getName(), roomRateEntity.getRatePerNight(), roomRateEntity.getRateType(), roomRateEntity.getRoomTypeEntity().getName(), start, end);
+            } else {
+                System.out.printf("%8s%20s%15s%20s%20s%25s%25s\n", roomRateEntity.getRoomRateId().toString(), roomRateEntity.getName(), roomRateEntity.getRatePerNight(), roomRateEntity.getRateType(), roomRateEntity.getRoomTypeEntity().getName(), roomRateEntity.getValidityStart(), roomRateEntity.getValidityEnd());
+
+            }
             System.out.println("------------------------");
             System.out.println("1: Update Room Rate");
             System.out.println("2: Delete Room Rate");
@@ -675,11 +684,20 @@ public class HotelOperationModule {
 
         System.out.println("*** HoRS Management System :: Hotel Operation :: View All Room Rates ***\n");
 
-        List<RoomRateEntity> roomRateEntities = roomRateSessionBeanRemote.retrieveAllRoomRates();
-        System.out.printf("%8s%20s%15s%20s%20s%15s%15s\n", "RoomRate ID", "Room Rate Name", "Rate Per Night", "Rate Type", "Room Type", "Validity Start Date", "Validity End Date");
-        for (RoomRateEntity roomRateEntity : roomRateEntities) {
-            System.out.printf("%8s%20s%15s%20s%20s%15s%15s\n", roomRateEntity.getRoomRateId().toString(), roomRateEntity.getName(), roomRateEntity.getRatePerNight(), roomRateEntity.getRateType(), roomRateEntity.getRoomTypeEntity().getName(), roomRateEntity.getValidityStart(), roomRateEntity.getValidityEnd());
+        SimpleDateFormat outputDateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm a");
 
+        List<RoomRateEntity> roomRateEntities = roomRateSessionBeanRemote.retrieveAllRoomRates();
+        System.out.printf("%8s%20s%15s%20s%20s%25s%25s\n", "RoomRate ID", "Room Rate Name", "Rate Per Night", "Rate Type", "Room Type", "Validity Start Date", "Validity End Date");
+        for (RoomRateEntity roomRateEntity : roomRateEntities) {
+            if (roomRateEntity.getValidityStart() != null) {
+                String start = outputDateFormat.format(roomRateEntity.getValidityStart());
+                String end = outputDateFormat.format(roomRateEntity.getValidityEnd());
+
+                System.out.printf("%8s%20s%15s%20s%20s%25s%25s\n", roomRateEntity.getRoomRateId().toString(), roomRateEntity.getName(), roomRateEntity.getRatePerNight(), roomRateEntity.getRateType(), roomRateEntity.getRoomTypeEntity().getName(), start, end);
+            } else {
+                System.out.printf("%8s%20s%15s%20s%20s%25s%25s\n", roomRateEntity.getRoomRateId().toString(), roomRateEntity.getName(), roomRateEntity.getRatePerNight(), roomRateEntity.getRateType(), roomRateEntity.getRoomTypeEntity().getName(), roomRateEntity.getValidityStart(), roomRateEntity.getValidityEnd());
+
+            }
         }
 
         System.out.print("Press any key to continue...> ");
@@ -699,8 +717,7 @@ public class HotelOperationModule {
         System.out.print("Press any key to continue...> ");
         scanner.nextLine();
     }
-    
-    
+
     private void doAllocateRoom() {
 
         roomSessionBeanRemote.doAllocateRooms();

@@ -109,7 +109,7 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
     public List<RoomEntity> retrieveRoomsByReservationId(Long reservationId) {
 
         String qlString = "SELECT r FROM RoomEntity r "
-                + "JOIN r.reservedRoomEntity rr "
+                + "JOIN r.reservedRoomEntities rr "
                 + "WHERE rr.reservationEntity.reservationId = :inReservationId";
         Query query = em.createQuery(qlString);
         query.setParameter("inReservationId", reservationId);

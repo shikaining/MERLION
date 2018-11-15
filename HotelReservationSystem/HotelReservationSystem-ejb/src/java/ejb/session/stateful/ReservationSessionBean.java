@@ -48,7 +48,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     private RoomSessionBeanLocal roomSessionBeanLocal;
     @EJB
     private RoomTypeSessionBeanLocal roomTypeSessionBeanLocal;
-    
+
     @Resource
     private EJBContext eJBContext;
 
@@ -219,9 +219,9 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
                 if (roomEntity.getStatus() == roomStatusEnum.AVAILABLE) {
 
                     roomEntity.setStatus(roomStatusEnum.ALLOCATED);
-                    if (currReservedRoomEntity.getReservationEntity().getOnlineReservation() == Boolean.FALSE) {
-                        roomEntity.setStatus(roomStatusEnum.UNAVAILABLE);
-                    }
+//                    if (currReservedRoomEntity.getReservationEntity().getOnlineReservation() == Boolean.FALSE) {
+//                        roomEntity.setStatus(roomStatusEnum.UNAVAILABLE);
+//                    }
                     roomEntity.getReservedRoomEntities().add(currReservedRoomEntity);
                     //ERROR DUE TO THIS LINE
                     currReservedRoomEntity.setRoomEntity(roomEntity);
@@ -244,9 +244,9 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
 
                     if (checksOutToday) {
                         roomEntity.setStatus(roomStatusEnum.ALLOCATED);
-                        if (currReservedRoomEntity.getReservationEntity().getOnlineReservation() == Boolean.FALSE) {
-                            roomEntity.setStatus(roomStatusEnum.UNAVAILABLE);
-                        }
+//                        if (currReservedRoomEntity.getReservationEntity().getOnlineReservation() == Boolean.FALSE) {
+//                            roomEntity.setStatus(roomStatusEnum.UNAVAILABLE);
+//                        }
                         roomEntity.getReservedRoomEntities().add(currReservedRoomEntity);
                         currReservedRoomEntity.setRoomEntity(roomEntity);
                         roomId = roomEntity.getRoomId();
@@ -328,7 +328,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
             if (roomRateEntity.getValidityStart() != null) {
                 //check if applicable
                 Boolean applicable = Boolean.FALSE;
-                if ((currNightDate.compareTo(roomRateEntity.getValidityStart()) >= 0) && (currNightDate.compareTo(roomRateEntity.getValidityEnd()) <= 0)) {
+                if ((currNightDate.compareTo(roomRateEntity.getValidityStart()) >= 0) && (currNightDate.compareTo(roomRateEntity.getValidityEnd()) < 0)) {
                     applicable = Boolean.TRUE;
                     applicableRoomRates.add(roomRateEntity);
                 }
@@ -384,7 +384,8 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         for (int i = 0; i < numNights; i++) {
             currNightDate = addDays(currNightDate, i);
             rateTypeEnum currRateTypeEnum = rateTypeEnum.PUBLISHED;
-            if (online == Boolean.FALSE) {
+            System.out.println(online);
+            if (!online) {
                 //no change to the default
                 System.out.println("This is a walk-in search room");
                 RoomRateEntity roomRateEntity = roomRateSessionBeanLocal.retrieveRoomRateByRateType(currRoomTypeEntity.getRoomTypeId(), currRateTypeEnum);
