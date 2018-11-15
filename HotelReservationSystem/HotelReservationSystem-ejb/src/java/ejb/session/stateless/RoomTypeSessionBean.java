@@ -23,13 +23,16 @@ import util.exception.RoomTypeNotFoundException;
 @Remote(RoomTypeSessionBeanRemote.class)
 public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeSessionBeanLocal {
 
-    @EJB
-    private RoomSessionBeanLocal roomSessionBeanLocal;
     @PersistenceContext(unitName = "HotelReservationSystem-ejbPU")
     private EntityManager em;
 
+    @EJB
+    private RoomSessionBeanLocal roomSessionBeanLocal;
+    
+
     @Override
     public RoomTypeEntity createNewRoomType(RoomTypeEntity newRoomTypeEntity) {
+        
         em.persist(newRoomTypeEntity);
         em.flush();
 
@@ -45,7 +48,7 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
         for (RoomTypeEntity roomTypeEntity : roomTypeEntities) {
             roomTypeEntity.getReservedRoomEntities().size();
         }
-        
+
         return roomTypeEntities;
     }
 
@@ -64,6 +67,24 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
             throw new RoomTypeNotFoundException("Room Type Name " + name + " does not exist!");
         }
     }
+    
+    @Override
+     public RoomTypeEntity retrieveRoomTypeByRank(int rank) throws RoomTypeNotFoundException {
+        Query query = em.createQuery("SELECT rt FROM RoomTypeEntity rt WHERE rt.ranking = :inRank");
+        query.setParameter("inRank", rank);
+        System.out.println(rank);
+
+        try {
+            RoomTypeEntity roomTypeEntity = (RoomTypeEntity) query.getSingleResult();
+            roomTypeEntity.getRoomEntities().size();
+            roomTypeEntity.getReservedRoomEntities().size();
+            roomTypeEntity.getRoomRateEntities().size();
+            System.out.println(roomTypeEntity.getRoomTypeId());
+            return roomTypeEntity;
+        } catch (NoResultException | NonUniqueResultException ex) {
+            throw new RoomTypeNotFoundException("Room Type Rank " + rank + " does not exist!");
+        }
+    }
 
     @Override
     public void updateRoomType(RoomTypeEntity roomTypeEntity) throws RoomTypeNotFoundException {
@@ -77,6 +98,7 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
                 roomTypeEntityToUpdate.setBed(roomTypeEntity.getBed());
                 roomTypeEntityToUpdate.setCapacity(roomTypeEntity.getCapacity());
                 roomTypeEntityToUpdate.setAmenities(roomTypeEntity.getAmenities());
+                roomTypeEntityToUpdate.setRanking(roomTypeEntity.getRanking());
 
             }
         } else {
@@ -115,12 +137,12 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
         List<RoomTypeEntity> availableRoomTypes = new ArrayList<>();
 
         for (RoomTypeEntity roomTypeEntity : allRoomTypes) {
-          
+
             if (!roomTypeEntity.getRoomEntities().isEmpty()) {
                 System.out.println(roomTypeEntity.getName() + " has rooms. ");
 
                 if (!roomTypeEntity.getReservedRoomEntities().isEmpty()) {
-                     System.out.println(roomTypeEntity.getName() + " has reservations. ");
+                    System.out.println(roomTypeEntity.getName() + " has reservations. ");
 
                     List<ReservedRoomEntity> reservedRooms = new ArrayList<>();
                     reservedRooms = retrieveReservedRoomsByRoomTypeName(roomTypeEntity.getName());
@@ -172,7 +194,7 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
         try {
             currRoomTypeEntity = retrieveRoomTypeByRoomTypeId(roomTypeEntity.getRoomTypeId());
         } catch (RoomTypeNotFoundException ex) {
-           
+
         }
         if (!currRoomTypeEntity.getReservedRoomEntities().isEmpty()) {
 
@@ -211,7 +233,6 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
 //        roomTypeEntity.getRoomEntities().add(roomEntity);
 //        roomEntity.setRoomTypeEntity(roomTypeEntity);
 //    }
-
     @Override
     public List<ReservedRoomEntity> retrieveReservedRoomsByRoomTypeName(String roomTypeName) {
 
@@ -227,5 +248,9 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
             reservedRoomEntity.getReservationEntity();
         }
         return reservedRooms;
+    }
+
+    public void persist(Object object) {
+        em.persist(object);
     }
 }

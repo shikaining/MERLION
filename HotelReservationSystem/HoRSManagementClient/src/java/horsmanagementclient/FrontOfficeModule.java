@@ -253,7 +253,10 @@ public class FrontOfficeModule {
                     guestId = guestEntity.getGuestId();
 
                 } else {
+
                     System.out.println("Invalid option, please try again!\n");
+                    return;
+
                 }
             }
             newReservationEntity = reservationSessionBeanRemote.reserve(newReservationEntity, guestId, numOfRooms, roomTypeId);

@@ -68,7 +68,7 @@ public class MainApp {
         String username = "";
         String password = "";
 
-        System.out.println("*** HoRS Management System :: Login ***\n");
+        System.out.println("*** Holiday Reservation System :: Login ***\n");
         System.out.print("Enter username> ");
         username = scanner.nextLine().trim();
         System.out.print("Enter password> ");
@@ -89,33 +89,35 @@ public class MainApp {
 
         while (true) {
             System.out.println("*** Holiday Reservation System ***\n");
-            //System.out.println("You are login as " + currentGuest.getFirstName() + " " + currentGuest.getLastName() + "\n");
-            System.out.println("1: Search Hotel Room");
-            System.out.println("2: View Reservation Details");
-            System.out.println("3: View All Reservations");
-            System.out.println("4: Logout\n");
-            response = 0;
+            if (currentPartner != null) {
+                System.out.println("You are login as " + currentPartner.getName() + "\n");
+                System.out.println("1: Search Hotel Room");
+                System.out.println("2: View Reservation Details");
+                System.out.println("3: View All Reservations");
+                System.out.println("4: Logout\n");
+                response = 0;
 
-            while (response < 1 || response > 4) {
-                System.out.print("> ");
+                while (response < 1 || response > 4) {
+                    System.out.print("> ");
 
-                response = scanner.nextInt();
+                    response = scanner.nextInt();
 
-                if (response == 1) {
-                    doSearchRoom();
-                } else if (response == 2) {
-                    doViewReservation();
-                } else if (response == 3) {
-                    doViewAllReservations();
-                } else if (response == 4) {
-                    break;
-                } else {
-                    System.out.println("Invalid option, please try again!\n");
+                    if (response == 1) {
+                        doSearchRoom();
+                    } else if (response == 2) {
+                        doViewReservation();
+                    } else if (response == 3) {
+                        doViewAllReservations();
+                    } else if (response == 4) {
+                        break;
+                    } else {
+                        System.out.println("Invalid option, please try again!\n");
+                    }
                 }
-            }
 
-            if (response == 4) {
-                break;
+                if (response == 4) {
+                    break;
+                }
             }
         }
     }

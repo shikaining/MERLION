@@ -345,14 +345,25 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
                 }
             }
         } else {
+            Boolean found = Boolean.FALSE;
             for (RoomRateEntity roomRateEntity : applicableRoomRates) {
                 Boolean hasPeak = Boolean.FALSE;
                 if (roomRateEntity.getRateType() == rateTypeEnum.PEAK) {
                     roomRateId = roomRateEntity.getRoomRateId();
+                    found = Boolean.TRUE;
                     hasPeak = Boolean.TRUE;
                 }
                 if ((roomRateEntity.getRateType() == rateTypeEnum.PROMOTION) && (!hasPeak)) {
                     roomRateId = roomRateEntity.getRoomRateId();
+                    found = Boolean.TRUE;
+                }
+            }
+            if (!found) {
+
+                for (RoomRateEntity roomRateEntity : applicableRoomRates) {
+                    if (roomRateEntity.getRateType() == rateTypeEnum.NORMAL) {
+                        roomRateId = roomRateEntity.getRoomRateId();
+                    }
                 }
             }
         }
@@ -397,16 +408,10 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
                 //online reservation-> compare the rates
                 List<RoomRateEntity> roomRateEntities = new ArrayList<>();
                 roomRateEntities = currRoomTypeEntity.getRoomRateEntities();
-                if (roomRateEntities.size() == 2) {
-                    currRateTypeEnum = rateTypeEnum.NORMAL;
-                    RoomRateEntity roomRateEntity = roomRateSessionBeanLocal.retrieveRoomRateByRateType(currRoomTypeEntity.getRoomTypeId(), currRateTypeEnum);
-                    roomRateId = roomRateEntity.getRoomRateId();
-                } else {
 
-                    roomRateId = findRoomRate(roomRateEntities, currNightDate);
-                    System.out.println("Room Rate for Night: " + currNightDate + "has room rate: " + roomRateId);
+                roomRateId = findRoomRate(roomRateEntities, currNightDate);
+                System.out.println("Room Rate for Night: " + currNightDate + "has room rate: " + roomRateId);
 
-                }
             }//ends online reservation rates comparison
             RoomRateEntity roomRateEntity = roomRateSessionBeanLocal.retrieveRoomRateByRoomRateId(roomRateId);
             System.out.println("Rate per Night: " + roomRateEntity.getRatePerNight());

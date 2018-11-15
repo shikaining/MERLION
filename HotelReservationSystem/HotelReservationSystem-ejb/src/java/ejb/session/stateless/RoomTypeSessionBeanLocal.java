@@ -21,4 +21,6 @@ public interface RoomTypeSessionBeanLocal {
     List<RoomTypeEntity> retrieveAvailableRoomTypes(Date checkInDate, Date checkOutDate);
 
     Integer retrieveAvailableRoomCount(RoomTypeEntity roomTypeEntity, Date checkInDate, Date checkOutDate);
+
+    public RoomTypeEntity retrieveRoomTypeByRank(int rank) throws RoomTypeNotFoundException;
 }

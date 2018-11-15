@@ -57,11 +57,21 @@ public class DataInitSessionBean {
         amenities.add("Wifi");
         amenities.add("Order-in");
 
-        RoomTypeEntity deluxe = roomTypeSessionBeanLocal.createNewRoomType(new RoomTypeEntity("Deluxe", "Cozy", "32sqm", "single", 1, 30, amenities));
-        RoomTypeEntity premier = roomTypeSessionBeanLocal.createNewRoomType(new RoomTypeEntity("Premier", "Modern", "38sqm", "1 queen", 2, 30, amenities));
-        RoomTypeEntity family = roomTypeSessionBeanLocal.createNewRoomType(new RoomTypeEntity("Family", "Great for fams!", "43sqm", "1 king", 3, 20, amenities));
-        RoomTypeEntity junior = roomTypeSessionBeanLocal.createNewRoomType(new RoomTypeEntity("Junior Suite", "Luxurious", "50sqm", "2 king", 4, 20, amenities));
-        RoomTypeEntity grand = roomTypeSessionBeanLocal.createNewRoomType(new RoomTypeEntity("Grand Suite", "Super Luxurious", "62sqm", "3 king", 5, 10, amenities));
+//        RoomTypeEntity deluxe = new RoomTypeEntity("Deluxe", "Cozy", "32sqm", "single", 1, 1, 30, amenities);
+//        em.persist(deluxe);
+//        RoomTypeEntity premier = new RoomTypeEntity("Premier", "Modern", "38sqm", "1 queen", 2, 2, 30, amenities);
+//        em.persist(premier);
+//        RoomTypeEntity family = new RoomTypeEntity("Family", "Great for fams!", "43sqm", "1 king", 3, 3, 20, amenities);
+//        em.persist(family);
+//        RoomTypeEntity junior = new RoomTypeEntity("Junior Suite", "Luxurious", "50sqm", "2 king", 4, 4, 20, amenities);
+//        em.persist(junior);
+//        RoomTypeEntity grand = new RoomTypeEntity("Grand Suite", "Super Luxurious", "62sqm", "3 king", 5, 5, 10, amenities);
+//        em.persist(grand);
+        RoomTypeEntity deluxe = roomTypeSessionBeanLocal.createNewRoomType(new RoomTypeEntity("Deluxe", "Cozy", "32sqm", "single", 1, 1, 30, amenities));
+        RoomTypeEntity premier = roomTypeSessionBeanLocal.createNewRoomType(new RoomTypeEntity("Premier", "Modern", "38sqm", "1 queen", 2, 2, 30, amenities));
+        RoomTypeEntity family = roomTypeSessionBeanLocal.createNewRoomType(new RoomTypeEntity("Family", "Great for fams!", "43sqm", "1 king", 3, 3, 20, amenities));
+        RoomTypeEntity junior = roomTypeSessionBeanLocal.createNewRoomType(new RoomTypeEntity("Junior Suite", "Luxurious", "50sqm", "2 king", 4, 4, 20, amenities));
+        RoomTypeEntity grand = roomTypeSessionBeanLocal.createNewRoomType(new RoomTypeEntity("Grand Suite", "Super Luxurious", "62sqm", "3 king", 5, 5, 10, amenities));
 
         RoomRateEntity deluxePublished = roomRateSessionBeanLocal.createNewRoomRate(new RoomRateEntity("Deluxe Published", new BigDecimal("200"), rateTypeEnum.PUBLISHED, null, null, deluxe));
         RoomRateEntity deluxeNormal = roomRateSessionBeanLocal.createNewRoomRate(new RoomRateEntity("Deluxe Normal", new BigDecimal("150"), rateTypeEnum.NORMAL, null, null, deluxe));
@@ -155,4 +165,5 @@ public class DataInitSessionBean {
         //            
         //        }
     }
+
 }

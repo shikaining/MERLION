@@ -27,8 +27,8 @@ public class RoomTypeEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long roomTypeId;
-    
-    @Column(unique = true, nullable = false, length = 16)
+
+    @Column(unique = true, nullable = false)
     private String name;
     @Column(length = 30, nullable = true)
     private String description;
@@ -38,16 +38,16 @@ public class RoomTypeEntity implements Serializable {
     private String bed;
     @Min(1)
     private Integer capacity;
-   
+    private Integer ranking;
     private Integer numOfRooms;
     private List<String> amenities;
-    
+
     @OneToMany(mappedBy = "roomTypeEntity")
     private List<RoomRateEntity> roomRateEntities;
-    
+
     @OneToMany(mappedBy = "roomTypeEntity")
     private List<RoomEntity> roomEntities;
-    
+
     @OneToMany(mappedBy = "roomTypeEntity")
     private List<ReservedRoomEntity> reservedRoomEntities;
 
@@ -58,17 +58,17 @@ public class RoomTypeEntity implements Serializable {
         reservedRoomEntities = new ArrayList<>();
     }
 
-    public RoomTypeEntity(String name, String description, String size, String bed, Integer capacity, Integer numOfRooms, List<String> amenities) {
+    public RoomTypeEntity(String name, String description, String size, String bed, Integer capacity, Integer rank, Integer numOfRooms, List<String> amenities) {
         this();
         this.name = name;
         this.description = description;
         this.size = size;
         this.bed = bed;
         this.capacity = capacity;
+        this.ranking = rank;
         this.numOfRooms = numOfRooms;
         this.amenities = amenities;
     }
-    
 
     public Long getRoomTypeId() {
         return roomTypeId;
@@ -158,6 +158,15 @@ public class RoomTypeEntity implements Serializable {
         this.reservedRoomEntities = reservedRoomEntities;
     }
 
+    public Integer getRanking() {
+        return ranking;
+    }
+
+    public void setRanking(Integer ranking) {
+        this.ranking = ranking;
+    }
+    
+
 
     @Override
     public int hashCode() {
@@ -183,5 +192,5 @@ public class RoomTypeEntity implements Serializable {
     public String toString() {
         return "entity.roomTypeEntity[ id=" + roomTypeId + " ]";
     }
-    
+
 }

@@ -205,57 +205,43 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
                             System.out.println("RoomId: " + roomId);
                             //IF NO ROOMS FOR CURRENT ROOM TYPE
                             if (roomId == 0L) {
+
                                 ReportLineItemEntity reportLineItemEntity = new ReportLineItemEntity();
+                                System.out.println("Room Type: " + roomTypeEntity.getName());
+                                int rank = roomTypeEntity.getRanking();
+                                int newRank = rank + 1;
+                                try {
+                                    RoomTypeEntity reallocatedRoomType = roomTypeSessionBeanLocal.retrieveRoomTypeByRank(newRank);
+                                    reservedRoomEntity.setRoomTypeEntity(reallocatedRoomType);
+//
+                                    //ADD RESERVED ROOM TO THE NEXT ROOM TYPE
+                                    reallocatedRoomType.getReservedRoomEntities().add(reservedRoomEntity);
 
-                                Boolean reallocated = Boolean.FALSE;
-                                while (!reallocated) //IF NO ROOMS IN HOTEL ANYMORE
-                                {
-                                    System.out.println("Room Type: " + roomTypeEntity.getName());
-                                    if (roomTypeEntity.getName().equals("Grand Suite")) {
-                                        //must throw second type of exception
-                                        Date allocationDate = new Date();
-                                        reportLineItemEntity.setAllocationDate(allocationDate);
-                                        reportLineItemEntity.setOriginalRoomId(reservedRoomEntity.getReservedRoomId());
-                                        reportLineItemEntity.setOriginalRoomTypeId(roomTypeEntity.getRoomTypeId());
-                                        reportLineItemEntity.setTypeEnum(exceptionTypeEnum.EXCEPTIONTWO);
-                                        reportLineItemEntity.setMessageToAdmin("No available rooms for ReservedRoomId: " + reservedRoomEntity.getReservedRoomId() + ". ");
-                                        reportLineItemEntity.setMessageToGuest("No more higher-tier rooms available for Room Type: " + roomTypeEntity.getName() + ". ");
-                                        em.persist(reportLineItemEntity);
-                                        reallocated = Boolean.TRUE;
-                                    } else {
+                                    em.flush();
 
-                                        //IF NO ROOMS FOR CURRENT ROOM TYPE BUT CAN TRY THE NEXT ROOM TYPE
-                                        //REMOVE RESERVED ROOM FROM CURRENT ROOM TYPE
-                                        //roomTypeEntity.getReservedRoomEntities().remove(reservedRoomEntity);
-                                        //CHANGE ROOM TYPE OF RR TO NEXT ROOM TYPE
-                                        RoomTypeEntity nextRoomTypeEntity = new RoomTypeEntity();
-                                        Long nextRoomTypeEntityId = roomTypeEntity.getRoomTypeId() + 1L;
-//                            
-                                        try {
-                                            nextRoomTypeEntity = roomTypeSessionBeanLocal.retrieveRoomTypeByRoomTypeId(nextRoomTypeEntityId);
+                                    Date allocationDate = new Date();
+                                    reportLineItemEntity.setAllocationDate(allocationDate);
+                                    reportLineItemEntity.setOriginalRoomId(reservedRoomEntity.getReservedRoomId());
+                                    reportLineItemEntity.setOriginalRoomTypeId(roomTypeEntity.getRoomTypeId());
+                                    reportLineItemEntity.setNewRoomTypeId(reallocatedRoomType.getRoomTypeId());
+                                    reportLineItemEntity.setTypeEnum(exceptionTypeEnum.EXCEPTIONONE);
+                                    reportLineItemEntity.setMessageToAdmin("ReservedRoom Id: " + reservedRoomEntity.getReservedRoomId() + " moved to next available Room Type. ");
+                                    reportLineItemEntity.setMessageToGuest("ReservedRoom Id: " + reservedRoomEntity.getReservedRoomId() + " upgraded to next available Room Type. ");
+                                    em.persist(reportLineItemEntity);
 
-                                        } catch (RoomTypeNotFoundException ex) {
+                                } catch (RoomTypeNotFoundException ex) {
 
-                                        }
-                                        reservedRoomEntity.setRoomTypeEntity(nextRoomTypeEntity);
+                                    Date allocationDate = new Date();
+                                    reportLineItemEntity.setAllocationDate(allocationDate);
+                                    reportLineItemEntity.setOriginalRoomId(reservedRoomEntity.getReservedRoomId());
+                                    reportLineItemEntity.setOriginalRoomTypeId(roomTypeEntity.getRoomTypeId());
+                                    reportLineItemEntity.setTypeEnum(exceptionTypeEnum.EXCEPTIONTWO);
+                                    reportLineItemEntity.setMessageToAdmin("No available rooms for ReservedRoomId: " + reservedRoomEntity.getReservedRoomId() + ". ");
+                                    reportLineItemEntity.setMessageToGuest("No more higher-tier rooms available for Room Type: " + roomTypeEntity.getName() + ". ");
+                                    em.persist(reportLineItemEntity);
 
-                                        //ADD RESERVED ROOM TO THE NEXT ROOM TYPE
-                                        nextRoomTypeEntity.getReservedRoomEntities().add(reservedRoomEntity);
+                                }
 
-                                        em.flush();
-
-                                        Date allocationDate = new Date();
-                                        reportLineItemEntity.setAllocationDate(allocationDate);
-                                        reportLineItemEntity.setOriginalRoomId(reservedRoomEntity.getReservedRoomId());
-                                        reportLineItemEntity.setOriginalRoomTypeId(roomTypeEntity.getRoomTypeId());
-                                        reportLineItemEntity.setNewRoomTypeId(nextRoomTypeEntityId);
-                                        reportLineItemEntity.setTypeEnum(exceptionTypeEnum.EXCEPTIONONE);
-                                        reportLineItemEntity.setMessageToAdmin("ReservedRoom Id: " + reservedRoomEntity.getReservedRoomId() + " moved to next available Room Type. " );
-                                        reportLineItemEntity.setMessageToGuest("ReservedRoom Id: " + reservedRoomEntity.getReservedRoomId() + " upgraded to next available Room Type. " );
-                                        em.persist(reportLineItemEntity);
-                                        reallocated = Boolean.TRUE;
-                                    }
-                                }//ends while not allocated
                                 em.flush();
                             }//ends if roomId == 0L
                             else {

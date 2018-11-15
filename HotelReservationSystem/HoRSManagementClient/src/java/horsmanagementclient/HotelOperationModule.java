@@ -188,6 +188,8 @@ public class HotelOperationModule {
         roomTypeEntity.setBed(scanner.nextLine().trim());
         System.out.print("Enter Capacity of Room Type> ");
         roomTypeEntity.setCapacity(scanner.nextInt());
+        System.out.print("Enter Rank of Room Type> ");
+        roomTypeEntity.setRanking(scanner.nextInt());
         scanner.nextLine();
 
         System.out.print("Enter Number of amenities> ");
@@ -216,8 +218,8 @@ public class HotelOperationModule {
 
         try {
             RoomTypeEntity roomTypeEntity = roomTypeSessionBeanRemote.retrieveRoomTypeByName(name);
-            System.out.printf("%10s%15s%30s%10s%30s%15s%30s\n", "RoomType ID", "Name", "Description", "Size", "Bed", "Capacity", "Amenities");
-            System.out.printf("%10s%15s%30s%10s%30s%15s%30s\n", roomTypeEntity.getRoomTypeId().toString(), roomTypeEntity.getName(), roomTypeEntity.getDescription(), roomTypeEntity.getSize(), roomTypeEntity.getBed(), roomTypeEntity.getCapacity(), roomTypeEntity.getAmenities().toString());
+            System.out.printf("%10s%15s%30s%10s%30s%15s%30s%10s\n", "RoomType ID", "Name", "Description", "Size", "Bed", "Capacity", "Amenities", "Rank");
+            System.out.printf("%10s%15s%30s%10s%30s%15s%30s%10s\n", roomTypeEntity.getRoomTypeId().toString(), roomTypeEntity.getName(), roomTypeEntity.getDescription(), roomTypeEntity.getSize(), roomTypeEntity.getBed(), roomTypeEntity.getCapacity(), roomTypeEntity.getAmenities().toString(), roomTypeEntity.getRanking());
             System.out.println("------------------------");
             System.out.println("1: Update Room Type");
             System.out.println("2: Delete Room Type");
@@ -281,6 +283,12 @@ public class HotelOperationModule {
             }
             roomTypeEntity.setAmenities(amenities);
         }
+        
+        System.out.print("Enter Rank of Room Type (enter -100 if no change)> ");
+        num = scanner.nextInt();
+        if (num != -100) {
+            roomTypeEntity.setRanking(num);
+        }
 
         roomTypeSessionBeanRemote.updateRoomType(roomTypeEntity);
         System.out.println("Room Type updated successfully!\n");
@@ -312,9 +320,9 @@ public class HotelOperationModule {
         System.out.println("*** HoRS Management System :: Hotel Operation :: View All Room Types ***\n");
 
         List<RoomTypeEntity> roomTypeEntities = roomTypeSessionBeanRemote.retrieveAllRoomTypes();
-        System.out.printf("%10s%15s%30s%10s%30s%15s%30s\n", "RoomType ID", "Name", "Description", "Size", "Bed", "Capacity", "Amenities");
+        System.out.printf("%10s%15s%30s%10s%30s%15s%30s%10s\n", "RoomType ID", "Name", "Description", "Size", "Bed", "Capacity", "Amenities", "Rank");
         for (RoomTypeEntity roomTypeEntity : roomTypeEntities) {
-            System.out.printf("%10s%15s%30s%10s%30s%15s%30s\n", roomTypeEntity.getRoomTypeId().toString(), roomTypeEntity.getName(), roomTypeEntity.getDescription(), roomTypeEntity.getSize(), roomTypeEntity.getBed(), roomTypeEntity.getCapacity(), roomTypeEntity.getAmenities().toString());
+            System.out.printf("%10s%15s%30s%10s%30s%15s%30s%10s\n", roomTypeEntity.getRoomTypeId().toString(), roomTypeEntity.getName(), roomTypeEntity.getDescription(), roomTypeEntity.getSize(), roomTypeEntity.getBed(), roomTypeEntity.getCapacity(), roomTypeEntity.getAmenities().toString(), roomTypeEntity.getRanking());
 
         }
 

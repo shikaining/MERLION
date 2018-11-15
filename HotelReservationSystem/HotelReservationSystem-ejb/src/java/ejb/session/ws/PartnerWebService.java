@@ -47,6 +47,11 @@ public class PartnerWebService {
             @WebParam(name = "checkOutDate") Date checkOutDate) throws InvalidLoginCredentialException {
         PartnerEntity partnerEntity = partnerSessionBeanLocal.partnerLogin(username, password);
         List<RoomTypeEntity> availableRoomTypes = roomTypeSessionBeanLocal.retrieveAvailableRoomTypes(checkInDate, checkOutDate);
+        for (RoomTypeEntity roomTypeEntity: availableRoomTypes) {
+            roomTypeEntity.getReservedRoomEntities().size();
+            roomTypeEntity.getRoomEntities().size();
+            roomTypeEntity.getRoomRateEntities().size();
+        }
         System.out.println("********** PartnerWebService.partnerLogin(): Partner " + partnerEntity.getUserName() + " login remotely via web service");
         return availableRoomTypes;
     }
