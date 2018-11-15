@@ -79,7 +79,11 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
             Date currNightDate = newReservationEntity.getCheckInDate();
             Long roomRateId = 1L;
             for (int j = 0; j < numNights; j++) {
-                currNightDate = addDays(currNightDate, j);
+                if (j == 0) {
+                    currNightDate = addDays(currNightDate, 0);
+                } else {
+                    currNightDate = addDays(currNightDate, 1);
+                }
                 ReservedNightEntity newReservedNightEntity = new ReservedNightEntity();
                 newReservedNightEntity.setReservedRoomEntity(newReservedRoomEntity);
                 //SETTING THE COST PER NIGHT
