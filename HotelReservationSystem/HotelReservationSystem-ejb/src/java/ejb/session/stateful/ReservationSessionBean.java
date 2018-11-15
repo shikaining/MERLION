@@ -94,16 +94,9 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
                     List<RoomRateEntity> roomRateEntities = new ArrayList<>();
                     roomRateEntities = roomTypeEntity.getRoomRateEntities();
 
-                    if (roomRateEntities.size() == 2) {
-                        currRateTypeEnum = rateTypeEnum.NORMAL;
-                        RoomRateEntity roomRateEntity = roomRateSessionBeanLocal.retrieveRoomRateByRateType(roomTypeId, currRateTypeEnum);
-                        roomRateId = roomRateEntity.getRoomRateId();
-                    } else {
+                    roomRateId = findRoomRate(roomRateEntities, currNightDate);
+                    System.out.println("Room Rate for Night: " + currNightDate + "has room rate: " + roomRateId);
 
-                        roomRateId = findRoomRate(roomRateEntities, currNightDate);
-                        System.out.println("Room Rate for Night: " + currNightDate + "has room rate: " + roomRateId);
-
-                    }//ends else
                 }
 
                 RoomRateEntity roomRateEntity = roomRateSessionBeanLocal.retrieveRoomRateByRoomRateId(roomRateId);
@@ -328,7 +321,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
             if (roomRateEntity.getValidityStart() != null) {
                 //check if applicable
                 Boolean applicable = Boolean.FALSE;
-                if ((currNightDate.compareTo(roomRateEntity.getValidityStart()) >= 0) && (currNightDate.compareTo(roomRateEntity.getValidityEnd()) < 0)) {
+                if ((currNightDate.compareTo(roomRateEntity.getValidityStart()) >= 0) && (currNightDate.compareTo(roomRateEntity.getValidityEnd()) <= 0)) {
                     applicable = Boolean.TRUE;
                     applicableRoomRates.add(roomRateEntity);
                 }
@@ -382,7 +375,12 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         Long roomRateId = 1L;
         //calculate for each night
         for (int i = 0; i < numNights; i++) {
-            currNightDate = addDays(currNightDate, i);
+
+            if (i == 0) {
+                currNightDate = addDays(currNightDate, 0);
+            } else {
+                currNightDate = addDays(currNightDate, 1);
+            }
             rateTypeEnum currRateTypeEnum = rateTypeEnum.PUBLISHED;
             System.out.println(online);
             if (!online) {
