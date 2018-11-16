@@ -1,5 +1,8 @@
 package holidayreservationsystemclient;
 
+import Records.PartnerRecord;
+import Records.RoomTypeRecord;
+import ejb.session.stateless.PartnerControllerRemote;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -11,19 +14,20 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import util.exception.InvalidLoginCredentialException;
-import ws.client.partnerWebService.InvalidLoginCredentialException_Exception;
-import ws.client.partnerWebService.PartnerEntity;
-import ws.client.partnerWebService.RoomRateNotFoundException_Exception;
-import ws.client.partnerWebService.RoomTypeEntity;
 
 public class MainApp {
 
-    private PartnerEntity currentPartner;
+    private PartnerRecord currentPartner;
+    private PartnerControllerRemote partnerControllerRemote;
 
     public MainApp() {
     }
 
-    public void runApp() throws ParseException, DatatypeConfigurationException, InvalidLoginCredentialException_Exception, RoomRateNotFoundException_Exception {
+    public MainApp(PartnerControllerRemote partnerControllerRemote) {
+        this.partnerControllerRemote = partnerControllerRemote;
+    }
+
+    public void runApp() throws ParseException, DatatypeConfigurationException{
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
 
@@ -43,7 +47,7 @@ public class MainApp {
                 if (response == 1) {
                     try {
                         doLogin();
-                        System.out.println("Login successful as " + currentPartner.getName() + "!\n");
+                        System.out.println("Login successful as " + currentPartner.getUsername() + "!\n");
                         menuMain();
                     } catch (InvalidLoginCredentialException ex) {
                         System.out.println("Invalid login credential: " + ex.getMessage() + "\n");
@@ -76,21 +80,21 @@ public class MainApp {
 
         if (username.length() > 0 && password.length() > 0) {
 
-            currentPartner = partnerLoginRemote(username, password);
+            currentPartner = partnerControllerRemote.partnerLoginRemote(username, password);
 
         } else {
-            throw new InvalidLoginCredentialException("Missing login credential!");
+            System.out.println("Missing login credential!");
         }
     }
 
-    private void menuMain() throws ParseException, DatatypeConfigurationException, InvalidLoginCredentialException_Exception, RoomRateNotFoundException_Exception {
+    private void menuMain() throws ParseException, DatatypeConfigurationException {
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
 
         while (true) {
             System.out.println("*** Holiday Reservation System ***\n");
             if (currentPartner != null) {
-                System.out.println("You are login as " + currentPartner.getName() + "\n");
+                System.out.println("You are login as " + currentPartner.getUsername() + "\n");
                 System.out.println("1: Search Hotel Room");
                 System.out.println("2: View Reservation Details");
                 System.out.println("3: View All Reservations");
@@ -122,7 +126,7 @@ public class MainApp {
         }
     }
 
-    private void doSearchRoom() throws ParseException, DatatypeConfigurationException, InvalidLoginCredentialException_Exception, RoomRateNotFoundException_Exception {
+    private void doSearchRoom() throws ParseException, DatatypeConfigurationException {
 
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
@@ -146,10 +150,10 @@ public class MainApp {
         XMLGregorianCalendar checkOutDate2 = DatatypeFactory.newInstance().newXMLGregorianCalendar(calendar2);
 
         //WEB METHOD
-        List<RoomTypeEntity> availableRoomTypes = retrieveAvailableRoomTypes(currentPartner.getUserName(), currentPartner.getPassword(), checkInDate2, checkOutDate2);
+        List<RoomTypeRecord> roomTypeRecords = partnerControllerRemote.retrieveAvailRoomTypesRemote(currentPartner.getUsername(), currentPartner.getPassword(), checkInDate, checkOutDate);
         System.out.printf("%3s%15s%15s%15s\n", "S/N", "Room Type", "Quantity", "Amount");
 
-        int sn = availableRoomTypes.size();
+        int sn = roomTypeRecords.size();
 
         if (sn == 0) {
             System.out.println("No Room Types are available for the given dates");
@@ -169,15 +173,15 @@ public class MainApp {
             }
         } else {
             sn = 0;
-            for (RoomTypeEntity roomTypeEntity : availableRoomTypes) {
+            for (RoomTypeRecord roomTypeRecord : roomTypeRecords) {
 
                 //WEB METHOD
-                int nonClashes = retrieveAvailableRoomCount(currentPartner.getUserName(), currentPartner.getPassword(), roomTypeEntity, checkInDate2, checkOutDate2);
+                int nonClashes = partnerControllerRemote.roomCountRemote(currentPartner.getUsername(), currentPartner.getPassword(), roomTypeRecord, checkInDate, checkOutDate);
                 //WEB METHOD
-                BigDecimal amount = calculateAmount(currentPartner.getUserName(), currentPartner.getPassword(), roomTypeEntity, checkInDate2, checkOutDate2, Boolean.TRUE);
+                BigDecimal amount = partnerControllerRemote.calculateAmtRemote(currentPartner.getUsername(), currentPartner.getPassword(), roomTypeRecord, checkInDate, checkOutDate, Boolean.TRUE);
                 ++sn;
 
-                System.out.printf("%3s%15s%15s%15s\n", sn, roomTypeEntity.getName(), nonClashes, amount);
+                System.out.printf("%3s%15s%15s%15s\n", sn, roomTypeRecord.getRoomTypeName(), nonClashes, amount);
             }
 
             System.out.println("------------------------");
@@ -212,109 +216,12 @@ public class MainApp {
 
         }
     }
-//
-//    private void doReserveRoom(List<RoomTypeEntity> availableRoomTypes, Date checkInDate, Date checkOutDate) throws GuestNotFoundException, ReservationNotFoundException, ReservedRoomNotFoundException, RoomRateNotFoundException, RoomTypeNotFoundException {
-//
-//        Scanner scanner = new Scanner(System.in);
-//        Integer response = 0;
-//        int numOfRooms;
-//        Long guestId = 1L;
-//        Long roomTypeId = 1L;
-//        ReservationEntity newReservationEntity = new ReservationEntity();
-//
-//        System.out.println("*** HoRS Management System :: Front Office :: Walk In Reserve Room***\n");
-//        System.out.println("Select Room Type for Reservation");
-//        System.out.printf("%3s%15s\n", "S/N", "Room Type");
-//
-//        int sn = 0;
-//        //need to add room rate
-//        for (RoomTypeEntity roomTypeEntity : availableRoomTypes) {
-//            ++sn;
-//            System.out.printf("%3s%15s\n", sn, roomTypeEntity.getName());
-//        }
-//
-//        System.out.println("------------------------");
-//
-//        while (response < 1 || response > sn) {
-//
-//            System.out.print("> ");
-//            response = scanner.nextInt();
-//
-//            RoomTypeEntity currRoomTypeEntity = availableRoomTypes.get(response - 1);
-//            roomTypeId = currRoomTypeEntity.getRoomTypeId();
-//            int nonClashes = roomTypeSessionBeanRemote.retrieveAvailableRoomCount(currRoomTypeEntity, checkInDate, checkOutDate);
-//            System.out.println("Enter number of rooms to reserve: ");
-//            numOfRooms = scanner.nextInt();
-//            scanner.nextLine();
-//            //valid number of rooms for booking
-//
-//            Boolean validOption = Boolean.FALSE;
-//
-//            while (!validOption) {
-//                if (numOfRooms <= nonClashes) {
-//
-//                    validOption = Boolean.TRUE;
-//                    //set all the attributes of reservationEntity
-//                    newReservationEntity.setCheckInDate(checkInDate);
-//                    newReservationEntity.setCheckOutDate(checkOutDate);
-//                    newReservationEntity.setOnlineReservation(Boolean.TRUE);
-//
-//                    GuestEntity guestEntity = new GuestEntity();
-//                    String identificationNumber;
-//                    guestId = currentGuest.getGuestId();
-//
-//                } else {
-//                    System.out.println("Invalid option, please try again!\n");
-//                }
-//            }
-//            newReservationEntity = reservationSessionBeanRemote.reserve(newReservationEntity, guestId, numOfRooms, roomTypeId);
-//            System.out.println("Reservation Amount: " + newReservationEntity.getReservationAmount() + "\n");
-//            System.out.println("New Reservation created successfully!: " + newReservationEntity.getReservationId() + "\n");
-//
-//        }
-//
-//    }//ends reserve room
-
     private void doViewReservation() {
 
     }
 
     private void doViewAllReservations() {
 
-    }
-
-    public PartnerEntity partnerLoginRemote(String username, String password) {
-        PartnerEntity partnerEntity = new PartnerEntity();
-        try {
-            return partnerLogin(username, password);
-        } catch (InvalidLoginCredentialException_Exception ex) {
-
-        }
-        return partnerEntity;
-    }
-
-    private static ws.client.partnerWebService.PartnerEntity partnerLogin(java.lang.String username, java.lang.String password) throws InvalidLoginCredentialException_Exception {
-        ws.client.partnerWebService.PartnerWebService_Service service = new ws.client.partnerWebService.PartnerWebService_Service();
-        ws.client.partnerWebService.PartnerWebService port = service.getPartnerWebServicePort();
-        return port.partnerLogin(username, password);
-    }
-
-    private static java.util.List<ws.client.partnerWebService.RoomTypeEntity> retrieveAvailableRoomTypes(java.lang.String username, java.lang.String password, javax.xml.datatype.XMLGregorianCalendar checkInDate, javax.xml.datatype.XMLGregorianCalendar checkOutDate) throws InvalidLoginCredentialException_Exception {
-        ws.client.partnerWebService.PartnerWebService_Service service = new ws.client.partnerWebService.PartnerWebService_Service();
-        ws.client.partnerWebService.PartnerWebService port = service.getPartnerWebServicePort();
-        return port.retrieveAvailableRoomTypes(username, password, checkInDate, checkOutDate);
-    }
-
-    private static BigDecimal calculateAmount(java.lang.String username, java.lang.String password, ws.client.partnerWebService.RoomTypeEntity roomTypeEntity, javax.xml.datatype.XMLGregorianCalendar checkInDate, javax.xml.datatype.XMLGregorianCalendar checkOutDate, java.lang.Boolean online) throws RoomRateNotFoundException_Exception, InvalidLoginCredentialException_Exception {
-        ws.client.partnerWebService.PartnerWebService_Service service = new ws.client.partnerWebService.PartnerWebService_Service();
-        ws.client.partnerWebService.PartnerWebService port = service.getPartnerWebServicePort();
-        return port.calculateAmount(username, password, roomTypeEntity, checkInDate, checkOutDate, online);
-    }
-
-    private static Integer retrieveAvailableRoomCount(java.lang.String username, java.lang.String password, ws.client.partnerWebService.RoomTypeEntity roomTypeEntity, javax.xml.datatype.XMLGregorianCalendar checkInDate, javax.xml.datatype.XMLGregorianCalendar checkOutDate) throws InvalidLoginCredentialException_Exception {
-        ws.client.partnerWebService.PartnerWebService_Service service = new ws.client.partnerWebService.PartnerWebService_Service();
-        ws.client.partnerWebService.PartnerWebService port = service.getPartnerWebServicePort();
-        return port.retrieveAvailableRoomCount(username, password, roomTypeEntity, checkInDate, checkOutDate);
     }
 
 }

@@ -26,8 +26,8 @@
     </target>
     <target name="wsimport-client-PartnerWebService" depends="wsimport-init">
         <mkdir dir="${build.generated.dir}/jax-wsCache/PartnerWebService"/>
-        <property name="wsdl-PartnerWebService" location="${meta.inf}/xml-resources/web-service-references/PartnerWebService/wsdl/KAIKAI_8080/PartnerWebService/PartnerWebService.wsdl"/>
-        <wsimport sourcedestdir="${build.generated.dir}/jax-wsCache/PartnerWebService" destdir="${build.generated.dir}/jax-wsCache/PartnerWebService" wsdl="${wsdl-PartnerWebService}" catalog="catalog.xml" encoding="${source.encoding}" extension="true" verbose="true" fork="false" wsdlLocation="http://KAIKAI:8080/PartnerWebService/PartnerWebService?wsdl" xnocompile="true" xendorsed="true" package="ws.client.partnerWebService">
+        <property name="wsdl-PartnerWebService" location="${meta.inf}/xml-resources/web-service-references/PartnerWebService/wsdl/localhost_8080/PartnerWebService/PartnerWebService.wsdl"/>
+        <wsimport sourcedestdir="${build.generated.dir}/jax-wsCache/PartnerWebService" destdir="${build.generated.dir}/jax-wsCache/PartnerWebService" wsdl="${wsdl-PartnerWebService}" catalog="catalog.xml" encoding="${source.encoding}" extension="true" verbose="true" fork="false" wsdlLocation="http://localhost:8080/PartnerWebService/PartnerWebService?wsdl" xnocompile="true" xendorsed="true" package="ws.client.partnerWebService">
             <depends file="${wsdl-PartnerWebService}"/>
             <produces dir="${build.generated.dir}/jax-wsCache/PartnerWebService"/>
         </wsimport>

@@ -4,6 +4,9 @@ import ejb.session.stateful.ReservationSessionBeanLocal;
 import ejb.session.stateless.PartnerSessionBeanLocal;
 import ejb.session.stateless.RoomTypeSessionBeanLocal;
 import entity.PartnerEntity;
+import entity.ReservedRoomEntity;
+import entity.RoomEntity;
+import entity.RoomRateEntity;
 import entity.RoomTypeEntity;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
@@ -14,6 +17,8 @@ import javax.jws.WebService;
 import javax.ejb.Stateless;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import util.exception.InvalidLoginCredentialException;
 import util.exception.RoomRateNotFoundException;
 
@@ -27,15 +32,21 @@ public class PartnerWebService {
     private RoomTypeSessionBeanLocal roomTypeSessionBeanLocal;
     @EJB
     private PartnerSessionBeanLocal partnerSessionBeanLocal;
+    
+    @PersistenceContext(unitName = "HotelReservationSystem-ejbPU")
+    private EntityManager em;
 
     SimpleDateFormat inputDateFormat = new SimpleDateFormat("d/M/y");
-    
+
     @WebMethod(operationName = "partnerLogin")
     public PartnerEntity partnerLogin(@WebParam(name = "username") String username,
             @WebParam(name = "password") String password)
             throws InvalidLoginCredentialException {
+        System.err.println("in server");
 
         PartnerEntity partnerEntity = partnerSessionBeanLocal.partnerLogin(username, password);
+        em.detach(partnerEntity);
+        partnerEntity.setReservationEntities(null);
         System.out.println("********** PartnerWebService.partnerLogin(): Partner " + partnerEntity.getUserName() + " login remotely via web service");
         return partnerEntity;
     }
@@ -47,10 +58,31 @@ public class PartnerWebService {
             @WebParam(name = "checkOutDate") Date checkOutDate) throws InvalidLoginCredentialException {
         PartnerEntity partnerEntity = partnerSessionBeanLocal.partnerLogin(username, password);
         List<RoomTypeEntity> availableRoomTypes = roomTypeSessionBeanLocal.retrieveAvailableRoomTypes(checkInDate, checkOutDate);
-        for (RoomTypeEntity roomTypeEntity: availableRoomTypes) {
+        
+        for (RoomTypeEntity roomTypeEntity : availableRoomTypes) {
             roomTypeEntity.getReservedRoomEntities().size();
+            em.detach(roomTypeEntity);
+            //set null for roomtype's entities
+            for (ReservedRoomEntity reservedRoomEntity : roomTypeEntity.getReservedRoomEntities()) {
+                em.detach(reservedRoomEntity);
+                reservedRoomEntity.setRoomTypeEntity(null);
+                reservedRoomEntity.setReservationEntity(null);
+                reservedRoomEntity.setReservedNightEntities(null);
+                reservedRoomEntity.setRoomEntity(null);
+            }
             roomTypeEntity.getRoomEntities().size();
+            for (RoomEntity roomEntity : roomTypeEntity.getRoomEntities()) {
+                em.detach(roomEntity);
+                roomEntity.setRoomTypeEntity(null);
+                roomEntity.setReservedRoomEntities(null);
+            }
+
             roomTypeEntity.getRoomRateEntities().size();
+            for (RoomRateEntity roomRateEntity : roomTypeEntity.getRoomRateEntities()) {
+                em.detach(roomRateEntity);
+                roomRateEntity.setRoomTypeEntity(null);
+                roomRateEntity.setReservedNightEntities(null);
+            }
         }
         System.out.println("********** PartnerWebService.partnerLogin(): Partner " + partnerEntity.getUserName() + " login remotely via web service");
         return availableRoomTypes;

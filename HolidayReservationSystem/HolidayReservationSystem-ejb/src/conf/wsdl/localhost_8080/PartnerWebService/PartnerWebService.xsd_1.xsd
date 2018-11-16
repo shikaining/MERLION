@@ -38,6 +38,7 @@
 <xs:element name="description" type="xs:string" minOccurs="0"/>
 <xs:element name="name" type="xs:string" minOccurs="0"/>
 <xs:element name="numOfRooms" type="xs:int" minOccurs="0"/>
+<xs:element name="ranking" type="xs:int" minOccurs="0"/>
 <xs:element name="reservedRoomEntities" type="tns:reservedRoomEntity" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
 <xs:element name="roomEntities" type="tns:roomEntity" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
 <xs:element name="roomRateEntities" type="tns:roomRateEntity" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
