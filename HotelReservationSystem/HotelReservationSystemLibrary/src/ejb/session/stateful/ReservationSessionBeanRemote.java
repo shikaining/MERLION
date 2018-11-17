@@ -2,7 +2,6 @@ package ejb.session.stateful;
 
 import entity.ReservationEntity;
 import entity.ReservedRoomEntity;
-import entity.RoomTypeEntity;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
@@ -24,7 +23,7 @@ public interface ReservationSessionBeanRemote {
 
     List<ReservedRoomEntity> retrieveReservedRoomByGuestId(Long GuestId);
 
-    BigDecimal calculateAmount(RoomTypeEntity roomTypeEntity, Date checkInDate, Date checkOutDate, Boolean online) throws RoomRateNotFoundException;
+    BigDecimal calculateAmount(Long roomTypeId, Date checkInDate, Date checkOutDate, Boolean online) throws RoomRateNotFoundException;
 
     List<ReservedRoomEntity> retrieveReservedRoomsByReservationId(Long reservationId);
 

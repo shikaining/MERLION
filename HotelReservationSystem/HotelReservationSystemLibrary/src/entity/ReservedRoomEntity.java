@@ -8,6 +8,7 @@ package entity;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -15,7 +16,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 
 /**
  *
@@ -28,26 +28,26 @@ public class ReservedRoomEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reservedRoomId;
-    
-    @ManyToOne 
+    @Column(nullable = true)
+    private String roomTypeName;
+    @ManyToOne
     private RoomTypeEntity roomTypeEntity;
-    
+
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false)
     private ReservationEntity reservationEntity;
-    
-    @OneToMany (mappedBy = "reservedRoomEntity")
+
+    @OneToMany(mappedBy = "reservedRoomEntity")
     private List<ReservedNightEntity> reservedNightEntities;
 
-    @ManyToOne (optional = true)
+    @ManyToOne(optional = true)
     @JoinColumn(nullable = true)
     private RoomEntity roomEntity;
-    
+
     public ReservedRoomEntity() {
         reservedNightEntities = new ArrayList<>();
     }
-    
-    
+
     public Long getReservedRoomId() {
         return reservedRoomId;
     }
@@ -87,8 +87,14 @@ public class ReservedRoomEntity implements Serializable {
     public void setRoomEntity(RoomEntity roomEntity) {
         this.roomEntity = roomEntity;
     }
-   
-    
+
+    public String getRoomTypeName() {
+        return roomTypeName;
+    }
+
+    public void setRoomTypeName(String roomTypeName) {
+        this.roomTypeName = roomTypeName;
+    }
 
     @Override
     public int hashCode() {
@@ -114,5 +120,5 @@ public class ReservedRoomEntity implements Serializable {
     public String toString() {
         return "entity.ReservedRoomId[ id=" + reservedRoomId + " ]";
     }
-    
+
 }

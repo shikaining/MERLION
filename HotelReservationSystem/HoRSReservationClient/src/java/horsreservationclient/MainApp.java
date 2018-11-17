@@ -226,7 +226,7 @@ public class MainApp {
             for (RoomTypeEntity roomTypeEntity : availableRoomTypes) {
 
                 int nonClashes = roomTypeSessionBeanRemote.retrieveAvailableRoomCount(roomTypeEntity, checkInDate, checkOutDate);
-                BigDecimal amount = reservationSessionBeanRemote.calculateAmount(roomTypeEntity, checkInDate, checkOutDate, Boolean.TRUE);
+                BigDecimal amount = reservationSessionBeanRemote.calculateAmount(roomTypeEntity.getRoomTypeId(), checkInDate, checkOutDate, Boolean.TRUE);
                 ++sn;
 
                 System.out.printf("%3s%15s%15s%15s\n", sn, roomTypeEntity.getName(), nonClashes, amount);

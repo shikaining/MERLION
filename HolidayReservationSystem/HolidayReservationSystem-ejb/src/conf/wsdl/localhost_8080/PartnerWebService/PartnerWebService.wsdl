@@ -4,29 +4,11 @@
 <xsd:import namespace="http://ws.session.ejb/" schemaLocation="http://localhost:8080/PartnerWebService/PartnerWebService?xsd=1"/>
 </xsd:schema>
 </types>
-<message name="retrieveAvailableRoomCount">
-<part name="parameters" element="tns:retrieveAvailableRoomCount"/>
-</message>
-<message name="retrieveAvailableRoomCountResponse">
-<part name="parameters" element="tns:retrieveAvailableRoomCountResponse"/>
-</message>
-<message name="InvalidLoginCredentialException">
-<part name="fault" element="tns:InvalidLoginCredentialException"/>
-</message>
-<message name="retrieveAvailableRoomTypes">
-<part name="parameters" element="tns:retrieveAvailableRoomTypes"/>
-</message>
-<message name="retrieveAvailableRoomTypesResponse">
-<part name="parameters" element="tns:retrieveAvailableRoomTypesResponse"/>
-</message>
 <message name="calculateAmount">
 <part name="parameters" element="tns:calculateAmount"/>
 </message>
 <message name="calculateAmountResponse">
 <part name="parameters" element="tns:calculateAmountResponse"/>
-</message>
-<message name="RoomRateNotFoundException">
-<part name="fault" element="tns:RoomRateNotFoundException"/>
 </message>
 <message name="partnerLogin">
 <part name="parameters" element="tns:partnerLogin"/>
@@ -34,55 +16,43 @@
 <message name="partnerLoginResponse">
 <part name="parameters" element="tns:partnerLoginResponse"/>
 </message>
+<message name="InvalidLoginCredentialException">
+<part name="fault" element="tns:InvalidLoginCredentialException"/>
+</message>
+<message name="retrieveAvailableRoomCount">
+<part name="parameters" element="tns:retrieveAvailableRoomCount"/>
+</message>
+<message name="retrieveAvailableRoomCountResponse">
+<part name="parameters" element="tns:retrieveAvailableRoomCountResponse"/>
+</message>
+<message name="retrieveAvailableRoomTypes">
+<part name="parameters" element="tns:retrieveAvailableRoomTypes"/>
+</message>
+<message name="retrieveAvailableRoomTypesResponse">
+<part name="parameters" element="tns:retrieveAvailableRoomTypesResponse"/>
+</message>
 <portType name="PartnerWebService">
-<operation name="retrieveAvailableRoomCount">
-<input wsam:Action="http://ws.session.ejb/PartnerWebService/retrieveAvailableRoomCountRequest" message="tns:retrieveAvailableRoomCount"/>
-<output wsam:Action="http://ws.session.ejb/PartnerWebService/retrieveAvailableRoomCountResponse" message="tns:retrieveAvailableRoomCountResponse"/>
-<fault message="tns:InvalidLoginCredentialException" name="InvalidLoginCredentialException" wsam:Action="http://ws.session.ejb/PartnerWebService/retrieveAvailableRoomCount/Fault/InvalidLoginCredentialException"/>
-</operation>
-<operation name="retrieveAvailableRoomTypes">
-<input wsam:Action="http://ws.session.ejb/PartnerWebService/retrieveAvailableRoomTypesRequest" message="tns:retrieveAvailableRoomTypes"/>
-<output wsam:Action="http://ws.session.ejb/PartnerWebService/retrieveAvailableRoomTypesResponse" message="tns:retrieveAvailableRoomTypesResponse"/>
-<fault message="tns:InvalidLoginCredentialException" name="InvalidLoginCredentialException" wsam:Action="http://ws.session.ejb/PartnerWebService/retrieveAvailableRoomTypes/Fault/InvalidLoginCredentialException"/>
-</operation>
 <operation name="calculateAmount">
 <input wsam:Action="http://ws.session.ejb/PartnerWebService/calculateAmountRequest" message="tns:calculateAmount"/>
 <output wsam:Action="http://ws.session.ejb/PartnerWebService/calculateAmountResponse" message="tns:calculateAmountResponse"/>
-<fault message="tns:InvalidLoginCredentialException" name="InvalidLoginCredentialException" wsam:Action="http://ws.session.ejb/PartnerWebService/calculateAmount/Fault/InvalidLoginCredentialException"/>
-<fault message="tns:RoomRateNotFoundException" name="RoomRateNotFoundException" wsam:Action="http://ws.session.ejb/PartnerWebService/calculateAmount/Fault/RoomRateNotFoundException"/>
 </operation>
 <operation name="partnerLogin">
 <input wsam:Action="http://ws.session.ejb/PartnerWebService/partnerLoginRequest" message="tns:partnerLogin"/>
 <output wsam:Action="http://ws.session.ejb/PartnerWebService/partnerLoginResponse" message="tns:partnerLoginResponse"/>
 <fault message="tns:InvalidLoginCredentialException" name="InvalidLoginCredentialException" wsam:Action="http://ws.session.ejb/PartnerWebService/partnerLogin/Fault/InvalidLoginCredentialException"/>
 </operation>
+<operation name="retrieveAvailableRoomCount">
+<input wsam:Action="http://ws.session.ejb/PartnerWebService/retrieveAvailableRoomCountRequest" message="tns:retrieveAvailableRoomCount"/>
+<output wsam:Action="http://ws.session.ejb/PartnerWebService/retrieveAvailableRoomCountResponse" message="tns:retrieveAvailableRoomCountResponse"/>
+</operation>
+<operation name="retrieveAvailableRoomTypes">
+<input wsam:Action="http://ws.session.ejb/PartnerWebService/retrieveAvailableRoomTypesRequest" message="tns:retrieveAvailableRoomTypes"/>
+<output wsam:Action="http://ws.session.ejb/PartnerWebService/retrieveAvailableRoomTypesResponse" message="tns:retrieveAvailableRoomTypesResponse"/>
+<fault message="tns:InvalidLoginCredentialException" name="InvalidLoginCredentialException" wsam:Action="http://ws.session.ejb/PartnerWebService/retrieveAvailableRoomTypes/Fault/InvalidLoginCredentialException"/>
+</operation>
 </portType>
 <binding name="PartnerWebServicePortBinding" type="tns:PartnerWebService">
 <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
-<operation name="retrieveAvailableRoomCount">
-<soap:operation soapAction=""/>
-<input>
-<soap:body use="literal"/>
-</input>
-<output>
-<soap:body use="literal"/>
-</output>
-<fault name="InvalidLoginCredentialException">
-<soap:fault name="InvalidLoginCredentialException" use="literal"/>
-</fault>
-</operation>
-<operation name="retrieveAvailableRoomTypes">
-<soap:operation soapAction=""/>
-<input>
-<soap:body use="literal"/>
-</input>
-<output>
-<soap:body use="literal"/>
-</output>
-<fault name="InvalidLoginCredentialException">
-<soap:fault name="InvalidLoginCredentialException" use="literal"/>
-</fault>
-</operation>
 <operation name="calculateAmount">
 <soap:operation soapAction=""/>
 <input>
@@ -91,14 +61,29 @@
 <output>
 <soap:body use="literal"/>
 </output>
+</operation>
+<operation name="partnerLogin">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
 <fault name="InvalidLoginCredentialException">
 <soap:fault name="InvalidLoginCredentialException" use="literal"/>
 </fault>
-<fault name="RoomRateNotFoundException">
-<soap:fault name="RoomRateNotFoundException" use="literal"/>
-</fault>
 </operation>
-<operation name="partnerLogin">
+<operation name="retrieveAvailableRoomCount">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+</operation>
+<operation name="retrieveAvailableRoomTypes">
 <soap:operation soapAction=""/>
 <input>
 <soap:body use="literal"/>

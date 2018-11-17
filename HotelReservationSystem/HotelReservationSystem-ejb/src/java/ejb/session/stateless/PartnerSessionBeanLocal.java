@@ -12,4 +12,6 @@ public interface PartnerSessionBeanLocal {
     PartnerEntity retrievePartnerByUsername(String username) throws PartnerNotFoundException;
 
     PartnerEntity partnerLogin(String username, String password) throws InvalidLoginCredentialException;
+
+    PartnerEntity retrievePartnertByPartnerId(Long partnerId) throws PartnerNotFoundException;
 }

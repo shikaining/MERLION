@@ -1,10 +1,12 @@
 package ejb.session.stateful;
 
 import ejb.session.stateless.GuestSessionBeanLocal;
+import ejb.session.stateless.PartnerSessionBeanLocal;
 import ejb.session.stateless.RoomRateSessionBeanLocal;
 import ejb.session.stateless.RoomSessionBeanLocal;
 import ejb.session.stateless.RoomTypeSessionBeanLocal;
 import entity.GuestEntity;
+import entity.PartnerEntity;
 import entity.ReservationEntity;
 import entity.ReservedNightEntity;
 import entity.ReservedRoomEntity;
@@ -30,6 +32,7 @@ import javax.persistence.Query;
 import util.enumeration.rateTypeEnum;
 import util.enumeration.roomStatusEnum;
 import util.exception.GuestNotFoundException;
+import util.exception.PartnerNotFoundException;
 import util.exception.ReservationNotFoundException;
 import util.exception.ReservedRoomNotFoundException;
 import util.exception.RoomRateNotFoundException;
@@ -40,6 +43,8 @@ import util.exception.RoomTypeNotFoundException;
 @Remote(ReservationSessionBeanRemote.class)
 public class ReservationSessionBean implements ReservationSessionBeanRemote, ReservationSessionBeanLocal {
 
+    @EJB
+    private PartnerSessionBeanLocal partnerSessionBeanLocal;
     @EJB
     private GuestSessionBeanLocal guestSessionBeanLocal;
     @EJB
@@ -372,13 +377,13 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     }
 
     @Override
-    public BigDecimal calculateAmount(RoomTypeEntity roomTypeEntity, Date checkInDate, Date checkOutDate, Boolean online) throws RoomRateNotFoundException {
+    public BigDecimal calculateAmount(Long roomTypeId, Date checkInDate, Date checkOutDate, Boolean online) throws RoomRateNotFoundException {
 
         BigDecimal amount = BigDecimal.ZERO;
 
         RoomTypeEntity currRoomTypeEntity = new RoomTypeEntity();
         try {
-            currRoomTypeEntity = roomTypeSessionBeanLocal.retrieveRoomTypeByRoomTypeId(roomTypeEntity.getRoomTypeId());
+            currRoomTypeEntity = roomTypeSessionBeanLocal.retrieveRoomTypeByRoomTypeId(roomTypeId);
         } catch (RoomTypeNotFoundException ex) {
 
         }
@@ -440,6 +445,94 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         return (cal1.get(Calendar.ERA) == cal2.get(Calendar.ERA)
                 && cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR)
                 && cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR));
+    }
+
+    @Override
+    public Long reserveForPartner(ReservationEntity newReservationEntity, Long partnerId, int numOfRooms, Long roomTypeId) throws RoomTypeNotFoundException, RoomRateNotFoundException {
+
+        RoomTypeEntity roomTypeEntity = roomTypeSessionBeanLocal.retrieveRoomTypeByRoomTypeId(roomTypeId);
+        //CREATE RESERVATION
+        em.persist(newReservationEntity);
+
+        //CREATE RESERVED ROOMS
+        List<ReservedRoomEntity> newReservedRoomEntities = new ArrayList<>();
+        for (int i = 0; i < numOfRooms; i++) {
+            ReservedRoomEntity newReservedRoomEntity = new ReservedRoomEntity();
+            newReservedRoomEntity.setRoomTypeEntity(roomTypeEntity);
+            roomTypeEntity.getReservedRoomEntities().add(newReservedRoomEntity);
+            newReservedRoomEntity.setReservationEntity(newReservationEntity);
+            em.persist(newReservedRoomEntity);
+
+            long diff = newReservationEntity.getCheckOutDate().getTime() - newReservationEntity.getCheckInDate().getTime();
+            int numNights = (int) TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
+
+            //CREATE RESERVED NIGHTS
+            List<ReservedNightEntity> newReservedNightEntities = new ArrayList<>();
+            Date currNightDate = newReservationEntity.getCheckInDate();
+            Long roomRateId = 1L;
+            for (int j = 0; j < numNights; j++) {
+                if (j == 0) {
+                    currNightDate = addDays(currNightDate, 0);
+                } else {
+                    currNightDate = addDays(currNightDate, 1);
+                }
+                ReservedNightEntity newReservedNightEntity = new ReservedNightEntity();
+                newReservedNightEntity.setReservedRoomEntity(newReservedRoomEntity);
+                //SETTING THE COST PER NIGHT
+                rateTypeEnum currRateTypeEnum = rateTypeEnum.PUBLISHED;
+                if (newReservationEntity.getOnlineReservation().equals(Boolean.FALSE)) {
+                    currRateTypeEnum = rateTypeEnum.PUBLISHED;
+                    RoomRateEntity roomRateEntity = roomRateSessionBeanLocal.retrieveRoomRateByRateType(roomTypeId, currRateTypeEnum);
+                    roomRateId = roomRateEntity.getRoomRateId();
+
+                } else {
+                    //retrieve all the applicable roomrates linked to this roomtype
+                    List<RoomRateEntity> roomRateEntities = new ArrayList<>();
+                    roomRateEntities = roomTypeEntity.getRoomRateEntities();
+
+                    roomRateId = findRoomRate(roomRateEntities, currNightDate);
+                    System.out.println("Room Rate for Night: " + currNightDate + "has room rate: " + roomRateId);
+
+                }
+
+                RoomRateEntity roomRateEntity = roomRateSessionBeanLocal.retrieveRoomRateByRoomRateId(roomRateId);
+                newReservedNightEntity.setRoomRateEntity(roomRateEntity);
+                newReservedNightEntity.setAmount(roomRateEntity.getRatePerNight());
+                System.out.println("Rate per Night: " + roomRateEntity.getRatePerNight());
+                em.persist(newReservedNightEntity);
+
+                newReservedNightEntities.add(newReservedNightEntity);
+            }//ends for loop
+
+            newReservedRoomEntity.setReservedNightEntities(newReservedNightEntities);
+            //SETTLED RESERVED ROOM
+
+            newReservedRoomEntities.add(newReservedRoomEntity);
+        }//ends creating each reserved room
+        newReservationEntity.setReservedRoomEntities(newReservedRoomEntities);
+
+        BigDecimal reservationAmount = new BigDecimal(BigInteger.ZERO);
+        for (ReservedRoomEntity reservedRoomEntity : newReservedRoomEntities) {
+            List<ReservedNightEntity> reservedNightEntities = reservedRoomEntity.getReservedNightEntities();
+            for (ReservedNightEntity reservedNightEntity : reservedNightEntities) {
+                reservationAmount = reservationAmount.add(reservedNightEntity.getAmount());
+                System.out.println("Amount: " + reservationAmount);
+            }
+        }
+        newReservationEntity.setReservationAmount(reservationAmount);
+
+        PartnerEntity partnerEntity = new PartnerEntity();
+        try {
+            partnerEntity = partnerSessionBeanLocal.retrievePartnertByPartnerId(partnerId);
+        } catch (PartnerNotFoundException ex) {
+            eJBContext.setRollbackOnly();
+
+        }
+        newReservationEntity.setPartnerEntity(partnerEntity);
+        //SETTLED RESERVATION
+        em.flush();
+        em.refresh(newReservationEntity);
+        return newReservationEntity.getReservationId();
     }
 
 }

@@ -78,4 +78,18 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
         }
     }
 
+    @Override
+    public PartnerEntity retrievePartnertByPartnerId(Long partnerId) throws PartnerNotFoundException {
+        PartnerEntity partnerEntity = em.find(PartnerEntity.class, partnerId);
+
+        if (partnerEntity != null) {
+
+            partnerEntity.getReservationEntities().size();
+
+            return partnerEntity;
+        } else {
+            throw new PartnerNotFoundException("Partner ID " + partnerId + " does not exist!");
+        }
+    }
+
 }

@@ -45,7 +45,7 @@ public class PartnerController implements PartnerControllerRemote, PartnerContro
             partnerRecord.setPassword(partnerEntity.getPassword());
 
         } catch (InvalidLoginCredentialException_Exception ex) {
-            
+
             System.err.println("login failede");
         }
         return partnerRecord;
@@ -132,35 +132,34 @@ public class PartnerController implements PartnerControllerRemote, PartnerContro
         }
     }
 
-    @Override
-    public Integer roomCountRemote(String username, String password, RoomTypeRecord roomTypeRecord, Date checkInDate, Date checkOutDate) throws DatatypeConfigurationException {
-        int count = 0;
-        try {
-            GregorianCalendar calendar1 = new GregorianCalendar();
-
-            calendar1.setTime(checkInDate);
-            XMLGregorianCalendar checkInDate2 = DatatypeFactory.newInstance().newXMLGregorianCalendar(calendar1);
-
-            GregorianCalendar calendar2 = new GregorianCalendar();
-
-            calendar2.setTime(checkOutDate);
-            XMLGregorianCalendar checkOutDate2 = DatatypeFactory.newInstance().newXMLGregorianCalendar(calendar2);
-
-            RoomTypeEntity roomTypeEntity = new RoomTypeEntity();
-            roomTypeEntity.setName(roomTypeRecord.getRoomTypeName());
-            roomTypeEntity.setBed("");
-            roomTypeEntity.setCapacity(0);
-            roomTypeEntity.setDescription("");
-            roomTypeEntity.setNumOfRooms(0);
-            roomTypeEntity.setRanking(0);
-            roomTypeEntity.setSize("");
-            return retrieveAvailableRoomCount(username, password, roomTypeEntity, checkInDate2, checkOutDate2);
-        } catch (InvalidLoginCredentialException_Exception ex) {
-
-        }
-        return count;
-    }
-
+//    @Override
+//    public Integer roomCountRemote(String username, String password, RoomTypeRecord roomTypeRecord, Date checkInDate, Date checkOutDate) throws DatatypeConfigurationException {
+//        int count = 0;
+//        try {
+//            GregorianCalendar calendar1 = new GregorianCalendar();
+//
+//            calendar1.setTime(checkInDate);
+//            XMLGregorianCalendar checkInDate2 = DatatypeFactory.newInstance().newXMLGregorianCalendar(calendar1);
+//
+//            GregorianCalendar calendar2 = new GregorianCalendar();
+//
+//            calendar2.setTime(checkOutDate);
+//            XMLGregorianCalendar checkOutDate2 = DatatypeFactory.newInstance().newXMLGregorianCalendar(calendar2);
+//
+//            RoomTypeEntity roomTypeEntity = new RoomTypeEntity();
+//            roomTypeEntity.setName(roomTypeRecord.getRoomTypeName());
+//            roomTypeEntity.setBed("");
+//            roomTypeEntity.setCapacity(0);
+//            roomTypeEntity.setDescription("");
+//            roomTypeEntity.setNumOfRooms(0);
+//            roomTypeEntity.setRanking(0);
+//            roomTypeEntity.setSize("");
+//            return retrieveAvailableRoomCount(username, password, roomTypeEntity, checkInDate2, checkOutDate2);
+//        } catch (InvalidLoginCredentialException_Exception ex) {
+//
+//        }
+//        return count;
+//    }
     private static Integer retrieveAvailableRoomCount(java.lang.String username, java.lang.String password, ws.client.partnerWebService.RoomTypeEntity roomTypeEntity, javax.xml.datatype.XMLGregorianCalendar checkInDate, javax.xml.datatype.XMLGregorianCalendar checkOutDate) throws InvalidLoginCredentialException_Exception {
         ws.client.partnerWebService.PartnerWebService_Service service = new ws.client.partnerWebService.PartnerWebService_Service();
         ws.client.partnerWebService.PartnerWebService port = service.getPartnerWebServicePort();

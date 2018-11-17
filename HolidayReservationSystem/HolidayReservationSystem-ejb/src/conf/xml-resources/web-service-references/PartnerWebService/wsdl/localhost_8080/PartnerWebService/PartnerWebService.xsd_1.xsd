@@ -2,8 +2,6 @@
 
 <xs:element name="InvalidLoginCredentialException" type="tns:InvalidLoginCredentialException"/>
 
-<xs:element name="RoomRateNotFoundException" type="tns:RoomRateNotFoundException"/>
-
 <xs:element name="calculateAmount" type="tns:calculateAmount"/>
 
 <xs:element name="calculateAmountResponse" type="tns:calculateAmountResponse"/>
@@ -131,12 +129,6 @@
 </xs:sequence>
 </xs:complexType>
 
-<xs:complexType name="InvalidLoginCredentialException">
-<xs:sequence>
-<xs:element name="message" type="xs:string" minOccurs="0"/>
-</xs:sequence>
-</xs:complexType>
-
 <xs:complexType name="calculateAmount">
 <xs:sequence>
 <xs:element name="username" type="xs:string" minOccurs="0"/>
@@ -154,12 +146,6 @@
 </xs:sequence>
 </xs:complexType>
 
-<xs:complexType name="RoomRateNotFoundException">
-<xs:sequence>
-<xs:element name="message" type="xs:string" minOccurs="0"/>
-</xs:sequence>
-</xs:complexType>
-
 <xs:complexType name="retrieveAvailableRoomTypes">
 <xs:sequence>
 <xs:element name="username" type="xs:string" minOccurs="0"/>
@@ -172,6 +158,12 @@
 <xs:complexType name="retrieveAvailableRoomTypesResponse">
 <xs:sequence>
 <xs:element name="return" type="tns:roomTypeEntity" minOccurs="0" maxOccurs="unbounded"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="InvalidLoginCredentialException">
+<xs:sequence>
+<xs:element name="message" type="xs:string" minOccurs="0"/>
 </xs:sequence>
 </xs:complexType>
 
