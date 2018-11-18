@@ -32,21 +32,21 @@ public class MainApp {
     private RoomRateSessionBeanRemote roomRateSessionBeanRemote;
     private RoomSessionBeanRemote roomSessionBeanRemote;
     private ReservationSessionBeanRemote reservationSessionBeanRemote;
-    private PartnerSessionBeanRemote partnerSessionBeanRemote;
+    //private PartnerSessionBeanRemote partnerSessionBeanRemote;
     private GuestEntity currentGuest;
-    private PartnerEntity currentPartner;
+    //private PartnerEntity currentPartner;
 
     public MainApp() {
     }
 
-    public MainApp(GuestSessionBeanRemote guestSessionBeanRemote, RoomTypeSessionBeanRemote roomTypeSessionBeanRemote, RoomRateSessionBeanRemote roomRateSessionBeanRemote, RoomSessionBeanRemote roomSessionBeanRemote, ReservationSessionBeanRemote reservationSessionBeanRemote, PartnerSessionBeanRemote partnerSessionBeanRemote) {
+    public MainApp(GuestSessionBeanRemote guestSessionBeanRemote, RoomTypeSessionBeanRemote roomTypeSessionBeanRemote, RoomRateSessionBeanRemote roomRateSessionBeanRemote, RoomSessionBeanRemote roomSessionBeanRemote, ReservationSessionBeanRemote reservationSessionBeanRemote) {
         this();
         this.guestSessionBeanRemote = guestSessionBeanRemote;
         this.roomTypeSessionBeanRemote = roomTypeSessionBeanRemote;
         this.roomRateSessionBeanRemote = roomRateSessionBeanRemote;
         this.roomSessionBeanRemote = roomSessionBeanRemote;
         this.reservationSessionBeanRemote = reservationSessionBeanRemote;
-        this.partnerSessionBeanRemote = partnerSessionBeanRemote;
+        //this.partnerSessionBeanRemote = partnerSessionBeanRemote;
     }
 
     public void runApp() throws RoomNotFoundException, ParseException, GuestNotFoundException, RoomTypeNotFoundException, ReservationNotFoundException, ReservedRoomNotFoundException, RoomRateNotFoundException {
@@ -105,11 +105,11 @@ public class MainApp {
 
         if (username.length() > 0 && password.length() > 0) {
 
-            //currentGuest = guestSessionBeanRemote.guestLogin(username, password);
-            currentPartner = partnerSessionBeanRemote.partnerLogin(username, password);
-            System.out.println(currentPartner.getPartnerId());
-            System.out.println(currentPartner.getUserName());
-            System.out.println(currentPartner.getPassword());
+            currentGuest = guestSessionBeanRemote.guestLogin(username, password);
+            //currentPartner = partnerSessionBeanRemote.partnerLogin(username, password);
+//            System.out.println(currentPartner.getPartnerId());
+//            System.out.println(currentPartner.getUserName());
+//            System.out.println(currentPartner.getPassword());
         } else {
             throw new InvalidLoginCredentialException("Missing login credential!");
         }

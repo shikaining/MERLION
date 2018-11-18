@@ -17,8 +17,8 @@ import util.exception.RoomTypeNotFoundException;
 
 public class Main {
 
-    @EJB
-    private static PartnerSessionBeanRemote partnerSessionBeanRemote;
+//    @EJB
+//    private static PartnerSessionBeanRemote partnerSessionBeanRemote;
 
     @EJB
     private static ReservationSessionBeanRemote reservationSessionBeanRemote;
@@ -32,7 +32,7 @@ public class Main {
     private static GuestSessionBeanRemote guestSessionBeanRemote;
 
     public static void main(String[] args) throws RoomNotFoundException, ParseException, GuestNotFoundException, RoomTypeNotFoundException, ReservationNotFoundException, ReservedRoomNotFoundException, RoomRateNotFoundException {
-        MainApp mainApp = new MainApp(guestSessionBeanRemote, roomTypeSessionBeanRemote, roomRateSessionBeanRemote, roomSessionBeanRemote, reservationSessionBeanRemote, partnerSessionBeanRemote);
+        MainApp mainApp = new MainApp(guestSessionBeanRemote, roomTypeSessionBeanRemote, roomRateSessionBeanRemote, roomSessionBeanRemote, reservationSessionBeanRemote);
         mainApp.runApp();
     }
 

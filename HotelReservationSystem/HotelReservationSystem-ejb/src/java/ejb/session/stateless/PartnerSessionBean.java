@@ -51,7 +51,8 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
     public PartnerEntity partnerLogin(String username, String password) throws InvalidLoginCredentialException {
         try {
             PartnerEntity partnerEntity = retrievePartnerByUsername(username);
-
+            System.out.println(username);
+            System.out.println(password);
             if (partnerEntity.getUserName().equals(username) && partnerEntity.getPassword().equals(password)) {
 
                 System.out.println("Partner Found (:");
@@ -72,6 +73,9 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
 
         try {
             PartnerEntity partnerEntity = (PartnerEntity) query.getSingleResult();
+            System.out.println("partner");
+            System.out.println(partnerEntity.getUserName());
+            System.out.println(partnerEntity.getPassword());
             partnerEntity.getReservationEntities().size();
             return partnerEntity;
         } catch (NoResultException | NonUniqueResultException ex) {
