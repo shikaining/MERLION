@@ -2,12 +2,10 @@ package horsreservationclient;
 
 import ejb.session.stateful.ReservationSessionBeanRemote;
 import ejb.session.stateless.GuestSessionBeanRemote;
-import ejb.session.stateless.PartnerSessionBeanRemote;
 import ejb.session.stateless.RoomRateSessionBeanRemote;
 import ejb.session.stateless.RoomSessionBeanRemote;
 import ejb.session.stateless.RoomTypeSessionBeanRemote;
 import entity.GuestEntity;
-import entity.PartnerEntity;
 import entity.ReservationEntity;
 import entity.ReservedRoomEntity;
 import entity.RoomTypeEntity;
@@ -32,9 +30,7 @@ public class MainApp {
     private RoomRateSessionBeanRemote roomRateSessionBeanRemote;
     private RoomSessionBeanRemote roomSessionBeanRemote;
     private ReservationSessionBeanRemote reservationSessionBeanRemote;
-    //private PartnerSessionBeanRemote partnerSessionBeanRemote;
     private GuestEntity currentGuest;
-    //private PartnerEntity currentPartner;
 
     public MainApp() {
     }
@@ -46,7 +42,7 @@ public class MainApp {
         this.roomRateSessionBeanRemote = roomRateSessionBeanRemote;
         this.roomSessionBeanRemote = roomSessionBeanRemote;
         this.reservationSessionBeanRemote = reservationSessionBeanRemote;
-        //this.partnerSessionBeanRemote = partnerSessionBeanRemote;
+
     }
 
     public void runApp() throws RoomNotFoundException, ParseException, GuestNotFoundException, RoomTypeNotFoundException, ReservationNotFoundException, ReservedRoomNotFoundException, RoomRateNotFoundException {
@@ -90,7 +86,7 @@ public class MainApp {
                 break;
             }
         }
-    }
+    }//ends runapp
 
     private void doLogin() throws InvalidLoginCredentialException {
         Scanner scanner = new Scanner(System.in);
@@ -106,10 +102,7 @@ public class MainApp {
         if (username.length() > 0 && password.length() > 0) {
 
             currentGuest = guestSessionBeanRemote.guestLogin(username, password);
-            //currentPartner = partnerSessionBeanRemote.partnerLogin(username, password);
-//            System.out.println(currentPartner.getPartnerId());
-//            System.out.println(currentPartner.getUserName());
-//            System.out.println(currentPartner.getPassword());
+
         } else {
             throw new InvalidLoginCredentialException("Missing login credential!");
         }
@@ -196,6 +189,7 @@ public class MainApp {
     }
 
     private void doSearchRoom() throws ParseException, GuestNotFoundException, ReservationNotFoundException, ReservedRoomNotFoundException, RoomRateNotFoundException, RoomTypeNotFoundException {
+
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
         SimpleDateFormat inputDateFormat = new SimpleDateFormat("d/M/y");
@@ -215,9 +209,12 @@ public class MainApp {
         int sn = availableRoomTypes.size();
 
         if (sn == 0) {
+
             System.out.println("No Room Types are available for the given dates");
             System.out.println("1: Back\n");
+
             response = scanner.nextInt();
+
             while (response < 1 || response > 2) {
                 System.out.print("> ");
                 if (response == 1) {
@@ -225,12 +222,10 @@ public class MainApp {
                 } else {
                     System.out.println("Invalid option, please try again!\n");
                 }
-
-                if (response == 1) {
-                    break;
-                }
             }
+
         } else {
+
             sn = 0;
             for (RoomTypeEntity roomTypeEntity : availableRoomTypes) {
 
@@ -270,7 +265,6 @@ public class MainApp {
 
                 }
             }
-
         }
     }
 
@@ -288,7 +282,7 @@ public class MainApp {
         System.out.printf("%3s%15s\n", "S/N", "Room Type");
 
         int sn = 0;
-        //need to add room rate
+
         for (RoomTypeEntity roomTypeEntity : availableRoomTypes) {
             ++sn;
             System.out.printf("%3s%15s\n", sn, roomTypeEntity.getName());
@@ -307,7 +301,6 @@ public class MainApp {
             System.out.println("Enter number of rooms to reserve: ");
             numOfRooms = scanner.nextInt();
             scanner.nextLine();
-            //valid number of rooms for booking
 
             Boolean validOption = Boolean.FALSE;
 
@@ -315,7 +308,7 @@ public class MainApp {
                 if (numOfRooms <= nonClashes) {
 
                     validOption = Boolean.TRUE;
-                    //set all the attributes of reservationEntity
+
                     newReservationEntity.setCheckInDate(checkInDate);
                     newReservationEntity.setCheckOutDate(checkOutDate);
                     newReservationEntity.setOnlineReservation(Boolean.TRUE);
@@ -332,7 +325,6 @@ public class MainApp {
             newReservationEntity = reservationSessionBeanRemote.reserve(newReservationEntity, guestId, numOfRooms, roomTypeId);
             System.out.println("Reservation Amount: " + newReservationEntity.getReservationAmount() + "\n");
             System.out.println("New Reservation created successfully!: " + newReservationEntity.getReservationId() + "\n");
-
         }
 
     }//ends reserve room
@@ -354,6 +346,7 @@ public class MainApp {
             System.out.printf("%20s%20s%15s%25s%25s%15s%25s\n", "Reservation ID", "Room Type", "Quantity", "Check-In Date", "Check-Out Date", "Amount", "Reservation Type");
 
             for (ReservedRoomEntity reservedRoomEntity : reservedRoomEntities) {
+
                 String reservationType = "";
                 if (reservedRoomEntity.getReservationEntity().getOnlineReservation() == true) {
                     reservationType = "Online";
@@ -370,9 +363,9 @@ public class MainApp {
         } catch (ReservationNotFoundException ex) {
             System.out.println("An error has occurred while retrieving Reservation: " + ex.getMessage() + "\n");
         }
-
-        System.out.print("Press any key to continue...> ");
-        scanner.nextLine();
+//
+//        System.out.print("Press any key to continue...> ");
+//        scanner.nextLine();
     }
 
     private void doViewAllReservations() {
@@ -381,31 +374,35 @@ public class MainApp {
 
         System.out.println("*** HoRS Reservation Client :: View All Reservations ***\n");
 
-        List<ReservedRoomEntity> reservedRoomEntities = reservationSessionBeanRemote.retrieveReservedRoomByGuestId(currentGuest.getGuestId());
-
-        int size = reservedRoomEntities.size();
-
         SimpleDateFormat outputDateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm a");
 
+        List<ReservationEntity> reservationEntities = reservationSessionBeanRemote.retrieveReservationsByGuestId(currentGuest.getGuestId());
         System.out.printf("%20s%20s%15s%25s%25s%15s%25s\n", "Reservation ID", "Room Type", "Quantity", "Check-In Date", "Check-Out Date", "Amount", "Reservation Type");
 
-        for (ReservedRoomEntity reservedRoomEntity : reservedRoomEntities) {
-            String reservationType = "";
-            if (reservedRoomEntity.getReservationEntity().getOnlineReservation() == true) {
-                reservationType = "Online";
-            } else {
-                reservationType = "Walk-In";
-            }
-            String start = outputDateFormat.format(reservedRoomEntity.getReservationEntity().getCheckInDate());
-            String end = outputDateFormat.format(reservedRoomEntity.getReservationEntity().getCheckOutDate());
-            BigDecimal reservationAmt = reservedRoomEntity.getReservationEntity().getReservationAmount();
-            BigDecimal amount = reservationAmt.divide(BigDecimal.valueOf(size));
+        for (ReservationEntity reservationEntity : reservationEntities) {
+            List<ReservedRoomEntity> reservedRoomEntities = reservationSessionBeanRemote.retrieveReservedRoomsByReservationId(reservationEntity.getReservationId());
+            int size = reservedRoomEntities.size();
 
-            System.out.printf("%20s%20s%15s%25s%25s%15s%25s\n", reservedRoomEntity.getReservationEntity().getReservationId().toString(), reservedRoomEntity.getRoomTypeEntity().getName(), "1", start, end, amount, reservationType);
+            for (ReservedRoomEntity reservedRoomEntity : reservedRoomEntities) {
+
+                String reservationType = "";
+                if (reservedRoomEntity.getReservationEntity().getOnlineReservation() == true) {
+                    reservationType = "Online";
+                } else {
+                    reservationType = "Walk-In";
+                }
+                String start = outputDateFormat.format(reservedRoomEntity.getReservationEntity().getCheckInDate());
+                String end = outputDateFormat.format(reservedRoomEntity.getReservationEntity().getCheckOutDate());
+                BigDecimal reservationAmt = reservedRoomEntity.getReservationEntity().getReservationAmount();
+                BigDecimal amount = reservationAmt.divide(BigDecimal.valueOf(size));
+
+                System.out.printf("%20s%20s%15s%25s%25s%15s%25s\n", reservedRoomEntity.getReservationEntity().getReservationId().toString(), reservedRoomEntity.getRoomTypeEntity().getName(), "1", start, end, amount, reservationType);
+
+            }
+
         }
 
         System.out.print("Press any key to continue...> ");
         scanner.nextLine();
-
     }
 }

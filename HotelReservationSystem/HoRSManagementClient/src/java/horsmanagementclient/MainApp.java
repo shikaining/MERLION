@@ -54,12 +54,6 @@ public class MainApp {
 
         while (true) {
             System.out.println("*** HoRS Management System ***\n");
-
-//            if (currentEmployee != null) {
-//                System.out.println("You are login as " + currentEmployee.getFirstName() + " " + currentEmployee.getLastName() + "\n");
-//            } else {
-//                System.out.println("1: Login");
-//            }
             System.out.println("1: Login");
             System.out.println("2: Exit\n");
             response = 0;
@@ -69,29 +63,22 @@ public class MainApp {
 
                 response = scanner.nextInt();
 
-                if (response == 1) 
-                {
-               
-                        try {
-                            doLogin();
-                            System.out.println("Login successful as " + currentEmployee.getFirstName() + " " + currentEmployee.getLastName() + "!\n");
+                if (response == 1) {
 
-                            systemAdministrationModule = new SystemAdministrationModule(employeeSessionBeanRemote, partnerSessionBeanRemote, currentEmployee);
-                            hotelOperationnModule = new HotelOperationModule(employeeSessionBeanRemote, roomTypeSessionBeanRemote, roomSessionBeanRemote, roomRateSessionBeanRemote, currentEmployee);
-                            frontOfficeModule = new FrontOfficeModule(employeeSessionBeanRemote, roomTypeSessionBeanRemote, roomRateSessionBeanRemote, roomSessionBeanRemote, reservationSessionBeanRemote, guestSessionBeanRemote, currentEmployee);
-                            menuMain();
-                        } 
-                        catch (InvalidLoginCredentialException ex) 
-                        {
-                            System.out.println("Invalid login credential: " + ex.getMessage() + "\n");
-                        }
-                }
-                 else if (response == 2) 
-                 {
+                    try {
+                        doLogin();
+                        System.out.println("Login successful as " + currentEmployee.getFirstName() + " " + currentEmployee.getLastName() + "!\n");
+
+                        systemAdministrationModule = new SystemAdministrationModule(employeeSessionBeanRemote, partnerSessionBeanRemote, currentEmployee);
+                        hotelOperationnModule = new HotelOperationModule(employeeSessionBeanRemote, roomTypeSessionBeanRemote, roomSessionBeanRemote, roomRateSessionBeanRemote, currentEmployee);
+                        frontOfficeModule = new FrontOfficeModule(employeeSessionBeanRemote, roomTypeSessionBeanRemote, roomRateSessionBeanRemote, roomSessionBeanRemote, reservationSessionBeanRemote, guestSessionBeanRemote, currentEmployee);
+                        menuMain();
+                    } catch (InvalidLoginCredentialException ex) {
+                        System.out.println("Invalid login credential: " + ex.getMessage() + "\n");
+                    }
+                } else if (response == 2) {
                     break;
-                }
-                 else 
-                 {
+                } else {
                     System.out.println("Invalid option, please try again!\n");
                 }
             }
@@ -143,27 +130,23 @@ public class MainApp {
                     try {
                         systemAdministrationModule.menuSystemAdministration();
                     } catch (InvalidAccessRightException ex) {
-                        System.out.println("Invalid option, please try again!: " + ex.getMessage() + "\n");
+                        System.out.println("You do not have the access rights!: " + ex.getMessage() + "\n");
                     }
-                } 
-                else if (response == 2) {
+                } else if (response == 2) {
                     try {
                         hotelOperationnModule.menuHotelOperation();
                     } catch (InvalidAccessRightException ex) {
-                        System.out.println("Invalid option, please try again!: " + ex.getMessage() + "\n");
+                        System.out.println("ou do not have the access rights!: " + ex.getMessage() + "\n");
                     }
-                } 
-                else if (response == 3) {
+                } else if (response == 3) {
                     try {
                         frontOfficeModule.menuFrontOffice();
                     } catch (InvalidAccessRightException ex) {
-                        System.out.println("Invalid option, please try again!: " + ex.getMessage() + "\n");
+                        System.out.println("ou do not have the access rights!: " + ex.getMessage() + "\n");
                     }
-                } 
-                else if (response == 4) {
+                } else if (response == 4) {
                     break;
-                } 
-                else {
+                } else {
                     System.out.println("Invalid option, please try again!\n");
                 }
             }

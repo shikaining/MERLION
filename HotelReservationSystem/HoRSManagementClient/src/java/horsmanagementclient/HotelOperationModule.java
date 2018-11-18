@@ -283,7 +283,7 @@ public class HotelOperationModule {
             }
             roomTypeEntity.setAmenities(amenities);
         }
-        
+
         System.out.print("Enter Rank of Room Type (enter -100 if no change)> ");
         num = scanner.nextInt();
         if (num != -100) {
@@ -545,7 +545,6 @@ public class HotelOperationModule {
             roomRateEntity.setValidityEnd(validityEnd);
         }
         roomRateEntity = roomRateSessionBeanRemote.createNewRoomRate(roomRateEntity, roomTypeId);
-        //need to update roomTypeEntity
         System.out.println("New Room Rate created successfully!: " + roomRateEntity.getRoomRateId() + "\n");
     }
 
@@ -698,6 +697,7 @@ public class HotelOperationModule {
         System.out.printf("%8s%20s%15s%20s%20s%25s%25s\n", "RoomRate ID", "Room Rate Name", "Rate Per Night", "Rate Type", "Room Type", "Validity Start Date", "Validity End Date");
         for (RoomRateEntity roomRateEntity : roomRateEntities) {
             if (roomRateEntity.getValidityStart() != null) {
+
                 String start = outputDateFormat.format(roomRateEntity.getValidityStart());
                 String end = outputDateFormat.format(roomRateEntity.getValidityEnd());
 
@@ -731,5 +731,4 @@ public class HotelOperationModule {
         roomSessionBeanRemote.doAllocateRooms();
         System.out.println("Allocated successfully!");
     }//ends allocation
-
 }

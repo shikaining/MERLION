@@ -55,17 +55,15 @@ public class SystemAdministrationModule {
 
                     doViewAllEmployees();
 
-                }
-                else if (response == 3) {
+                } else if (response == 3) {
 
                     doCreateNewPartner();
 
-                }
-                else if (response == 4) {
+                } else if (response == 4) {
 
                     doViewAllPartners();
 
-                }else if (response == 5) {
+                } else if (response == 5) {
 
                     break;
 
@@ -137,11 +135,11 @@ public class SystemAdministrationModule {
         System.out.print("Press any key to continue...> ");
         scanner.nextLine();
     }
-    
-     private void doCreateNewPartner() {
+
+    private void doCreateNewPartner() {
 
         Scanner scanner = new Scanner(System.in);
-         PartnerEntity partnerEntity = new PartnerEntity();
+        PartnerEntity partnerEntity = new PartnerEntity();
 
         System.out.println("*** HoRS Management System :: System Administration :: Create New Partner ***\n");
         System.out.print("Enter Partner Name> ");
@@ -153,10 +151,11 @@ public class SystemAdministrationModule {
         partnerEntity.setPassword(scanner.nextLine().trim());
 
         partnerEntity = partnerSessionBeanRemote.createNewPartner(partnerEntity);
-        System.out.println("New Partner created successfully!: " + partnerEntity.getPartnerId()+ "\n");
+        System.out.println("New Partner created successfully!: " + partnerEntity.getPartnerId() + "\n");
     }
-     
-      private void doViewAllPartners() {
+
+    private void doViewAllPartners() {
+
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("*** HoRS Management System :: System Administration :: View All Partners ***\n");
@@ -166,7 +165,7 @@ public class SystemAdministrationModule {
 
         for (PartnerEntity partnerEntity : partnerEntities) {
             System.out.printf("%8s%20s%20s%20s\n", partnerEntity.getPartnerId().toString(), partnerEntity.getName(), partnerEntity.getUserName(), partnerEntity.getPassword());
-         
+
         }
         System.out.print("Press any key to continue...> ");
         scanner.nextLine();

@@ -1,11 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package ejb.session.stateless;
 
-import entity.GuestEntity;
 import entity.PartnerEntity;
 import java.util.List;
 import javax.ejb.Local;
@@ -16,14 +11,9 @@ import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import util.exception.GuestNotFoundException;
 import util.exception.InvalidLoginCredentialException;
 import util.exception.PartnerNotFoundException;
 
-/**
- *
- * @author kai_n
- */
 @Stateless
 @Local(PartnerSessionBeanLocal.class)
 @Remote(PartnerSessionBeanRemote.class)
@@ -34,6 +24,7 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
 
     @Override
     public PartnerEntity createNewPartner(PartnerEntity newPartnerEntity) {
+
         em.persist(newPartnerEntity);
         em.flush();
 
@@ -42,8 +33,8 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
 
     @Override
     public List<PartnerEntity> retrieveAllPartners() {
-        Query query = em.createQuery("SELECT p FROM PartnerEntity p");
 
+        Query query = em.createQuery("SELECT p FROM PartnerEntity p");
         return query.getResultList();
     }
 
@@ -51,11 +42,9 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
     public PartnerEntity partnerLogin(String username, String password) throws InvalidLoginCredentialException {
         try {
             PartnerEntity partnerEntity = retrievePartnerByUsername(username);
-            System.out.println(username);
-            System.out.println(password);
+          
             if (partnerEntity.getUserName().equals(username) && partnerEntity.getPassword().equals(password)) {
 
-                System.out.println("Partner Found (:");
                 return partnerEntity;
 
             } else {
@@ -73,9 +62,9 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
 
         try {
             PartnerEntity partnerEntity = (PartnerEntity) query.getSingleResult();
-            System.out.println("partner");
-            System.out.println(partnerEntity.getUserName());
-            System.out.println(partnerEntity.getPassword());
+//            System.out.println("partner");
+//            System.out.println(partnerEntity.getUserName());
+//            System.out.println(partnerEntity.getPassword());
             partnerEntity.getReservationEntities().size();
             return partnerEntity;
         } catch (NoResultException | NonUniqueResultException ex) {
@@ -96,5 +85,4 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
             throw new PartnerNotFoundException("Partner ID " + partnerId + " does not exist!");
         }
     }
-
 }

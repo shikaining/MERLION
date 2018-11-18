@@ -120,26 +120,29 @@ public class FrontOfficeModule {
 
         List<RoomTypeEntity> availableRoomTypes = roomTypeSessionBeanRemote.retrieveAvailableRoomTypes(checkInDate, checkOutDate);
         System.out.printf("%3s%15s%15s%15s\n", "S/N", "Room Type", "Quantity", "Amount");
-        //TODO: ADD THE RESERVATION AMOUNT FOR EACH OF THEM! THEN PASS THIS AMOUNT INTO RESERVE ROOM
 
         int sn = availableRoomTypes.size();
 
         if (sn == 0) {
-            System.out.println("No Room Types are available for the given dates");
-            System.out.println("1: Back\n");
-            response = scanner.nextInt();
-            while (response < 1 || response > 2) {
-                System.out.print("> ");
-                if (response == 1) {
-                    break;
-                } else {
-                    System.out.println("Invalid option, please try again!\n");
+            while (true) {
+                System.out.println("No Room Types are available for the given dates");
+                System.out.println("1: Back\n");
+
+                response = scanner.nextInt();
+                while (response < 1 || response > 2) {
+                    System.out.print("> ");
+                    if (response == 1) {
+                        break;
+                    } else {
+                        System.out.println("Invalid option, please try again!\n");
+                    }
                 }
 
                 if (response == 1) {
                     break;
                 }
             }
+
         } else {
             sn = 0;
             for (RoomTypeEntity roomTypeEntity : availableRoomTypes) {
@@ -165,6 +168,7 @@ public class FrontOfficeModule {
                 if (response == 1) {
 
                     doWalkInReserveRoom(availableRoomTypes, checkInDate, checkOutDate);
+                    break;
 
                 } else if (response == 2) {
 
@@ -176,14 +180,14 @@ public class FrontOfficeModule {
 
                 }
             }
-
         }
-    }
+    }//ends walk in search room
 
     private void doWalkInReserveRoom(List<RoomTypeEntity> availableRoomTypes, Date checkInDate, Date checkOutDate) throws GuestNotFoundException, ReservationNotFoundException, ReservedRoomNotFoundException, RoomRateNotFoundException, RoomTypeNotFoundException {
 
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
+
         int numOfRooms;
         Long guestId = 1L;
         Long roomTypeId = 1L;
@@ -213,7 +217,6 @@ public class FrontOfficeModule {
             System.out.println("Enter number of rooms to reserve: ");
             numOfRooms = scanner.nextInt();
             scanner.nextLine();
-            //valid number of rooms for booking
 
             Boolean validOption = Boolean.FALSE;
 
@@ -262,22 +265,20 @@ public class FrontOfficeModule {
             newReservationEntity = reservationSessionBeanRemote.reserve(newReservationEntity, guestId, numOfRooms, roomTypeId);
             System.out.println("Reservation Amount: " + newReservationEntity.getReservationAmount() + "\n");
             System.out.println("New Reservation created successfully!: " + newReservationEntity.getReservationId() + "\n");
+            //Allocate walk-in reservations immediately
             doAllocateRoom(newReservationEntity.getReservationId());
         }
-
     }
 
     private void doAllocateRoom(Long reservationId) throws ReservationNotFoundException {
 
-        //for each reserved room in reservation, link it to a room in the right room type
         ReservationEntity reservationEntity = reservationSessionBeanRemote.retrieveReservationByReservationId(reservationId);
         List<ReservedRoomEntity> reservedRoomEntities = reservationEntity.getReservedRoomEntities();
 
         for (ReservedRoomEntity reservedRoomEntity : reservedRoomEntities) {
             Long roomId = reservationSessionBeanRemote.linkReservedRoomToRoom(reservedRoomEntity.getReservedRoomId(), reservedRoomEntity.getRoomTypeEntity().getRoomTypeId());
         }
-
-    }//ends allocation
+    }//ends allocation of walk-in reservations
 
     private void doCheckInGuest() throws GuestNotFoundException, RoomNotFoundException {
 
@@ -299,35 +300,36 @@ public class FrontOfficeModule {
         for (ReservedRoomEntity reservedRoomEntity : reservedRoomEntities) {
 
             if (isToday(reservedRoomEntity.getReservationEntity().getCheckInDate())) {
-                //RETRIEVE ANY EXCEPTIONS FACED BY THIS GUEST & PRINT THE CORRESPONDING MESSAGE
-                //retrieve most updated one
+
                 List<ReportLineItemEntity> reportLineItemEntities = roomSessionBeanRemote.retrieveReportLineItemsByReservedRoomId(reservedRoomEntity.getReservedRoomId());
                 //CASE 1: EXCEPTION ONE WAS MET BUT ROOM IS ALLOCATED
                 if (!reportLineItemEntities.isEmpty()) {
-                    if (reportLineItemEntities.get(0).getTypeEnum() == exceptionTypeEnum.EXCEPTIONONE) {
-                        //if have then print the message
+                    if (reportLineItemEntities.get(reportLineItemEntities.size() - 1).getTypeEnum() == exceptionTypeEnum.EXCEPTIONONE) {
+
                         String messageToGuest = reportLineItemEntities.get(0).getMessageToGuest();
+
                         System.out.println(messageToGuest);
                         System.out.println("Room Number: " + reservedRoomEntity.getRoomEntity().getRoomNumber() + " has been allocated to guest.\n");
                         //update rooms
                         roomSessionBeanRemote.checkInGuest(reservedRoomEntity.getRoomEntity().getRoomId());
-                    } //CASE 2: EXCEPTION TWO WAS MET AND ROOM IS NOT ALLOCATED
-                    else if (reportLineItemEntities.get(0).getTypeEnum() == exceptionTypeEnum.EXCEPTIONTWO) {
+                    } //CASE 2: EXCEPTION TWO WAS FACED AND ROOM IS NOT ALLOCATED
+                    else if (reportLineItemEntities.get(reportLineItemEntities.size() - 1).getTypeEnum() == exceptionTypeEnum.EXCEPTIONTWO) {
+
                         String messageToGuest = reportLineItemEntities.get(0).getMessageToGuest();
                         System.out.println(messageToGuest);
 
                     }
                 }//CASE 3: NO EXCEPTIONS WERE MET AND ROOM IS ALLOCATED
                 else {
-                    //find the allocated room and tell the guest!
+
                     System.out.println("Room Number: " + reservedRoomEntity.getRoomEntity().getRoomNumber() + " has been allocated to guest.\n");
-                    //update rooms
                     roomSessionBeanRemote.checkInGuest(reservedRoomEntity.getRoomEntity().getRoomId());
                 }
             } else {
+                //cannot check in on a day other than the check in date
                 System.out.println("Unable to check in today! ");
             }
-        }
+        }//ends for loop
     }//ends checkinguest
 
     private void doCheckOutGuest() throws GuestNotFoundException, RoomNotFoundException {
@@ -346,7 +348,6 @@ public class FrontOfficeModule {
             List<RoomEntity> roomEntities = roomSessionBeanRemote.retrieveRoomsByReservationId(reservationEntity.getReservationId());
             for (RoomEntity roomEntity : roomEntities) {
                 System.out.print("Guest has checked out of Room Number: " + roomEntity.getRoomNumber() + "\n");
-                //update rooms
                 roomSessionBeanRemote.checkOutGuest(roomEntity.getRoomId());
             }
         }

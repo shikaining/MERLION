@@ -18,10 +18,6 @@ import javax.persistence.Query;
 import util.exception.GuestNotFoundException;
 import util.exception.InvalidLoginCredentialException;
 
-/**
- *
- * @author kai_n
- */
 @Stateless
 @Local(GuestSessionBeanLocal.class)
 @Remote(GuestSessionBeanRemote.class)
@@ -32,6 +28,7 @@ public class GuestSessionBean implements GuestSessionBeanRemote, GuestSessionBea
 
     @Override
     public GuestEntity createNewGuest(GuestEntity newGuestEntity) {
+       
         em.persist(newGuestEntity);
         em.flush();
 
@@ -135,5 +132,4 @@ public class GuestSessionBean implements GuestSessionBeanRemote, GuestSessionBea
             throw new GuestNotFoundException("Guest ID not provided for guest to be updated");
         }
     }
-
 }

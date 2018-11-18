@@ -28,11 +28,10 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
 
     @EJB
     private RoomSessionBeanLocal roomSessionBeanLocal;
-    
 
     @Override
     public RoomTypeEntity createNewRoomType(RoomTypeEntity newRoomTypeEntity) {
-        
+
         em.persist(newRoomTypeEntity);
         em.flush();
 
@@ -67,19 +66,19 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
             throw new RoomTypeNotFoundException("Room Type Name " + name + " does not exist!");
         }
     }
-    
+
     @Override
-     public RoomTypeEntity retrieveRoomTypeByRank(int rank) throws RoomTypeNotFoundException {
+    public RoomTypeEntity retrieveRoomTypeByRank(int rank) throws RoomTypeNotFoundException {
         Query query = em.createQuery("SELECT rt FROM RoomTypeEntity rt WHERE rt.ranking = :inRank");
         query.setParameter("inRank", rank);
-        System.out.println(rank);
+        //System.out.println(rank);
 
         try {
             RoomTypeEntity roomTypeEntity = (RoomTypeEntity) query.getSingleResult();
             roomTypeEntity.getRoomEntities().size();
             roomTypeEntity.getReservedRoomEntities().size();
             roomTypeEntity.getRoomRateEntities().size();
-            System.out.println(roomTypeEntity.getRoomTypeId());
+            //System.out.println(roomTypeEntity.getRoomTypeId());
             return roomTypeEntity;
         } catch (NoResultException | NonUniqueResultException ex) {
             throw new RoomTypeNotFoundException("Room Type Rank " + rank + " does not exist!");
@@ -139,10 +138,10 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
         for (RoomTypeEntity roomTypeEntity : allRoomTypes) {
 
             if (!roomTypeEntity.getRoomEntities().isEmpty()) {
-                System.out.println(roomTypeEntity.getName() + " has rooms. ");
+                //System.out.println(roomTypeEntity.getName() + " has rooms. ");
 
                 if (!roomTypeEntity.getReservedRoomEntities().isEmpty()) {
-                    System.out.println(roomTypeEntity.getName() + " has reservations. ");
+                    //System.out.println(roomTypeEntity.getName() + " has reservations. ");
 
                     List<ReservedRoomEntity> reservedRooms = new ArrayList<>();
                     reservedRooms = retrieveReservedRoomsByRoomTypeName(roomTypeEntity.getName());
@@ -151,33 +150,30 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
                     int clashes = 0;
                     for (ReservedRoomEntity reservedRoomEntity : reservedRooms) {
 
-                        System.out.println("reservedRoom Id: " + reservedRoomEntity.getReservedRoomId());
-
+                        //System.out.println("reservedRoom Id: " + reservedRoomEntity.getReservedRoomId());
                         ReservationEntity reservationEntity = reservedRoomEntity.getReservationEntity();
                         Date reservedCheckInDate = reservationEntity.getCheckInDate();
                         Date reservedCheckOutDate = reservationEntity.getCheckOutDate();
 
                         if ((reservedCheckOutDate.compareTo(checkInDate) <= 0) || (reservedCheckInDate.compareTo(checkOutDate)) >= 0) {
-                            System.out.println("No Clash detected");
+
                         } else {
                             clashes++;
-                            System.out.println("Clash detected");
-                            //the moment there is a clash, go on to the next room
                         }
                     }
 
                     if (clashes < roomTypeEntity.getRoomEntities().size()) {
-                        System.out.println("Clashes: " + clashes);
-                        System.out.println("Room Entities size: " + roomTypeEntity.getRoomEntities().size());
+//                        System.out.println("Clashes: " + clashes);
+//                        System.out.println("Room Entities size: " + roomTypeEntity.getRoomEntities().size());
                         availableRoomTypes.add(roomTypeEntity);
                     }
                 } else {
-                    System.out.println("This room type has no reservedrooms. ");
+                    //System.out.println("This room type has no reservedrooms. ");
                     availableRoomTypes.add(roomTypeEntity);
                 }
-                System.out.println("Available room types: " + availableRoomTypes.toString());
+                // System.out.println("Available room types: " + availableRoomTypes.toString());
             } else {
-                System.out.println("This room type has no rooms. ");
+                // System.out.println("This room type has no rooms. ");
             }
         }
 
@@ -191,17 +187,19 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
         int clashes = 0;
         int nonClashes = 0;
         RoomTypeEntity currRoomTypeEntity = new RoomTypeEntity();
+
         try {
             currRoomTypeEntity = retrieveRoomTypeByRoomTypeId(roomTypeEntity.getRoomTypeId());
         } catch (RoomTypeNotFoundException ex) {
-
+            System.out.println("An error has occurred while retrieving room type: " + ex.getMessage() + "\n");
         }
+
         if (!currRoomTypeEntity.getReservedRoomEntities().isEmpty()) {
 
             List<ReservedRoomEntity> reservedRooms = new ArrayList<>();
             reservedRooms = retrieveReservedRoomsByRoomTypeName(currRoomTypeEntity.getName());
 
-            System.out.println(currRoomTypeEntity.getName() + "has " + reservedRooms.size() + "rooms. ");
+            //System.out.println(currRoomTypeEntity.getName() + "has " + reservedRooms.size() + "rooms. ");
             for (ReservedRoomEntity reservedRoomEntity : reservedRooms) {
 
                 ReservationEntity reservationEntity = reservedRoomEntity.getReservationEntity();
@@ -209,10 +207,10 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
                 Date reservedCheckOutDate = reservationEntity.getCheckOutDate();
 
                 if ((reservedCheckOutDate.compareTo(checkInDate) <= 0) || (reservedCheckInDate.compareTo(checkOutDate)) >= 0) {
-                    System.out.println("No Clash Detected for reservedRoomId: " + reservedRoomEntity.getReservedRoomId());
+                    //System.out.println("No Clash Detected for reservedRoomId: " + reservedRoomEntity.getReservedRoomId());
                 } else {
                     clashes++;
-                    System.out.println("Clash Detected for reservedRoomId: " + reservedRoomEntity.getReservedRoomId());
+                    //System.out.println("Clash Detected for reservedRoomId: " + reservedRoomEntity.getReservedRoomId());
                 }
             }
 
@@ -222,17 +220,10 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
 
             nonClashes = roomTypeEntity.getRoomEntities().size();
         }
-        System.out.println("Non-clashes " + nonClashes);
+        //System.out.println("Non-clashes " + nonClashes);
         return nonClashes;
     }
 
-//    @Override
-//    public void linkRoomToRoomType(Long roomId, Long roomTypeId) throws RoomTypeNotFoundException, RoomNotFoundException {
-//        RoomTypeEntity roomTypeEntity = retrieveRoomTypeByRoomTypeId(roomTypeId);
-//        RoomEntity roomEntity = roomSessionBeanLocal.retrieveRoomByRoomId(roomId);
-//        roomTypeEntity.getRoomEntities().add(roomEntity);
-//        roomEntity.setRoomTypeEntity(roomTypeEntity);
-//    }
     @Override
     public List<ReservedRoomEntity> retrieveReservedRoomsByRoomTypeName(String roomTypeName) {
 
@@ -248,9 +239,5 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
             reservedRoomEntity.getReservationEntity();
         }
         return reservedRooms;
-    }
-
-    public void persist(Object object) {
-        em.persist(object);
     }
 }

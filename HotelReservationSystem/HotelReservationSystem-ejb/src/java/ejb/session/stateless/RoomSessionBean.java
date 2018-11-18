@@ -59,8 +59,8 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
 
     @Override
     public List<RoomEntity> retrieveAllRooms() {
+        
         Query query = em.createQuery("SELECT r FROM RoomEntity r");
-
         return query.getResultList();
     }
 
@@ -116,7 +116,6 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
 
         List<RoomEntity> roomEntities = query.getResultList();
         return roomEntities;
-
     }
 
     @Override
@@ -130,7 +129,6 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
 
         List<ReservationEntity> reservationEntities = query.getResultList();
         return reservationEntities;
-
     }
 
     @Override
@@ -151,7 +149,7 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
     public void deleteRoom(Long roomId) throws RoomNotFoundException, DeleteRoomException {
         RoomEntity roomEntityToRemove = retrieveRoomByRoomId(roomId);
         RoomTypeEntity roomTypeEntity = roomEntityToRemove.getRoomTypeEntity();
-        //if it is not used, it means that it is available
+        
         if (roomEntityToRemove.getStatus().equals(roomStatusEnum.AVAILABLE)) {
             roomTypeEntity.getRoomEntities().remove(roomEntityToRemove);
             em.remove(roomEntityToRemove);
@@ -184,7 +182,7 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
         //FOR EACH ROOM TYPE, RETRIEVE ALL THE RESERVED ROOM ENTITIES THAT CHECK IN TODAY + IS ONLINE
         for (RoomTypeEntity roomTypeEntity : roomTypeEntities) {
             List<ReservedRoomEntity> reservedRoomEntities = roomTypeEntity.getReservedRoomEntities();
-            System.out.println("1: " + reservedRoomEntities.toString());
+            //System.out.println("1: " + reservedRoomEntities.toString());
 
             //FOR EACH RESERVEDROOM OF THE CURRENT ROOM TYPE
             if (!reservedRoomEntities.isEmpty()) {
@@ -197,17 +195,18 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
                     }
                     Boolean allocateToday = isToday(reservedRoomEntity.getReservationEntity().getCheckInDate());
                     Boolean unallocated = reservedRoomEntity.getRoomEntity() == null;
+                    
                     if (allocateToday && unallocated) {
 
                         if (reservedRoomEntity.getReservationEntity().getOnlineReservation() == Boolean.TRUE) {
-                            System.out.println("The reserved room entities to be allocated are: " + reservedRoomEntities.toString());
+                            //System.out.println("The reserved room entities to be allocated are: " + reservedRoomEntities.toString());
                             Long roomId = reservationSessionBeanLocal.linkReservedRoomToRoom(reservedRoomEntity.getReservedRoomId(), roomTypeEntity.getRoomTypeId());
                             System.out.println("RoomId: " + roomId);
                             //IF NO ROOMS FOR CURRENT ROOM TYPE
                             if (roomId == 0L) {
 
                                 ReportLineItemEntity reportLineItemEntity = new ReportLineItemEntity();
-                                System.out.println("Room Type: " + roomTypeEntity.getName());
+                                //System.out.println("Room Type: " + roomTypeEntity.getName());
                                 int rank = roomTypeEntity.getRanking();
                                 int newRank = rank + 1;
                                 try {

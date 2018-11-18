@@ -47,7 +47,7 @@ public class PartnerWebService {
         System.err.println("in server");
 
         PartnerEntity partnerEntity = partnerSessionBeanLocal.partnerLogin(username, password);
-        System.err.println("passed sessbean");
+        //System.err.println("In Server");
         em.detach(partnerEntity);
         partnerEntity.setReservationEntities(null);
         System.out.println("********** PartnerWebService.partnerLogin(): Partner " + partnerEntity.getUserName() + " login remotely via web service");
@@ -78,10 +78,10 @@ public class PartnerWebService {
             @WebParam(name = "password") String password,
             @WebParam(name = "RoomTypeEntity") RoomTypeEntity roomTypeEntity,
             @WebParam(name = "checkInDate") Date checkInDate,
-            @WebParam(name = "checkOutDate") Date checkOutDate) {
-        //PartnerEntity partnerEntity = partnerSessionBeanLocal.partnerLogin(username, password);
+            @WebParam(name = "checkOutDate") Date checkOutDate) throws InvalidLoginCredentialException {
+        PartnerEntity partnerEntity = partnerSessionBeanLocal.partnerLogin(username, password);
         Integer rooms = roomTypeSessionBeanLocal.retrieveAvailableRoomCount(roomTypeEntity, checkInDate, checkOutDate);
-        //System.out.println("********** PartnerWebService.partnerLogin(): Partner " + partnerEntity.getUserName() + " login remotely via web service");
+        System.out.println("********** PartnerWebService.partnerLogin(): Partner " + partnerEntity.getUserName() + " login remotely via web service");
         return rooms;
     }
 
@@ -100,7 +100,7 @@ public class PartnerWebService {
             //System.out.println("********** PartnerWebService.partnerLogin(): Partner " + partnerEntity.getUserName() + " login remotely via web service");
             return amount;
         } catch (RoomRateNotFoundException ex) {
-            //Logger.getLogger(PartnerWebService.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("An error has occurred: " + ex.getMessage() + "\n");
         }
         return amount;
     }
@@ -115,9 +115,9 @@ public class PartnerWebService {
         try {
             reservationId = reservationSessionBeanLocal.reserveForPartner(reservationEntity, partnerId, numOfRooms, roomTypeId);
         } catch (RoomTypeNotFoundException ex) {
-            //Logger.getLogger(PartnerWebService.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("An error has occurred while retrieving room type: " + ex.getMessage() + "\n");
         } catch (RoomRateNotFoundException ex) {
-            //Logger.getLogger(PartnerWebService.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("An error has occurred while retrieving room rate: " + ex.getMessage() + "\n");
         }
 
         return reservationId;
@@ -136,7 +136,7 @@ public class PartnerWebService {
             reservationEntity.setGuestEntity(null);
             reservationEntity.setPartnerEntity(null);
         } catch (ReservationNotFoundException ex) {
-            //Logger.getLogger(PartnerWebService.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("An error has occurred: " + ex.getMessage() + "\n");
         }
 
         return reservationEntity;
@@ -188,6 +188,24 @@ public class PartnerWebService {
         }
 
         return reservedRoomEntities;
+    }
+
+    @WebMethod(operationName = "retrieveReservationsByPartnerId")
+    public List<ReservationEntity> retrieveReservationsByPartnerId(@WebParam(name = "username") String username,
+            @WebParam(name = "password") String password,
+            @WebParam(name = "partnerId") Long partnerId) {
+
+        List<ReservationEntity> reservationEntities = new ArrayList<>();
+
+        reservationEntities = reservationSessionBeanLocal.retrieveReservationsByPartnerId(partnerId);
+        for (ReservationEntity reservationEntity : reservationEntities) {
+            em.detach(reservationEntity);
+            reservationEntity.setReservedRoomEntities(null);
+            reservationEntity.setGuestEntity(null);
+            reservationEntity.setPartnerEntity(null);
+        }
+
+        return reservationEntities;
     }
 
 }

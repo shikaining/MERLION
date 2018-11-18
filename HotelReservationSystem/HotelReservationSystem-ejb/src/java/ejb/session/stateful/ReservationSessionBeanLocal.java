@@ -28,4 +28,6 @@ public interface ReservationSessionBeanLocal {
     List<ReservedRoomEntity> retrieveReservedRoomsByReservationId(Long reservationId);
 
     List<ReservedRoomEntity> retrieveReservedRoomByPartnerId(Long partnerId);
+
+    List<ReservationEntity> retrieveReservationsByPartnerId(Long partnerId);
 }

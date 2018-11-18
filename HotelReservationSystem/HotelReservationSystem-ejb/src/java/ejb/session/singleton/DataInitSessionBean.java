@@ -57,16 +57,6 @@ public class DataInitSessionBean {
         amenities.add("Wifi");
         amenities.add("Order-in");
 
-//        RoomTypeEntity deluxe = new RoomTypeEntity("Deluxe", "Cozy", "32sqm", "single", 1, 1, 30, amenities);
-//        em.persist(deluxe);
-//        RoomTypeEntity premier = new RoomTypeEntity("Premier", "Modern", "38sqm", "1 queen", 2, 2, 30, amenities);
-//        em.persist(premier);
-//        RoomTypeEntity family = new RoomTypeEntity("Family", "Great for fams!", "43sqm", "1 king", 3, 3, 20, amenities);
-//        em.persist(family);
-//        RoomTypeEntity junior = new RoomTypeEntity("Junior Suite", "Luxurious", "50sqm", "2 king", 4, 4, 20, amenities);
-//        em.persist(junior);
-//        RoomTypeEntity grand = new RoomTypeEntity("Grand Suite", "Super Luxurious", "62sqm", "3 king", 5, 5, 10, amenities);
-//        em.persist(grand);
         RoomTypeEntity deluxe = roomTypeSessionBeanLocal.createNewRoomType(new RoomTypeEntity("Deluxe", "Cozy", "32sqm", "single", 1, 1, 30, amenities));
         RoomTypeEntity premier = roomTypeSessionBeanLocal.createNewRoomType(new RoomTypeEntity("Premier", "Modern", "38sqm", "1 queen", 2, 2, 30, amenities));
         RoomTypeEntity family = roomTypeSessionBeanLocal.createNewRoomType(new RoomTypeEntity("Family", "Great for fams!", "43sqm", "1 king", 3, 3, 20, amenities));
@@ -117,53 +107,6 @@ public class DataInitSessionBean {
         RoomEntity grand3 = roomSessionBeanLocal.createNewRoom(new RoomEntity("0305", roomStatusEnum.AVAILABLE), grand.getRoomTypeId());
         RoomEntity grand4 = roomSessionBeanLocal.createNewRoom(new RoomEntity("0405", roomStatusEnum.AVAILABLE), grand.getRoomTypeId());
         RoomEntity grand5 = roomSessionBeanLocal.createNewRoom(new RoomEntity("0505", roomStatusEnum.AVAILABLE), grand.getRoomTypeId());
-//        SimpleDateFormat inputDateFormat = new SimpleDateFormat("d/M/y");
-        //        SimpleDateFormat outputDateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        //        Date validityStartDate;
-        //        Date validityEndDate;
-        //        RoomRateEntity deluxePeak = roomRateSessionBeanLocal.createNewRoomRate(new RoomRateEntity("Deluxe Peak", new BigDecimal("250"), rateTypeEnum.PEAK, inputDateFormat.parse("19/11/2018") , inputDateFormat.parse("28/12/2018"), deluxe));
-        //        RoomRateEntity deluxePromo= roomRateSessionBeanLocal.createNewRoomRate(new RoomRateEntity("Deluxe Promotion", new BigDecimal("130"), rateTypeEnum.PROMOTION, inputDateFormat.parse("19/11/2018") , inputDateFormat.parse("28/12/2018"), deluxe));
-        //        
-        //       
-        //        }
-        //        try {
-        //            try {
-        //                roomRateSessionBeanLocal.createNewRoomRate(new RoomRateEntity("Deluxe Peak", new BigDecimal("250"), rateTypeEnum.PEAK, inputDateFormat.parse("19/11/2018") , inputDateFormat.parse("28/12/2018"), roomTypeSessionBeanLocal.retrieveRoomTypeByName("Deluxe")));
-        //            } catch (RoomTypeNotFoundException ex) {
-        //                
-        //            }
-        //        } catch (ParseException ex) {
-        //            
-        //        }
-        //        try {
-        //            try {
-        //                roomRateSessionBeanLocal.createNewRoomRate(new RoomRateEntity("Deluxe Promotion", new BigDecimal("130"), rateTypeEnum.PROMOTION, inputDateFormat.parse("09/11/2018") , inputDateFormat.parse("20/11/2018"), roomTypeSessionBeanLocal.retrieveRoomTypeByName("Deluxe")));
-        //            } catch (RoomTypeNotFoundException ex) {
-        //                
-        //            }
-        //        } catch (ParseException ex) {
-        //           
-        //        }
-        //        
-        //        }
-        //        try {
-        //            try {
-        //                roomRateSessionBeanLocal.createNewRoomRate(new RoomRateEntity("Premier Peak", new BigDecimal("500"), rateTypeEnum.PEAK, inputDateFormat.parse("19/11/2018") , inputDateFormat.parse("28/12/2018"), roomTypeSessionBeanLocal.retrieveRoomTypeByName("Premier")));
-        //            } catch (RoomTypeNotFoundException ex) {
-        //               
-        //            }
-        //        } catch (ParseException ex) {
-        //      
-        //        }
-        //        try {
-        //            try {
-        //                roomRateSessionBeanLocal.createNewRoomRate(new RoomRateEntity("Premier Promotion", new BigDecimal("260"), rateTypeEnum.PROMOTION, inputDateFormat.parse("09/11/2018") , inputDateFormat.parse("20/11/2018"), roomTypeSessionBeanLocal.retrieveRoomTypeByName("Premier")));
-        //            } catch (RoomTypeNotFoundException ex) {
-        //               
-        //            }
-        //        } catch (ParseException ex) {
-        //            
-        //        }
-    }
 
+    }
 }

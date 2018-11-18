@@ -39,6 +39,7 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
 
         }
         newRoomRateEntity.setRoomTypeEntity(roomTypeEntity);
+        
         em.persist(newRoomRateEntity);
         roomTypeEntity.getRoomRateEntities().add(newRoomRateEntity);
         em.flush();
@@ -48,6 +49,7 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
 
     @Override
     public RoomRateEntity createNewRoomRate(RoomRateEntity newRoomRateEntity) {
+       
         em.persist(newRoomRateEntity);
         em.flush();
 
@@ -133,7 +135,6 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
         } catch (NoResultException | NonUniqueResultException ex) {
             throw new RoomRateNotFoundException("Room Rate does not exist!");
         }
-
     }
 
     @Override
@@ -145,5 +146,4 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
             throw new DeleteRoomRateException("Room Rate ID " + roomRateId + " is being used and cannot be deleted!");
         }
     }
-
 }

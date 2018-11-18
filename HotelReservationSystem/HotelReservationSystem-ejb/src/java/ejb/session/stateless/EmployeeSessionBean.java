@@ -13,10 +13,6 @@ import javax.persistence.Query;
 import util.exception.EmployeeNotFoundException;
 import util.exception.InvalidLoginCredentialException;
 
-/**
- *
- * @author kai_n
- */
 @Stateless
 @Local(EmployeeSessionBeanLocal.class)
 @Remote(EmployeeSessionBeanRemote.class)
@@ -26,61 +22,50 @@ public class EmployeeSessionBean implements EmployeeSessionBeanRemote, EmployeeS
     private EntityManager em;
 
     @Override
-    public EmployeeEntity createNewEmployee(EmployeeEntity newEmployeeEntity)
-    {
+    public EmployeeEntity createNewEmployee(EmployeeEntity newEmployeeEntity) {
         em.persist(newEmployeeEntity);
         em.flush();
-        
+
         return newEmployeeEntity;
     }
-    
+
     @Override
-    public List<EmployeeEntity> retrieveAllEmployees()
-    {
+    public List<EmployeeEntity> retrieveAllEmployees() {
         Query query = em.createQuery("SELECT e FROM EmployeeEntity e");
-        
+
         return query.getResultList();
     }
-    
+
     @Override
-    public EmployeeEntity retrieveEmployeeByUsername (String username) throws EmployeeNotFoundException
-    {
+    public EmployeeEntity retrieveEmployeeByUsername(String username) throws EmployeeNotFoundException {
         Query query = em.createQuery("SELECT e FROM EmployeeEntity e WHERE e.userName = :inUsername");
         query.setParameter("inUsername", username);
-        
+
         try {
-            return (EmployeeEntity)query.getSingleResult();
-        }
-        catch(NoResultException|NonUniqueResultException ex)
-        {
-            throw new EmployeeNotFoundException("Employee with Username "+username+"does not exist!");
+            return (EmployeeEntity) query.getSingleResult();
+        } catch (NoResultException | NonUniqueResultException ex) {
+            throw new EmployeeNotFoundException("Employee with Username " + username + "does not exist!");
         }
     }
-    
+
     @Override
-    public EmployeeEntity employeeLogin(String username, String password) throws InvalidLoginCredentialException
-    {
-            try {
-            
-                EmployeeEntity employeeEntity = retrieveEmployeeByUsername(username);
-             
-                if(employeeEntity.getUserName().equals(username) && employeeEntity.getPassword().equals(password)) 
-                {
-                 
+    public EmployeeEntity employeeLogin(String username, String password) throws InvalidLoginCredentialException {
+        try {
+
+            EmployeeEntity employeeEntity = retrieveEmployeeByUsername(username);
+
+            if (employeeEntity.getUserName().equals(username) && employeeEntity.getPassword().equals(password)) {
+
                 return employeeEntity;
-                
-                }
-            
-                else 
-                {
-                
-                    throw new InvalidLoginCredentialException("Invalid login credential");
-            
-                }
-            
-            } catch (EmployeeNotFoundException ex) 
-            {
-              throw new InvalidLoginCredentialException("Username does not exist or invalid password!");
+
+            } else {
+
+                throw new InvalidLoginCredentialException("Invalid login credential");
+
             }
+
+        } catch (EmployeeNotFoundException ex) {
+            throw new InvalidLoginCredentialException("Username does not exist or invalid password!");
+        }
     }
 }
