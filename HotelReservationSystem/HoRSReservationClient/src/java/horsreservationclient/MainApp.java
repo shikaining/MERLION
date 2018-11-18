@@ -2,10 +2,12 @@ package horsreservationclient;
 
 import ejb.session.stateful.ReservationSessionBeanRemote;
 import ejb.session.stateless.GuestSessionBeanRemote;
+import ejb.session.stateless.PartnerSessionBeanRemote;
 import ejb.session.stateless.RoomRateSessionBeanRemote;
 import ejb.session.stateless.RoomSessionBeanRemote;
 import ejb.session.stateless.RoomTypeSessionBeanRemote;
 import entity.GuestEntity;
+import entity.PartnerEntity;
 import entity.ReservationEntity;
 import entity.ReservedRoomEntity;
 import entity.RoomTypeEntity;
@@ -30,18 +32,21 @@ public class MainApp {
     private RoomRateSessionBeanRemote roomRateSessionBeanRemote;
     private RoomSessionBeanRemote roomSessionBeanRemote;
     private ReservationSessionBeanRemote reservationSessionBeanRemote;
+    private PartnerSessionBeanRemote partnerSessionBeanRemote;
     private GuestEntity currentGuest;
+    private PartnerEntity currentPartner;
 
     public MainApp() {
     }
 
-    public MainApp(GuestSessionBeanRemote guestSessionBeanRemote, RoomTypeSessionBeanRemote roomTypeSessionBeanRemote, RoomRateSessionBeanRemote roomRateSessionBeanRemote, RoomSessionBeanRemote roomSessionBeanRemote, ReservationSessionBeanRemote reservationSessionBeanRemote) {
+    public MainApp(GuestSessionBeanRemote guestSessionBeanRemote, RoomTypeSessionBeanRemote roomTypeSessionBeanRemote, RoomRateSessionBeanRemote roomRateSessionBeanRemote, RoomSessionBeanRemote roomSessionBeanRemote, ReservationSessionBeanRemote reservationSessionBeanRemote, PartnerSessionBeanRemote partnerSessionBeanRemote) {
         this();
         this.guestSessionBeanRemote = guestSessionBeanRemote;
         this.roomTypeSessionBeanRemote = roomTypeSessionBeanRemote;
         this.roomRateSessionBeanRemote = roomRateSessionBeanRemote;
         this.roomSessionBeanRemote = roomSessionBeanRemote;
         this.reservationSessionBeanRemote = reservationSessionBeanRemote;
+        this.partnerSessionBeanRemote = partnerSessionBeanRemote;
     }
 
     public void runApp() throws RoomNotFoundException, ParseException, GuestNotFoundException, RoomTypeNotFoundException, ReservationNotFoundException, ReservedRoomNotFoundException, RoomRateNotFoundException {
@@ -100,7 +105,11 @@ public class MainApp {
 
         if (username.length() > 0 && password.length() > 0) {
 
-            currentGuest = guestSessionBeanRemote.guestLogin(username, password);
+            //currentGuest = guestSessionBeanRemote.guestLogin(username, password);
+            currentPartner = partnerSessionBeanRemote.partnerLogin(username, password);
+            System.out.println(currentPartner.getPartnerId());
+            System.out.println(currentPartner.getUserName());
+            System.out.println(currentPartner.getPassword());
         } else {
             throw new InvalidLoginCredentialException("Missing login credential!");
         }

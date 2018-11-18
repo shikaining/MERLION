@@ -2,6 +2,7 @@ package horsreservationclient;
 
 import ejb.session.stateful.ReservationSessionBeanRemote;
 import ejb.session.stateless.GuestSessionBeanRemote;
+import ejb.session.stateless.PartnerSessionBeanRemote;
 import ejb.session.stateless.RoomRateSessionBeanRemote;
 import ejb.session.stateless.RoomSessionBeanRemote;
 import ejb.session.stateless.RoomTypeSessionBeanRemote;
@@ -17,6 +18,9 @@ import util.exception.RoomTypeNotFoundException;
 public class Main {
 
     @EJB
+    private static PartnerSessionBeanRemote partnerSessionBeanRemote;
+
+    @EJB
     private static ReservationSessionBeanRemote reservationSessionBeanRemote;
     @EJB
     private static RoomTypeSessionBeanRemote roomTypeSessionBeanRemote;
@@ -28,7 +32,7 @@ public class Main {
     private static GuestSessionBeanRemote guestSessionBeanRemote;
 
     public static void main(String[] args) throws RoomNotFoundException, ParseException, GuestNotFoundException, RoomTypeNotFoundException, ReservationNotFoundException, ReservedRoomNotFoundException, RoomRateNotFoundException {
-        MainApp mainApp = new MainApp(guestSessionBeanRemote, roomTypeSessionBeanRemote, roomRateSessionBeanRemote, roomSessionBeanRemote, reservationSessionBeanRemote);
+        MainApp mainApp = new MainApp(guestSessionBeanRemote, roomTypeSessionBeanRemote, roomRateSessionBeanRemote, roomSessionBeanRemote, reservationSessionBeanRemote, partnerSessionBeanRemote);
         mainApp.runApp();
     }
 

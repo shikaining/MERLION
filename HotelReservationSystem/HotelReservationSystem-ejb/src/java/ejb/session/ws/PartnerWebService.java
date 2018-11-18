@@ -47,6 +47,7 @@ public class PartnerWebService {
         System.err.println("in server");
 
         PartnerEntity partnerEntity = partnerSessionBeanLocal.partnerLogin(username, password);
+        System.err.println("passed sessbean");
         em.detach(partnerEntity);
         partnerEntity.setReservationEntities(null);
         System.out.println("********** PartnerWebService.partnerLogin(): Partner " + partnerEntity.getUserName() + " login remotely via web service");
@@ -149,7 +150,7 @@ public class PartnerWebService {
         List<ReservedRoomEntity> reservedRoomEntities = new ArrayList<>();
 
         reservedRoomEntities = reservationSessionBeanLocal.retrieveReservedRoomsByReservationId(reservationId);
-        
+
         for (ReservedRoomEntity reservedRoomEntity : reservedRoomEntities) {
             em.detach(reservedRoomEntity);
             reservedRoomEntity.setRoomTypeName(reservedRoomEntity.getRoomTypeEntity().getName());
@@ -161,4 +162,30 @@ public class PartnerWebService {
 
         return reservedRoomEntities;
     }
+
+    @WebMethod(operationName = "retrieveReservedRoomsByPartnerId")
+    public List<ReservedRoomEntity> retrieveReservedRoomsByPartnerId(@WebParam(name = "username") String username,
+            @WebParam(name = "password") String password,
+            @WebParam(name = "partnerId") Long partnerId) {
+
+        List<ReservedRoomEntity> reservedRoomEntities = new ArrayList<>();
+
+        reservedRoomEntities = reservationSessionBeanLocal.retrieveReservedRoomByPartnerId(partnerId);
+
+        for (ReservedRoomEntity reservedRoomEntity : reservedRoomEntities) {
+            reservedRoomEntity.setCheckInDate(reservedRoomEntity.getReservationEntity().getCheckInDate());
+            reservedRoomEntity.setCheckOutDate(reservedRoomEntity.getReservationEntity().getCheckOutDate());
+            reservedRoomEntity.setRoomTypeName(reservedRoomEntity.getRoomTypeEntity().getName());
+
+            em.detach(reservedRoomEntity);
+
+            reservedRoomEntity.setRoomTypeEntity(null);
+            reservedRoomEntity.setReservationEntity(null);
+            reservedRoomEntity.setReservedNightEntities(null);
+            reservedRoomEntity.setRoomEntity(null);
+        }
+
+        return reservedRoomEntities;
+    }
+
 }

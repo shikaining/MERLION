@@ -26,4 +26,6 @@ public interface ReservationSessionBeanLocal {
     Long reserveForPartner(ReservationEntity newReservationEntity, Long partnerId, int numOfRooms, Long roomTypeId) throws RoomTypeNotFoundException, RoomRateNotFoundException;
 
     List<ReservedRoomEntity> retrieveReservedRoomsByReservationId(Long reservationId);
+
+    List<ReservedRoomEntity> retrieveReservedRoomByPartnerId(Long partnerId);
 }

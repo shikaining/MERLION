@@ -29,4 +29,6 @@ public interface ReservationSessionBeanRemote {
 
     List<ReservationEntity> retrieveReservationsByGuestId(Long guestId);
 
+    List<ReservedRoomEntity> retrieveReservedRoomByPartnerId(Long partnerId);
+
 }

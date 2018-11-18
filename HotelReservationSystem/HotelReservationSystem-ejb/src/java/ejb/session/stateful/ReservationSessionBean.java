@@ -283,6 +283,23 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     }
 
     @Override
+    public List<ReservedRoomEntity> retrieveReservedRoomByPartnerId(Long partnerId) {
+
+        String qlString = "SELECT rr FROM ReservedRoomEntity rr "
+                + "JOIN rr.reservationEntity r "
+                + "WHERE r.partEntity.partnerId = :inPartnerId";
+
+        Query query = em.createQuery(qlString);
+        query.setParameter("inPartnerId", partnerId);
+        List<ReservedRoomEntity> reservedRoomEntities = new ArrayList<>();
+        reservedRoomEntities = query.getResultList();
+        for (ReservedRoomEntity reservedRoomEntity : reservedRoomEntities) {
+            reservedRoomEntity.getRoomEntity();
+            reservedRoomEntity.getReservationEntity();
+        }
+        return reservedRoomEntities;
+    }
+
     public List<ReservationEntity> retrieveReservationsByGuestId(Long guestId) {
 
         String qlString = "SELECT r FROM ReservationEntity r WHERE r.guestEntity.guestId = :inGuestId";

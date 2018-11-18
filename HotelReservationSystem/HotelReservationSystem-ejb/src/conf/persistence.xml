@@ -8,10 +8,10 @@
     <class>entity.ReportLineItemEntity</class>
     <class>entity.ReservationEntity</class>
     <class>entity.ReservedNightEntity</class>
-    <class>entity.ReservedRoomEntity</class>
     <class>entity.RoomEntity</class>
     <class>entity.RoomRateEntity</class>
     <class>entity.RoomTypeEntity</class>
+    <class>entity.ReservedRoomEntity</class>
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
     <properties>
       <property name="javax.persistence.schema-generation.database.action" value="create"/>

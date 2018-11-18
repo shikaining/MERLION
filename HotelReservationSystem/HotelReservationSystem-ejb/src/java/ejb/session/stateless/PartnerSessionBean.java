@@ -54,10 +54,11 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
 
             if (partnerEntity.getUserName().equals(username) && partnerEntity.getPassword().equals(password)) {
 
+                System.out.println("Partner Found (:");
                 return partnerEntity;
 
             } else {
-                throw new InvalidLoginCredentialException("Invalid login credential");
+                throw new InvalidLoginCredentialException("Invalid login credential in partnersessionbean");
             }
         } catch (PartnerNotFoundException ex) {
             throw new InvalidLoginCredentialException("Username does not exist or invalid password!");

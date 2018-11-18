@@ -7,6 +7,7 @@ package entity;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -16,6 +17,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 /**
  *
@@ -28,8 +31,16 @@ public class ReservedRoomEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reservedRoomId;
+
     @Column(nullable = true)
     private String roomTypeName;
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(nullable = true)
+    private Date checkInDate;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(nullable = true)
+    private Date checkOutDate;
     @ManyToOne
     private RoomTypeEntity roomTypeEntity;
 
@@ -94,6 +105,22 @@ public class ReservedRoomEntity implements Serializable {
 
     public void setRoomTypeName(String roomTypeName) {
         this.roomTypeName = roomTypeName;
+    }
+
+    public Date getCheckInDate() {
+        return checkInDate;
+    }
+
+    public void setCheckInDate(Date checkInDate) {
+        this.checkInDate = checkInDate;
+    }
+
+    public Date getCheckOutDate() {
+        return checkOutDate;
+    }
+
+    public void setCheckOutDate(Date checkOutDate) {
+        this.checkOutDate = checkOutDate;
     }
 
     @Override
