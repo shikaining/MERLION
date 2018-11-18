@@ -287,7 +287,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
 
         String qlString = "SELECT rr FROM ReservedRoomEntity rr "
                 + "JOIN rr.reservationEntity r "
-                + "WHERE r.partEntity.partnerId = :inPartnerId";
+                + "WHERE r.partnerEntity.partnerId = :inPartnerId";
 
         Query query = em.createQuery(qlString);
         query.setParameter("inPartnerId", partnerId);

@@ -153,6 +153,8 @@ public class PartnerWebService {
 
         for (ReservedRoomEntity reservedRoomEntity : reservedRoomEntities) {
             em.detach(reservedRoomEntity);
+            reservedRoomEntity.setCheckInDate(reservedRoomEntity.getReservationEntity().getCheckInDate());
+            reservedRoomEntity.setCheckOutDate(reservedRoomEntity.getReservationEntity().getCheckOutDate());
             reservedRoomEntity.setRoomTypeName(reservedRoomEntity.getRoomTypeEntity().getName());
             reservedRoomEntity.setRoomTypeEntity(null);
             reservedRoomEntity.setReservationEntity(null);
